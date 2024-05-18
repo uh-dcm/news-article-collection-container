@@ -1,3 +1,3 @@
 # news-article-collection-container
 
-Test Coommit from Tikka10/Timo
+Test Commit from Tikka10/Timo
