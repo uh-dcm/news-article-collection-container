@@ -35,7 +35,7 @@ While you're inside this container, run the following command to start the Flask
 cd server && python app.py
 ```
 
-After all these, you can access the website from [http://localhost:4000/](http://localhost:4000/).
+After all these, you can access the website at [http://localhost:4000/](http://localhost:4000/).
 
 ### Stopping the server
 Do either ONE of the following:
