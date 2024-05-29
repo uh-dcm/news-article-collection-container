@@ -23,5 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
+
+# do not take json to git
+**/articles.json
+
 venv
 __pycache__
