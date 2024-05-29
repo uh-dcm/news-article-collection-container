@@ -26,6 +26,15 @@ function App() {
     stopFetching();
   };
 
+  const handleArticleDownload = () => {
+    const link = document.createElement('a');
+    link.href = 'http://localhost:4000/api/articles';
+    link.setAttribute('download', 'articles.json');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   useEffect(() => {
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
@@ -98,9 +107,23 @@ function App() {
         >
           Disable RSS fetching
         </button>
-        <a href="http://localhost:4000/api/articles" download="articles.json">
+        <br />
+        <button
+          onClick={handleArticleDownload}
+          className="hae"
+          style={{
+            fontSize: "20px",
+            padding: "10px 20px",
+            margin: "4px 0px",
+            backgroundColor: "#FFA500",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
           Download articles
-        </a>
+        </button>
       </div>
     </div>
   );
