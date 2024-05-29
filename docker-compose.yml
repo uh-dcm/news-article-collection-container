@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: news-fetcher-container
     ports:
       - "4000:5000"
     environment:
