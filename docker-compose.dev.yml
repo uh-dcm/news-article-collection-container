@@ -15,5 +15,7 @@ services:
     tty: true
     stdin_open: true
     # Mount the local app.py (flask server) file to the container
+    # Mount also the frontend js files
     volumes:
       - ./server/app.py:/app/server/app.py
+      - ./client/:/app/client/
