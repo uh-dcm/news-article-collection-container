@@ -1,0 +1,13 @@
+version: "1.0"
+services:
+  news-fetcher:
+    image: collector
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true

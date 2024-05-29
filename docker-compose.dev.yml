@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4000:5000"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+      - FLASK_DEBUG=1
+    command: /bin/bash
+    tty: true
+    stdin_open: true

@@ -1,0 +1,5 @@
+newspaper4k
+sqlalchemy
+feedparser
+requests
+lxml[html_clean]
