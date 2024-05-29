@@ -10,6 +10,10 @@ services:
       - FLASK_ENV=development
       - FLASK_APP=app.py
       - FLASK_DEBUG=1
+      - PYTHONDONTWRITEBYTECODE=1
     command: /bin/bash
     tty: true
     stdin_open: true
+    # Mount the local app.py (flask server) file to the container
+    volumes:
+      - ./server/app.py:/app/server/app.py
