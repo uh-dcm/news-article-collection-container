@@ -6,6 +6,6 @@ This is being worked on as part of the University of Helsinki [Ohjelmistuotantop
 
 ## Development Documentation
 
-- Definition of Done & Practices (Soon)
+- [Definition of Done & Practices](https://github.com/uh-dcm/news-article-collection-container/blob/main/DoD%26Practices.md)
 - [Product Backlog](https://github.com/orgs/uh-dcm/projects/3/views/1)
 - [Sprint 1 Task Board](https://github.com/orgs/uh-dcm/projects/6/views/1)
