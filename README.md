@@ -34,3 +34,11 @@ While you're inside this container, run the following command to start the Flask
 ```
 cd server && python app.py
 ```
+
+After all these, you can access the website from [http://localhost:4000/](http://localhost:4000/).
+
+### Stopping the server
+Do either ONE of the following:
+
+1. Stop the server by either typing Ctrl+C to exit the python script (flask) and then typing `exit` to stop the container.
+2. Type `docker compose down` at the root folder of the project. 
