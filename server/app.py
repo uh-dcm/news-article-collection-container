@@ -1,5 +1,7 @@
 from os.path import exists
+import os
 from flask import Flask, jsonify, send_from_directory, request
+import json
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
 import subprocess
@@ -55,6 +57,12 @@ def serve(path):
         return send_from_directory(app.static_folder, path)
     else:
         return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/api/articles', methods=['GET'])
+def download_articles():
+    cwd = os.path.dirname(os.path.abspath(__file__))
+    subprocess.run(['python', 'db_to_json.py'], check=True)
+    return send_from_directory(cwd, "articles.json", as_attachment=True)
 
 
 if __name__ == '__main__':

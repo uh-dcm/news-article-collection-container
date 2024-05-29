@@ -98,6 +98,9 @@ function App() {
         >
           Disable RSS fetching
         </button>
+        <a href="http://localhost:4000/api/articles" download="articles.json">
+          Download articles
+        </a>
       </div>
     </div>
   );

@@ -26,6 +26,7 @@ dist-ssr
 
 # do not take json to git
 **/articles.json
+data.db
 
 venv
 __pycache__
