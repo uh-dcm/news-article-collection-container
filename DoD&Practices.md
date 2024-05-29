@@ -4,7 +4,7 @@ All user stories agreed upon to be worked on each sprint are completed following
 
 - user story and its assumed requirements are met
 - unit tests written and passing
-- X tests written and passing
+- integration tests written and passing
 - peer review of code done
 - sprint task board and product backlog updated.
 
@@ -12,7 +12,7 @@ All user stories agreed upon to be worked on each sprint are completed following
 
 Code and documentation language: English.
 
-Branching practice: trunk-based, with short-lived features branches. 
+Branching practice: at first minimal when getting a skeleton form together, after which preferably trunk-based, with short-lived features branches. 
 
 Naming formats:
 
