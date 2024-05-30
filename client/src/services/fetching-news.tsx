@@ -6,7 +6,7 @@ const keepFetching = async () => {
   return response.data;
 };
 
-const stopFetching = async (feedUrls) => {
+const stopFetching = async () => {
   const response = await axios.post(baseUrl + "/api/stop");
   return response.data;
 };

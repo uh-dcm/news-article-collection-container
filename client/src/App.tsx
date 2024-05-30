@@ -7,7 +7,7 @@ function App() {
   const [feedUrls, setFeedUrls] = useState("");
   const [isDisabled, setIsDisabled] = useState(false)
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
     setFeedUrls(event.target.value);
   };
 
@@ -43,7 +43,7 @@ function App() {
       document.body.appendChild(link);
       link.click();
 
-      link.parentNode.removeChild(link);
+      link.parentNode!.removeChild(link);
       window.URL.revokeObjectURL(url);
 
     } catch (error) {
@@ -64,15 +64,19 @@ function App() {
 
   return (
     <div className="App">
-      <h1>RSS Feed Reader</h1>
+      <h1>News article collector</h1>
       <p>Enter RSS feed URLs, each on their own separate line:</p>
       <textarea
         value={feedUrls}
         onChange={handleInputChange}
         placeholder="Syötä RSS lähteet tähän..."
-        rows="4"
-        cols="50"
-        // style={{ resize: "none" }}
+        rows={4}
+        cols={50}
+        style={{ 
+          resize: "vertical",
+          minHeight: "100px",
+          marginBottom: "10px"
+        }}
       />
       <br />
       <div id="buttons">
