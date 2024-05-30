@@ -19,16 +19,6 @@ From the root folder of the project, start the container:
 docker compose up --build
 ```
 
-Now in another terminal instance, do this to attach to the container:
-```
-docker attach news-fetcher-container
-```
-
-While you're inside the container, run the following command to start the Flask backend:
-```
-cd server && python app.py
-```
-
 After all these, you can access the website at [http://localhost:4000/](http://localhost:4000/).
 
 ### Stopping the server
