@@ -14,23 +14,17 @@ This is being worked on as part of the University of Helsinki [Ohjelmistuotantop
 
 Make sure you have Docker installed!
 
-From the root folder of the project, do the following steps:
-
-### Start the container
+From the root folder of the project, start the container:
 ```
 docker compose up --build
 ```
 
-Now in another terminal instance, do this:
-
-### Attach to the container
+Now in another terminal instance, do this to attach to the container:
 ```
 docker attach news-fetcher-container
 ```
 
-While you're inside this container, run the following command to start the Flask backend:
-
-### Start the server
+While you're inside the container, run the following command to start the Flask backend:
 ```
 cd server && python app.py
 ```
