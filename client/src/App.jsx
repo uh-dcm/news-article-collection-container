@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { getAllFeedUrls, sendAllFeedUrls } from "./services/feed_urls";
 import { keepFetching, stopFetching } from "./services/fetching-news";
+import axios from "axios"
 
 function App() {
   const [feedUrls, setFeedUrls] = useState("");
+  const [isDisabled, setIsDisabled] = useState(false)
 
   const handleInputChange = (event) => {
     setFeedUrls(event.target.value);
@@ -26,14 +28,31 @@ function App() {
     stopFetching();
   };
 
-  const handleArticleDownload = () => {
-    const link = document.createElement('a');
-    link.href = 'http://localhost:4000/api/articles';
-    link.setAttribute('download', 'articles.json');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
+  const handleArticleDownload = async () => {
+    setIsDisabled(true);
+
+    try {
+      const response = await axios.get('http://localhost:4000/api/articles', {
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'articles.json');
+      document.body.appendChild(link);
+      link.click();
+
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Download failed', error);
+      alert('Failed to download the file.');
+    } finally {
+      setIsDisabled(false);
+    }
+  };
 
   useEffect(() => {
     const fetchFeedUrls = async () => {
@@ -110,6 +129,7 @@ function App() {
         <br />
         <button
           onClick={handleArticleDownload}
+          disabled={isDisabled}
           className="hae"
           style={{
             fontSize: "20px",
@@ -122,8 +142,11 @@ function App() {
             cursor: "pointer",
           }}
         >
-          Download articles
+          {isDisabled ? 'Downloading...' : 'Download articles'}
         </button>
+        {isDisabled &&
+          <p>Please note that the download might take some time.</p>
+        }
       </div>
     </div>
   );

@@ -15,14 +15,11 @@ scheduler = BackgroundScheduler()
 def run_collect_script():
     subprocess.run(["python", "collect.py"], cwd='./rss-fetcher') # setting script to happen in rss-fetcher folder
 
-def run_process_script():
-    subprocess.run(["python", "process.py"], cwd='./rss-fetcher') # setting script to happen in rss-fetcher folder
 
 @app.route('/api/start', methods=['POST'])
 def start_fetching():
     if not scheduler.get_jobs():
         scheduler.add_job(run_collect_script, 'interval', minutes=5, id='fetcher-collect', next_run_time=datetime.now())
-        scheduler.add_job(run_process_script, 'interval', minutes=30, id='fetcher-process')
         scheduler.start()
         return jsonify({"status": "started"}), 200
     return jsonify({"status": "already running"}), 200
@@ -31,7 +28,6 @@ def start_fetching():
 def stop_fetching():
     if scheduler.get_jobs():
         scheduler.remove_job('fetcher-collect')
-        scheduler.remove_job('fetcher-process')
         return jsonify({"status": "stopped"}), 200
     return jsonify({"status": "it was not running"}), 200
 
@@ -61,8 +57,13 @@ def serve(path):
 @app.route('/api/articles', methods=['GET'])
 def download_articles():
     cwd = os.path.dirname(os.path.abspath(__file__))
-    subprocess.run(['python', 'db_to_json.py'], check=True)
-    return send_from_directory(cwd, "articles.json", as_attachment=True)
+    try:
+        subprocess.run(['python', 'process.py'], check=True, cwd='./rss-fetcher')
+        subprocess.run(['python', 'db_to_json.py'], check=True)
+        return send_from_directory(cwd, "articles.json", as_attachment=True)
+    except subprocess.CalledProcessError as e:
+        print("Running process and export resulted in failure")
+        print("Error: ", e.stderr)
 
 
 if __name__ == '__main__':

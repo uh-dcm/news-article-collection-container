@@ -12,7 +12,8 @@ services:
       - FLASK_APP=app.py
       - FLASK_DEBUG=1
       - PYTHONDONTWRITEBYTECODE=1
-    command: /bin/bash
+    command: >
+      sh -c "cd server && python app.py"
     tty: true
     stdin_open: true
     # Mount the local app.py (flask server) file to the container
