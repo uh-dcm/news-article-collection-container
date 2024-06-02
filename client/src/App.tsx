@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { getAllFeedUrls, sendAllFeedUrls } from "./services/feed_urls";
 import { keepFetching, stopFetching } from "./services/fetching-news";
-import axios from "axios"
+import axios from "axios";
 
 function App() {
   const [feedUrls, setFeedUrls] = useState("");
-  const [isDisabled, setIsDisabled] = useState(false)
+  const [isDisabled, setIsDisabled] = useState(false);
 
-  const handleInputChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
+  const handleInputChange = (event: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
     setFeedUrls(event.target.value);
   };
 
@@ -32,23 +34,22 @@ function App() {
     setIsDisabled(true);
 
     try {
-      const response = await axios.get('http://localhost:4000/api/articles', {
-        responseType: 'blob',
+      const response = await axios.get("http://localhost:4000/api/articles", {
+        responseType: "blob",
       });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', 'articles.json');
+      link.setAttribute("download", "articles.json");
       document.body.appendChild(link);
       link.click();
 
       link.parentNode!.removeChild(link);
       window.URL.revokeObjectURL(url);
-
     } catch (error) {
-      console.error('Download failed', error);
-      alert('Failed to download the file.');
+      console.error("Download failed", error);
+      alert("Failed to download the file.");
     } finally {
       setIsDisabled(false);
     }
@@ -72,10 +73,10 @@ function App() {
         placeholder="Syötä RSS lähteet tähän..."
         rows={4}
         cols={50}
-        style={{ 
+        style={{
           resize: "vertical",
           minHeight: "100px",
-          marginBottom: "10px"
+          marginBottom: "10px",
         }}
       />
       <br />
@@ -146,11 +147,11 @@ function App() {
             cursor: "pointer",
           }}
         >
-          {isDisabled ? 'Downloading...' : 'Download articles'}
+          {isDisabled ? "Downloading..." : "Download articles"}
         </button>
-        {isDisabled &&
+        {isDisabled && (
           <p>Please note that the download might take some time.</p>
-        }
+        )}
       </div>
     </div>
   );
