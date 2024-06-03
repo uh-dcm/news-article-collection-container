@@ -38,10 +38,14 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
-  font-size: 1em;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding-top: 10px;
+
+  font-size: 18px;
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
@@ -55,6 +59,20 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+
+.setrss {
+  background-color: #007bffb6;
+}
+.activate {
+  background-color: #48cf00cf;
+}
+.deactivate {
+  background-color: #f04000cf;
+}
+.download {
+  background-color: #ffa200cf;
+}
+
 
 @media (prefers-color-scheme: light) {
   :root {

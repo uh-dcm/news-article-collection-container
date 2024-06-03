@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getAllFeedUrls, sendAllFeedUrls } from "./services/feed_urls";
 import { keepFetching, stopFetching } from "./services/fetching-news";
 import axios from "axios";
+import './css/index.css'
 
 function App() {
   const [feedUrls, setFeedUrls] = useState("");
@@ -83,51 +84,21 @@ function App() {
       <div id="buttons">
         <button
           onClick={handleSubmit}
-          className="hae"
-          style={{
-            fontSize: "20px",
-            padding: "10px 20px",
-            margin: "4px 0px",
-            backgroundColor: "#0000FF",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+          className="setrss"
         >
           Set RSS feed list
         </button>
         <br />
         <button
           onClick={handleFetchStart}
-          className="hae"
-          style={{
-            fontSize: "20px",
-            padding: "10px 20px",
-            margin: "4px 0px",
-            backgroundColor: "#00CF00",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+          className="activate"
         >
           Activate RSS fetching
         </button>
         <br />
         <button
           onClick={handleFetchStop}
-          className="hae"
-          style={{
-            fontSize: "20px",
-            padding: "10px 20px",
-            margin: "4px 0px",
-            backgroundColor: "#F00000",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+          className="deactivate"
         >
           Disable RSS fetching
         </button>
@@ -135,17 +106,7 @@ function App() {
         <button
           onClick={handleArticleDownload}
           disabled={isDisabled}
-          className="hae"
-          style={{
-            fontSize: "20px",
-            padding: "10px 20px",
-            margin: "4px 0px",
-            backgroundColor: "#FFA500",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+          className="download"
         >
           {isDisabled ? "Downloading..." : "Download articles"}
         </button>
