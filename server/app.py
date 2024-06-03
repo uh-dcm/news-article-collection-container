@@ -34,8 +34,11 @@ def stop_fetching():
 @app.route('/api/get_feed_urls', methods=['GET'])
 def get_feed_urls():
     feeds = []
-    with open('./rss-fetcher/feeds.txt') as f:
-        feeds = f.readlines()
+    try:
+        with open('./rss-fetcher/feeds.txt') as f:
+            feeds = f.readlines()
+    except FileNotFoundError as e:
+            print(f"Error in parsing rss-feeds from feeds.txt: {e.strerror}")
     return jsonify(feeds), 200
 
 @app.route('/api/set_feed_urls', methods=['POST'])
@@ -44,6 +47,7 @@ def set_feed_urls():
     feed_urls = feeds['feedUrls']
     with open('./rss-fetcher/feeds.txt', 'w') as f:
         f.write("\n".join(feed_urls))
+
     return jsonify({"status": "success"}), 200
 
 @app.route('/', defaults={'path': ''})
