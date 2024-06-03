@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -32,10 +36,7 @@ body {
 }
 
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
+
 
 button {
   border-radius: 4px;
@@ -57,20 +58,7 @@ button:hover {
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-.setrss {
-  background-color: #007bffb6;
-}
-.activate {
-  background-color: #48cf00cf;
-}
-.deactivate {
-  background-color: #f04000cf;
-}
-.download {
-  background-color: #ffa200cf;
+  outline: 6px auto -webkit-focus-ring-color;
 }
 
 
@@ -86,7 +74,3 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;

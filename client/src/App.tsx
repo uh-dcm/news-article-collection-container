@@ -66,14 +66,15 @@ function App() {
 
   return (
     <div className="App">
-      <h1>News article collector</h1>
-      <p>Enter RSS feed URLs, each on their own separate line:</p>
+      <h1 className="text-5xl">News article collector</h1>
+      <p className="my-3">Enter RSS feed URLs, each on their own separate line:</p>
       <textarea
         value={feedUrls}
         onChange={handleInputChange}
-        placeholder="Syötä RSS lähteet tähän..."
+        placeholder="RSS-feed addresses here..."
         rows={4}
         cols={50}
+        className="resize-y min-h-24 rounded-md p-2"
         style={{
           resize: "vertical",
           minHeight: "100px",
@@ -84,21 +85,21 @@ function App() {
       <div id="buttons">
         <button
           onClick={handleSubmit}
-          className="setrss"
+          className="bg-blue-600"
         >
           Set RSS feed list
         </button>
         <br />
         <button
           onClick={handleFetchStart}
-          className="activate"
+          className="bg-green-600"
         >
           Activate RSS fetching
         </button>
         <br />
         <button
           onClick={handleFetchStop}
-          className="deactivate"
+          className="bg-red-600"
         >
           Disable RSS fetching
         </button>
@@ -106,7 +107,7 @@ function App() {
         <button
           onClick={handleArticleDownload}
           disabled={isDisabled}
-          className="download"
+          className=" bg-amber-600"
         >
           {isDisabled ? "Downloading..." : "Download articles"}
         </button>
