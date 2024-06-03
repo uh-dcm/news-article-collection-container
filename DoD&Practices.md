@@ -14,7 +14,7 @@ Code and documentation language: English.
 
 Branching practice: at first minimal when getting a skeleton form together, after which preferably trunk-based, with short-lived features branches. 
 
-Naming formats:
+Naming formats (Python):
 
 - filenames: snake_case
 - class: Pascal
