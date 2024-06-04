@@ -30,9 +30,9 @@ WORKDIR /app
 COPY server server
 
 # Clone another repository into a subdirectory of /server
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* && \
-    cd server && git clone -b bugfix/imports https://github.com/mpjk/news-article-collection \
-    && mv news-article-collection rss-fetcher
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* \
+    && rm -rf server/rss-fetcher && mkdir server/rss-fetcher && \
+    git clone -b bugfix/imports https://github.com/mpjk/news-article-collection server/rss-fetcher
 
 # Copy frontend build to static folder
 RUN cp -r client/build server/static
