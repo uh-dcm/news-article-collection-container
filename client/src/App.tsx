@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getAllFeedUrls, sendAllFeedUrls } from "./services/feed_urls";
 import { keepFetching, stopFetching } from "./services/fetching-news";
 import axios from "axios";
-import './css/index.css'
+import "./css/index.css";
 
 function App() {
   const [feedUrls, setFeedUrls] = useState("");
@@ -67,47 +67,35 @@ function App() {
   return (
     <div className="App">
       <h1 className="text-5xl">News article collector</h1>
-      <p className="my-3">Enter RSS feed URLs, each on their own separate line:</p>
+      <p className="my-3">
+        Enter RSS feed URLs, each on their own separate line:
+      </p>
       <textarea
         value={feedUrls}
         onChange={handleInputChange}
         placeholder="RSS-feed addresses here..."
         rows={4}
         cols={50}
-        className="resize-y min-h-24 rounded-md p-2"
-        style={{
-          resize: "vertical",
-          minHeight: "100px",
-          marginBottom: "10px",
-        }}
+        className="mb-2 min-h-24 resize-y rounded-lg p-2"
       />
       <br />
       <div id="buttons">
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-600"
-        >
+        <button onClick={handleSubmit} className="bg-blue-600">
           Set RSS feed list
         </button>
         <br />
-        <button
-          onClick={handleFetchStart}
-          className="bg-green-600"
-        >
+        <button onClick={handleFetchStart} className="bg-green-600">
           Activate RSS fetching
         </button>
         <br />
-        <button
-          onClick={handleFetchStop}
-          className="bg-red-600"
-        >
+        <button onClick={handleFetchStop} className="bg-red-600">
           Disable RSS fetching
         </button>
         <br />
         <button
           onClick={handleArticleDownload}
           disabled={isDisabled}
-          className=" bg-amber-600"
+          className="bg-amber-600"
         >
           {isDisabled ? "Downloading..." : "Download articles"}
         </button>
