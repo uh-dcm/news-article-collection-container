@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { getAllFeedUrls, sendAllFeedUrls } from "./services/feed_urls";
-import { keepFetching, stopFetching } from "./services/fetching-news";
-import axios from "axios";
-import "./css/index.css";
+import React, { useEffect, useState } from 'react';
+import { getAllFeedUrls, sendAllFeedUrls } from './services/feed_urls';
+import { keepFetching, stopFetching } from './services/fetching-news';
+import axios from 'axios';
+import './css/index.css';
 
 function App() {
-  const [feedUrls, setFeedUrls] = useState("");
+  const [feedUrls, setFeedUrls] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
 
   const handleInputChange = (event: {
@@ -16,9 +16,9 @@ function App() {
 
   const handleSubmit = () => {
     const rssFeeds = feedUrls
-      .split("\n")
+      .split('\n')
       .map((url) => url.trim())
-      .filter((url) => url !== "");
+      .filter((url) => url !== '');
     console.log(rssFeeds);
     sendAllFeedUrls(rssFeeds);
   };
@@ -35,22 +35,22 @@ function App() {
     setIsDisabled(true);
 
     try {
-      const response = await axios.get("http://localhost:4000/api/articles", {
-        responseType: "blob",
+      const response = await axios.get('http://localhost:4000/api/articles', {
+        responseType: 'blob',
       });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.setAttribute("download", "articles.json");
+      link.setAttribute('download', 'articles.json');
       document.body.appendChild(link);
       link.click();
 
       link.parentNode!.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Download failed", error);
-      alert("Failed to download the file.");
+      console.error('Download failed', error);
+      alert('Failed to download the file.');
     } finally {
       setIsDisabled(false);
     }
@@ -59,7 +59,7 @@ function App() {
   useEffect(() => {
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
-      setFeedUrls(feedUrls.join("\n"));
+      setFeedUrls(feedUrls.join('\n'));
     };
     fetchFeedUrls();
   }, []);
@@ -76,7 +76,7 @@ function App() {
         placeholder="RSS-feed addresses here..."
         rows={4}
         cols={50}
-        className="mb-2 min-h-24 resize-y rounded-lg p-2"
+        className="mb-2 min-h-28 resize-y rounded-lg border p-2 font-mono text-sm"
       />
       <br />
       <div id="buttons">
@@ -97,7 +97,7 @@ function App() {
           disabled={isDisabled}
           className="bg-amber-600"
         >
-          {isDisabled ? "Downloading..." : "Download articles"}
+          {isDisabled ? 'Downloading...' : 'Download articles'}
         </button>
         {isDisabled && (
           <p>Please note that the download might take some time.</p>
