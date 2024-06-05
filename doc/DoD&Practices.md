@@ -12,7 +12,7 @@ All user stories agreed upon to be worked on each sprint are completed following
 
 Code and documentation language: English.
 
-Commit message style: approximating Conventional Comments.
+Commit message style: approximating Conventional Commits.
 
 Branching practice: trunk-based, with possible short-lived features branches. 
 
