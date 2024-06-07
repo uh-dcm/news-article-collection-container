@@ -76,26 +76,32 @@ function App() {
         placeholder="RSS-feed addresses here..."
         rows={4}
         cols={50}
-        className="mb-2 min-h-28 resize-y rounded-lg border p-2 font-mono text-sm"
+        className="mb-2 min-h-28 resize-y rounded-lg border border-gray-500 bg-gray-950 p-2 font-mono text-sm text-gray-300 outline-none"
       />
       <br />
-      <div id="buttons">
-        <button onClick={handleSubmit} className="bg-blue-600">
+      <div className="grid grid-cols-2 grid-rows-2 gap-4">
+        <button
+          onClick={handleSubmit}
+          className="border border-gray-500 bg-gray-950 text-gray-300 outline-none hover:bg-gray-900 hover:text-white"
+        >
           Set RSS feed list
         </button>
-        <br />
-        <button onClick={handleFetchStart} className="bg-green-600">
+        <button
+          onClick={handleFetchStart}
+          className="border border-gray-500 bg-gray-950 text-gray-300 outline-none hover:bg-gray-900 hover:text-white"
+        >
           Activate RSS fetching
         </button>
-        <br />
-        <button onClick={handleFetchStop} className="bg-red-600">
+        <button
+          onClick={handleFetchStop}
+          className="border border-gray-500 bg-gray-950 text-gray-300 outline-none hover:bg-gray-900 hover:text-white"
+        >
           Disable RSS fetching
         </button>
-        <br />
         <button
           onClick={handleArticleDownload}
           disabled={isDisabled}
-          className="bg-amber-600"
+          className="border border-gray-500 bg-gray-950 text-gray-300 outline-none hover:bg-gray-900 hover:text-white"
         >
           {isDisabled ? 'Downloading...' : 'Download articles'}
         </button>
