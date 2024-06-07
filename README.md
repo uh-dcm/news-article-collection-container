@@ -1,12 +1,12 @@
 # news-article-collection-container
 
-[![GHA workflow Badge](https://github.com/uh-dcm/news-article-collection-container/actions/workflows/main.yml/badge.svg)](https://github.com/uh-dcm/news-article-collection-container/actions/workflows/main.yml)
+[![GHA workflow Badge](https://github.com/uh-dcm/news-article-collection-container/actions/workflows/main.yml/badge.svg)](https://github.com/uh-dcm/news-article-collection-container/actions/workflows/main.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 This is a repository for further development of the news article collection tool based in repository [news-article-connection](https://github.com/uh-dcm/news-article-collection), originally developed by [matnel](https://github.com/matnel).
 
 This is being worked on as part of the University of Helsinki [Ohjelmistotuotantoprojekti TKT20007](https://github.com/HY-TKTL/TKT20007-Ohjelmistotuotantoprojekti) course for the summer of 2024.
 
-## Development Documentation
+## Development documentation
 
 - [Definition of Done & Practices](https://github.com/uh-dcm/news-article-collection-container/blob/main/doc/DoD%26Practices.md)
 - [Product Backlog](https://github.com/orgs/uh-dcm/projects/3/views/1)
