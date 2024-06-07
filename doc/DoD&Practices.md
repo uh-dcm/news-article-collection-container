@@ -14,7 +14,7 @@ Code and documentation language: English.
 
 Commit message style: approximating Conventional Commits.
 
-Branching practice: trunk-based, with possible short-lived features branches. 
+Branching practice: trunk-based, with possible short-lived feature branches. 
 
 Naming formats (Python):
 
