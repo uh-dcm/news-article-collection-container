@@ -2,7 +2,8 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - "**"
   pull_request:
     branches: [main]
 
@@ -10,21 +11,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      docker:
-        image: docker:19.03.12
-        options: --privileged
-        ports:
-          - 4000:4000
-
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
-        
+          node-version: "18.x"
+
       - name: Install Node dependencies
         run: |
           cd client
@@ -43,7 +37,7 @@ jobs:
       - name: Set up Python 3.10
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install Python dependencies
         run: |
@@ -56,18 +50,9 @@ jobs:
           # pytest
           echo "Pytest part functioning"
 
-      - name: Docker build
-        run: docker build .
-
       - name: Docker Compose
-        run: docker-compose up --build -d
-
-      - name: Wait for services to be ready
-        run: sleep 30
+        run: docker compose up --build -d
 
       - name: Run end-to-end tests
         run: |
-          curl -f http://localhost:4000 || (docker-compose logs && exit 1)
-
-      - name: Shut down Docker Compose
-        run: docker-compose down
+          curl -f http://localhost:4000 || (docker compose logs && exit 1)
