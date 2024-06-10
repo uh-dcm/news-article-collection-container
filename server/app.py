@@ -35,8 +35,9 @@ def stop_fetching():
 def get_feed_urls():
     feeds = []
     try:
-        with open('./rss-fetcher/feeds.txt') as f:
-            feeds = f.readlines()
+        if exists('./rss-fetcher/feeds.txt'):
+            with open('./rss-fetcher/feeds.txt') as f:
+                feeds = f.readlines()
     except FileNotFoundError as e:
             print(f"Error in parsing rss-feeds from feeds.txt: {e.strerror}")
     return jsonify(feeds), 200
