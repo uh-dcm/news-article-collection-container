@@ -43,11 +43,6 @@ RUN pip install --no-cache-dir -r server/requirements.txt
 # Install dependencies of rss-fetcher, but do not cache them
 RUN pip install --no-cache-dir -r server/rss-fetcher/requirements.txt
 
-RUN useradd -m appuser
-
-USER appuser
-
 EXPOSE 5000
 
-# Hang (?) so that the container doesn't exit immediately
-CMD ["bash"]
+CMD sh -c "cd server && python app.py"
