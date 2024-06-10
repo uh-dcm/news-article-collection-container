@@ -26,6 +26,8 @@ COPY --from=build-stage /app/client/dist /app/client/build
 
 WORKDIR /app
 
+USER root
+
 # Copy backend files to container
 COPY server server
 
