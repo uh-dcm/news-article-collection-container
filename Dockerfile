@@ -26,8 +26,6 @@ COPY --from=build-stage /app/client/dist /app/client/build
 
 WORKDIR /app
 
-USER root
-
 # Copy backend files to container
 COPY server server
 
@@ -44,6 +42,10 @@ RUN pip install --no-cache-dir -r server/requirements.txt
 
 # Install dependencies of rss-fetcher, but do not cache them
 RUN pip install --no-cache-dir -r server/rss-fetcher/requirements.txt
+
+RUN useradd -m appuser
+
+USER appuser
 
 EXPOSE 5000
 
