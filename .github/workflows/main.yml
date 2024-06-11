@@ -33,6 +33,11 @@ jobs:
         run: |
           cd client
           npm install
+      
+      - name: Run Vitest tests
+        run: |
+          cd client
+          npm test
 
       - name: Lint the TypeScript code
         run: |
