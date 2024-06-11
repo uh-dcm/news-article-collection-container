@@ -3,6 +3,7 @@ module.exports = {
     setupNodeEvents(on, config) {
       
     },
-    "supportFile": false
+    "supportFile": false,
+    downloadsFolder: 'cypress/downloads'
   },
 };
