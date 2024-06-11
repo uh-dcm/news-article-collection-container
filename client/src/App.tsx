@@ -73,7 +73,11 @@ function App() {
   return (
     <div>
       <div className="relative flex items-center p-3 shadow-md">
-        <img className="mx-2" width="40" src="src/80965139.png"></img>
+        <img
+          className="mx-2"
+          width="40"
+          src="https://avatars.githubusercontent.com/u/80965139?s=200&v=4"
+        ></img>
         <h1 className="text-3xl">News article collector</h1>
       </div>
 
