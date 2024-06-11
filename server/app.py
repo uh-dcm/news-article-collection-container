@@ -44,7 +44,7 @@ def get_feed_urls():
 
 @app.route('/api/set_feed_urls', methods=['POST'])
 def set_feed_urls():
-    feeds = request.json 
+    feeds = request.json
     feed_urls = feeds['feedUrls']
     with open('./rss-fetcher/feeds.txt', 'w') as f:
         f.write("\n".join(feed_urls))
