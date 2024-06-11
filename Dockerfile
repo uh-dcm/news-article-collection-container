@@ -3,7 +3,7 @@
 # We copy the client build to the server's 'static' folder to serve it
 
 # First stage is here to build the client
-FROM node:18.1.0-buster-slim as build-stage
+FROM node:22-bookworm-slim AS build-stage
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ COPY client/ ./client/
 RUN cd client && npm run build
 
 # Second stage is here to build the server
-FROM python:3.9.10-slim-buster
+FROM python:3.12-slim-bookworm
 
 # Copy stuff from the first stage (client) to the second stage (server)
 COPY --from=build-stage /app/client/dist /app/client/build
