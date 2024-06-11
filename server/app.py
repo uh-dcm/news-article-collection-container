@@ -48,7 +48,6 @@ def set_feed_urls():
     feed_urls = feeds['feedUrls']
     with open('./rss-fetcher/feeds.txt', 'w') as f:
         f.write("\n".join(feed_urls))
-
     return jsonify({"status": "success"}), 200
 
 @app.route('/', defaults={'path': ''})

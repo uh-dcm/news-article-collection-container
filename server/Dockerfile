@@ -17,4 +17,8 @@ RUN pip install --no-cache-dir -r rss-fetcher/requirements.txt
 
 EXPOSE 5000
 
+ENV FLASK_ENV=development
+
+ENV FLASK_DEBUG=1
+
 CMD sh -c "python app.py --debug"

@@ -1,13 +1,13 @@
 import axios from 'axios';
-const baseUrl = 'http://localhost:5000';
+import { serverUrl } from '../main';
 
 const keepFetching = async () => {
-  const response = await axios.post(baseUrl + '/api/start');
+  const response = await axios.post(`${serverUrl}/api/start`);
   return response.data;
 };
 
 const stopFetching = async () => {
-  const response = await axios.post(baseUrl + '/api/stop');
+  const response = await axios.post(`${serverUrl}/api/stop`);
   return response.data;
 };
 

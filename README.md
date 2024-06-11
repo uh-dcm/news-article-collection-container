@@ -54,4 +54,4 @@ docker build -t backend-dev .
 docker run -it -p 5000:5000 backend-dev
 ```
 
-Now the whole project environment should be running, with real-time changed rendered, reachable from http://localhost:4000/.
+Now the whole project environment should be running, with real-time changes rendered. Also reachable from http://localhost:4000/.

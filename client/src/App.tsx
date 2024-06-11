@@ -10,7 +10,7 @@ import {
   BarsArrowUpIcon,
 } from '@heroicons/react/24/solid';
 
-import { backendUrl } from './main';
+import { serverUrl } from './main';
 
 function App() {
   const [feedUrls, setFeedUrls] = useState('');
@@ -28,7 +28,7 @@ function App() {
       .map((url) => url.trim())
       .filter((url) => url !== '');
     console.log(rssFeeds);
-    console.log(sendAllFeedUrls(rssFeeds));
+    sendAllFeedUrls(rssFeeds);
   };
 
   const handleFetchStart = () => {
@@ -43,7 +43,7 @@ function App() {
     setIsDisabled(true);
 
     try {
-      const response = await axios.get(`${backendUrl}/api/articles`, {
+      const response = await axios.get(`${serverUrl}/api/articles`, {
         responseType: 'blob',
       });
 
