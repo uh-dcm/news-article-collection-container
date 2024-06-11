@@ -27,7 +27,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
+          node-version: "22.x"
 
       - name: Install Node dependencies
         run: |
@@ -49,10 +49,10 @@ jobs:
           cd client
           npm run build
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
       - name: Install Python dependencies
         run: |
