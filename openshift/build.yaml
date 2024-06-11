@@ -17,4 +17,4 @@ spec:
   source:
       git:
         uri: 'https://github.com/uh-dcm/news-article-collection-container'
-        ref: rahti
+        ref: main
