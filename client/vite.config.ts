@@ -4,7 +4,18 @@ import { defineConfig as defineTestConfig } from 'vitest/config';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/',
   plugins: [react()],
+  preview: {
+    port: 4000,
+    strictPort: true,
+  },
+  server: {
+    port: 4000,
+    strictPort: true,
+    host: true,
+    origin: 'http://0.0.0.0:4000',
+  },
   test: defineTestConfig({
     globals: true,
     environment: 'jsdom',

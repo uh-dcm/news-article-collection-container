@@ -1,16 +1,16 @@
-import axios from "axios";
-const baseUrl = "http://localhost:4000";
+import axios from 'axios';
+import { backendUrl } from '../main';
 
 const getAllFeedUrls = async () => {
-  const response = await axios.get(baseUrl + "/api/get_feed_urls");
+  const response = await axios.get(`${backendUrl}/api/get_feed_urls`);
   return response.data;
 };
 
 const sendAllFeedUrls = async (feedUrls: string[]) => {
-  const response = await axios.post(baseUrl + "/api/set_feed_urls", {
+  const response = await axios.post(`${backendUrl}/api/set_feed_urls`, {
     feedUrls,
   });
-  return response.data;
+  return response.status;
 };
 
 export { getAllFeedUrls, sendAllFeedUrls };

@@ -18,6 +18,7 @@ This is being worked on as part of the University of Helsinki [Ohjelmistotuotant
 Make sure you have Docker installed!
 
 From the root folder of the project, start the container:
+
 ```
 docker compose up --build
 ```
@@ -25,7 +26,32 @@ docker compose up --build
 After this, you can access the website at [http://localhost:4000/](http://localhost:4000/).
 
 ### Stopping the server
+
 Do either ONE of the following:
 
 1. Stop the server by either typing Ctrl+C to exit the python script (flask) and then typing `exit` to stop the container.
-2. Type `docker compose down` at the root folder of the project. 
+2. Type `docker compose down` at the root folder of the project.
+
+## Setting up dev environment
+
+There were some issues (potentially system specific) in setting up the docker compose, so currently the development environment can be set up for example as follows:
+
+Starting from the root of the project
+
+```bash
+cd client/
+docker build -t frontend-dev .
+docker run -it -p 4000:4000 frontend-dev
+```
+
+Now the frontend should be running.
+
+Next, open a second terminal window for the backend and continue as follows from the root
+
+```
+cd server/
+docker build -t backend-dev .
+docker run -it -p 5000:5000 backend-dev
+```
+
+Now the whole project environment should be running, reachable from http://localhost:4000/
