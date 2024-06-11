@@ -70,6 +70,6 @@ jobs:
       - name: Wait for container to build
         run: sleep 10
 
-      - name: Run end-to-end tests
+      - name: Run Cypress tests
         run: |
-          curl -f http://localhost:4000 || (docker compose logs && exit 1)
+          npx cypress run
