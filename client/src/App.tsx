@@ -10,7 +10,7 @@ import {
   BarsArrowUpIcon,
 } from '@heroicons/react/24/solid';
 
-import { serverUrl } from './main';
+export const serverUrl = 'http://localhost:4000';
 
 function App() {
   const [feedUrls, setFeedUrls] = useState('');

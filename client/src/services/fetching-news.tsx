@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { serverUrl } from '../main';
+import { serverUrl } from '../App';
 
 const keepFetching = async () => {
   const response = await axios.post(`${serverUrl}/api/start`);

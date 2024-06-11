@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { serverUrl } from '../main';
+import { serverUrl } from '../App';
 
 const getAllFeedUrls = async () => {
   const response = await axios.get(`${serverUrl}/api/get_feed_urls`);
