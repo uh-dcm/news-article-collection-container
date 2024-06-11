@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-collection
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: news-collection
+  template:
+    metadata:
+      labels:
+        name: news-collection
+    spec:
+      containers:
+        - name: news-collection
+          image: image-registry.openshift-image-registry.svc:5000/news-container/news-collection:latest
+          ports:
+          - containerPort: 5000
+          startupProbe:
+            httpGet:
+              path: /
+              port: 5000
+              scheme: HTTP
+            initialDelaySeconds: 2
+            timeoutSeconds: 1
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: 40Mi
+              cpu: 50m
+            limits:
+              memory: 100Mi
+              cpu: 100m
+  revisionHistoryLimit: 2

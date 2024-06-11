@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: news-collection-route
+spec:
+  host: newscollection.2.rahtiapp.fi
+  to:
+    kind: Service
+    name: news-collection-service
+  port:
+    targetPort: 5000
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+status:
+  ingress: []

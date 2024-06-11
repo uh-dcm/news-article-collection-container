@@ -1,0 +1,20 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: news-collection-build
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: 'news-collection:latest'
+  triggers:
+    - type: Generic
+      generic:
+        secretReference:
+          name: news-container-generic-webhook-secret
+  strategy: 
+    type: Docker
+  source:
+      git:
+        uri: 'https://github.com/uh-dcm/news-article-collection-container'
+        ref: rahti
