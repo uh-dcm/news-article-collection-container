@@ -71,7 +71,7 @@ function App() {
   }, []);
 
   return (
-    <div>
+    <div className="flex min-h-[100vh] flex-col">
       <div className="relative flex items-center p-3 shadow-md">
         <img
           className="mx-2"
@@ -97,7 +97,7 @@ function App() {
         </div>
       </div>
 
-      <div className="flex justify-center">
+      <div className="mb-20 flex justify-center">
         <div className="grid w-[550px] grid-cols-2 grid-rows-2 gap-4">
           <button
             onClick={handleSubmit}
@@ -147,7 +147,7 @@ function App() {
           )}
         </div>
       </div>
-      <div className="absolute bottom-0 flex w-full flex-col items-center p-3">
+      <div className="mt-auto flex w-full flex-col items-center p-3">
         <div className="mb-3 flex items-center">
           <div className="text-sm">
             <a href="https://github.com/uh-dcm/news-article-collection-container">
