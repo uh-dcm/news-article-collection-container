@@ -73,3 +73,7 @@ jobs:
       - name: Run Cypress tests
         run: |
           npx cypress run
+          
+      - name: OpenShift-webhook trigger
+        run: |
+            curl -X POST -k "${{ secrets.OPENSHIFT_WEBHOOK_URL }}"
