@@ -2,6 +2,7 @@ services:
   frontend:
     build:
       context: ./client
+      dockerfile: Dockerfile
     ports:
       - 4000:4000
     volumes:
@@ -12,7 +13,9 @@ services:
   backend:
     build:
       context: ./server
+      dockerfile: Dockerfile
     ports:
       - 5000:5000
     volumes:
-      - ./server:/app/server
+      - ./server/app.py:/app/server/app.py
+      - ./server/db_to_json.py:/app/server/db_to_json.py
