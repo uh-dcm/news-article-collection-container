@@ -10,7 +10,7 @@ const sendAllFeedUrls = async (feedUrls: string[]) => {
   const response = await axios.post(`${serverUrl}/api/set_feed_urls`, {
     feedUrls,
   });
-  return response.status;
+  return response;
 };
 
 export { getAllFeedUrls, sendAllFeedUrls };
