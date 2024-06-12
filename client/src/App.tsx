@@ -56,6 +56,9 @@ function App() {
         border: '1px solid hsl(221, 91%, 91%)',
         color: 'hsl(210, 92%, 45%)',
       },
+      classNames: {
+        title: 'text-sm',
+      },
     });
     setIsFetching(true);
     keepFetching();
@@ -72,40 +75,43 @@ function App() {
     toast.dismiss();
     setIsDisabled(true);
 
-    toast.promise(
-      async () => {
-        try {
-          const response = await axios.get(`${serverUrl}/api/articles`, {
-            responseType: 'blob',
-          });
-
-          const url = window.URL.createObjectURL(new Blob([response.data]));
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', 'articles.json');
-          document.body.appendChild(link);
-          link.click();
-
-          link.parentNode!.removeChild(link);
-          window.URL.revokeObjectURL(url);
-
-          return 'Download successful!';
-        } catch (error) {
-          console.error('Download failed', error);
-          throw new Error('Failed to download the file.');
-        } finally {
-          setIsDisabled(false);
-        }
+    const toastOptions = {
+      loading: 'Downloading...',
+      description:
+        'Please note that the download might take some time.' || null,
+      success: (msg: string) => msg,
+      error: (error: string) => {
+        console.error('Error downloading:', error);
+        return 'Failed to download the file.';
       },
-      {
-        loading: 'Downloading...',
-        success: (msg) => msg,
-        error: (error) => {
-          console.error('Error downloading:', error);
-          return 'Failed to download the file.';
-        },
+    };
+
+    toast.promise(async () => {
+      try {
+        const response = await axios.get(`${serverUrl}/api/articles`, {
+          responseType: 'blob',
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'articles.json');
+        document.body.appendChild(link);
+        link.click();
+
+        link.parentNode!.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        toastOptions.description = null;
+
+        return 'Download successful!';
+      } catch (error) {
+        console.error('Download failed', error);
+        throw new Error('Failed to download the file.');
+      } finally {
+        setIsDisabled(false);
       }
-    );
+    }, toastOptions);
   };
 
   useEffect(() => {
@@ -185,21 +191,11 @@ function App() {
             disabled={isDisabled}
             className="col-span-2 p-6 text-base"
           >
-            {isDisabled ? (
-              'Downloading...'
-            ) : (
-              <div className="flex justify-center">
-                <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
-                Download articles
-              </div>
-            )}
+            <div className="flex justify-center">
+              <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
+              Download articles
+            </div>
           </Button>
-          {isDisabled && (
-            <p className="col-span-2">
-              Please note that the download might take some time.
-            </p>
-          )}
-
           <div className="col-span-2 mt-16">
             <h2 className="scroll-m-20 border-b pb-2 text-2xl font-semibold tracking-tight first:mt-0">
               Q&A

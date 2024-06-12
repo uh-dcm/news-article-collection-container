@@ -6,7 +6,15 @@ import { Toaster } from '@/components/ui/sonner';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Toaster position="top-right" richColors />
+    <Toaster
+      position="top-right"
+      richColors
+      toastOptions={{
+        classNames: {
+          title: 'text-sm',
+        },
+      }}
+    />
     <App />
   </React.StrictMode>
 );
