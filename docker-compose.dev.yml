@@ -7,8 +7,8 @@ services:
       - 4000:4000
     volumes:
       - ./client/src:/app/client/src
-      - ./client/index.html:/app/clint/index.html
-    depends_on: 
+      - ./client/index.html:/app/client/index.html
+    depends_on:
       - backend
   backend:
     build:
