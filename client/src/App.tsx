@@ -75,16 +75,22 @@ function App() {
     toast.dismiss();
     setIsDisabled(true);
 
+    type ToastOptions = {
+      loading: string;
+      description: string | null;
+      success: (msg: string) => string;
+      error: (error: string) => string;
+    };
+
     const toastOptions = {
       loading: 'Downloading...',
-      description:
-        'Please note that the download might take some time.' || null,
+      description: 'Please note that the download might take some time.',
       success: (msg: string) => msg,
       error: (error: string) => {
         console.error('Error downloading:', error);
         return 'Failed to download the file.';
       },
-    };
+    } as ToastOptions satisfies ToastOptions;
 
     toast.promise(async () => {
       try {
