@@ -5,7 +5,8 @@ services:
     ports:
       - 4000:4000
     volumes:
-      - ./client:/app/client
+      - ./client/src:/app/client/src
+      - ./client/index.html:/app/clint/index.html
     depends_on: 
       - backend
   backend:
