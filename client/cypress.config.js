@@ -1,9 +1,10 @@
-module.exports = {
+export default {
   e2e: {
     setupNodeEvents(on, config) {
       
     },
-    "supportFile": false,
+    supportFile: false,
     downloadsFolder: 'cypress/downloads'
   },
 };
+
