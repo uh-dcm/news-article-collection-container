@@ -39,19 +39,7 @@ There were some issues (potentially system specific) in setting up the docker co
 Starting from the root of the project
 
 ```bash
-cd client/
-docker build -t frontend-dev .
-docker run -v .:/app/client -it -p 4000:4000 frontend-dev
-```
-
-Now the frontend should be running.
-
-Next, open a second terminal window for the backend and continue as follows from the root
-
-```bash
-cd server/
-docker build -t backend-dev .
-docker run -v .:/app/server -it -p 5000:5000 backend-dev
+docker compose -f docker.compose.dev.yml up --build
 ```
 
 Now the whole project environment should be running, with real-time changes rendered. Also reachable from http://localhost:4000/.

@@ -1,0 +1,17 @@
+services:
+  frontend:
+    build:
+      context: ./client
+    ports:
+      - 4000:4000
+    volumes:
+      - ./client:/app/client
+    depends_on: 
+      - backend
+  backend:
+    build:
+      context: ./server
+    ports:
+      - 5000:5000
+    volumes:
+      - ./server:/app/server
