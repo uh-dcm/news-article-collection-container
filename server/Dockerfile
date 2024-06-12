@@ -2,12 +2,15 @@ FROM python:3.12-slim-bookworm
 
 WORKDIR /app/server
 
-COPY . .
+ARG CACHEBUST=1
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* \
     && rm -rf rss-fetcher && mkdir rss-fetcher && \
     git clone https://github.com/uh-dcm/news-article-collection rss-fetcher
 
+COPY . .
+
+RUN touch rss-fetcher/feeds.txt
 
 # Install dependencies of flask backend, but do not cache them
 RUN pip install --no-cache-dir -r requirements.txt

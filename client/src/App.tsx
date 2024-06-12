@@ -10,7 +10,10 @@ import {
   BarsArrowUpIcon,
 } from '@heroicons/react/24/solid';
 
-export const serverUrl = 'http://localhost:4000';
+// eslint-disable-next-line react-refresh/only-export-components
+export const serverUrl = import.meta.env.PROD
+  ? 'http://localhost:4000'
+  : 'http://localhost:5000';
 
 function App() {
   const [feedUrls, setFeedUrls] = useState('');
