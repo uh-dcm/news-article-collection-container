@@ -34,8 +34,6 @@ Do either ONE of the following:
 
 ## Setting up dev environment
 
-There were some issues (potentially system specific) in setting up the docker compose, so currently the development environment can be set up for example as follows:
-
 Starting from the root of the project
 
 ```bash
