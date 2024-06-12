@@ -39,7 +39,7 @@ There were some issues (potentially system specific) in setting up the docker co
 Starting from the root of the project
 
 ```bash
-docker compose -f docker.compose.dev.yml up --build
+docker compose -f docker-compose.dev.yml up --build
 ```
 
 Now the whole project environment should be running, with real-time changes rendered. Also reachable from http://localhost:4000/.
