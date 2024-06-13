@@ -7,6 +7,13 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import subprocess
 from datetime import datetime
 
+from sqlalchemy import create_engine, MetaData, text
+
+os.makedirs("./rss-fetcher/", exist_ok=True)
+engine = create_engine(f'sqlite:///./rss-fetcher/data.db', echo=False)
+meta = MetaData()
+connection = engine.connect()
+
 app = Flask(__name__, static_folder='static')
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -69,6 +76,19 @@ def download_articles():
         print("Running process and export resulted in failure")
         print("Error: ", e.stderr)
 
+@app.route('/api/articles/search', methods=['GET'])
+def search_articles():
+    try:
+        search_query = request.args.get('searchQuery', '')
+        stmt = text("SELECT time, url FROM articles WHERE full_text LIKE :word")
+        stmt = stmt.bindparams(word=f'%{search_query}%')
+        result = connection.execute(stmt)
+        rows = result.fetchall()
+        data = [{"time": time, "url": url} for time, url in rows]
+        return jsonify(data), 200
+    except Exception as e:
+        print("Error: ", e)
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

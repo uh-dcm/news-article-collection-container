@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getAllFeedUrls, sendAllFeedUrls } from './services/feed_urls';
 import { keepFetching, stopFetching } from './services/fetching-news';
+import { sendSearchQuery } from './services/database_queries';
 import axios from 'axios';
 import './css/index.css';
 import {
@@ -13,11 +14,17 @@ import {
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ThemeProvider } from './components/ui/theme-provider';
+import { Textarea } from './components/ui/textarea';
 
 import QuestionsAccordion from './components/questions-accordion';
 import Footer from './components/footer';
 import RssInput from './components/rss-input';
 import Header from './components/header';
+
+type Article = {
+  time: string;
+  url: string;
+};
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const serverUrl = import.meta.env.PROD
@@ -28,11 +35,19 @@ function App() {
   const [feedUrls, setFeedUrls] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+  const [searchData, setSearchData] = useState<Article[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleInputChange = (event: {
     target: { value: React.SetStateAction<string> };
   }) => {
     setFeedUrls(event.target.value);
+  };
+
+  const handleFilterInputChange = (event: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
+    setSearchQuery(event.target.value);
   };
 
   const handleSubmit = async () => {
@@ -118,6 +133,11 @@ function App() {
     }, toastOptions);
   };
 
+  const handleSearchQuery = async () => {
+    const data = await sendSearchQuery(searchQuery);
+    setSearchData(data);
+  };
+
   useEffect(() => {
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
@@ -180,6 +200,37 @@ function App() {
                 Download articles
               </div>
             </Button>
+
+            <Textarea
+              className="h-10 w-full px-3 py-2"
+              onChange={handleFilterInputChange}
+              placeholder="Insert search query..."
+              value={searchQuery}
+            ></Textarea>
+
+            <Button
+              className="p-6 text-base"
+              variant="outline"
+              onClick={handleSearchQuery}
+            >
+              {' '}
+              Search
+            </Button>
+
+            <div className="col-span-2">
+              <ul>
+                {searchData.map((item, index) => (
+                  <li key={index} className="rounded-md bg-gray-100 px-4 py-2">
+                    <p>
+                      <strong>Time:</strong> {item.time}
+                    </p>
+                    <p>
+                      <strong>URL:</strong> <a href={item.url}>{item.url}</a>
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             <div className="col-span-2 mt-16">
               <QuestionsAccordion />
