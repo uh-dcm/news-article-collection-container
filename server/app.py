@@ -8,10 +8,9 @@ import subprocess
 from datetime import datetime
 
 from sqlalchemy import create_engine, MetaData, text
-import os
 
-db_path = '/app/server/rss-fetcher/data.db'
-engine = create_engine(f'sqlite:///{db_path}', echo=False)
+os.makedirs("./rss-fetcher/", exist_ok=True)
+engine = create_engine(f'sqlite:///./rss-fetcher/data.db', echo=False)
 meta = MetaData()
 connection = engine.connect()
 
