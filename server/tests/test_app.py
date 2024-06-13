@@ -13,14 +13,14 @@ def client():
 
 @pytest.fixture(autouse=True)
 def setup_and_teardown():
-    os.makedirs('./rss-fetcher', exist_ok=True)
-    with open('./rss-fetcher/feeds.txt', 'w') as f:
+    os.makedirs('./rss-fetcher/data', exist_ok=True)
+    with open('./rss-fetcher/data/feeds.txt', 'w') as f:
         f.write('')
     
     yield
 
     try:
-        os.remove('./rss-fetcher/feeds.txt')
+        os.remove('./rss-fetcher/data/feeds.txt')
         os.rmdir('./rss-fetcher')
     except OSError:
         pass

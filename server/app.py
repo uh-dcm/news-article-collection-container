@@ -42,8 +42,8 @@ def stop_fetching():
 def get_feed_urls():
     feeds = []
     try:
-        if exists('./rss-fetcher/feeds.txt'):
-            with open('./rss-fetcher/feeds.txt') as f:
+        if exists('./rss-fetcher/data/feeds.txt'):
+            with open('./rss-fetcher/data/feeds.txt') as f:
                 feeds = f.readlines()
     except FileNotFoundError as e:
             print(f"Error in parsing rss-feeds from feeds.txt: {e.strerror}")
@@ -53,7 +53,7 @@ def get_feed_urls():
 def set_feed_urls():
     feeds = request.json
     feed_urls = feeds['feedUrls']
-    with open('./rss-fetcher/feeds.txt', 'w') as f:
+    with open('./rss-fetcher/data/feeds.txt', 'w') as f:
         f.write("\n".join(feed_urls))
     return jsonify({"status": "success"}), 200
 
@@ -71,7 +71,7 @@ def download_articles():
     try:
         subprocess.run(['python', 'process.py'], check=True, cwd='./rss-fetcher')
         subprocess.run(['python', 'db_to_json.py'], check=True)
-        return send_from_directory(cwd, "articles.json", as_attachment=True)
+        return send_from_directory('./rss-fetcher/data', "articles.json", as_attachment=True)
     except subprocess.CalledProcessError as e:
         print("Running process and export resulted in failure")
         print("Error: ", e.stderr)

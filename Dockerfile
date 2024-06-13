@@ -37,6 +37,9 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* \
 # Copy frontend build to static folder
 RUN cp -r client/build server/static
 
+# Create directory for data
+RUN mkdir server/rss-fetcher/data
+
 # Install dependencies of flask backend, but do not cache them
 RUN pip install --no-cache-dir -r server/requirements.txt
 
