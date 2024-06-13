@@ -75,6 +75,6 @@ jobs:
         env:
           CI: true
           
-      - name: OpenShift-webhook trigger
-        run: |
-            curl -X POST -k "${{ secrets.OPENSHIFT_WEBHOOK_URL }}"
+      #- name: OpenShift-webhook trigger
+      #  run: |
+       #     curl -X POST -k "${{ secrets.OPENSHIFT_WEBHOOK_URL }}"
