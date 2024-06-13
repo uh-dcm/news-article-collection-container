@@ -9,8 +9,8 @@ from datetime import datetime
 
 from sqlalchemy import create_engine, MetaData, text
 
-os.makedirs("./rss-fetcher/", exist_ok=True)
-engine = create_engine(f'sqlite:///./rss-fetcher/data.db', echo=False)
+os.makedirs("./rss-fetcher/data/", exist_ok=True)
+engine = create_engine(f'sqlite:///./rss-fetcher/data/data.db', echo=False)
 meta = MetaData()
 connection = engine.connect()
 
