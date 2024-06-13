@@ -13,14 +13,12 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
+import { ThemeProvider } from './components/ui/theme-provider';
+
+import QuestionsAccordion from './components/questions-accordion';
+import Footer from './components/footer';
+import RssInput from './components/rss-input';
+import Header from './components/header';
 
 type Article = {
   time: string;
@@ -148,162 +146,69 @@ function App() {
   }, []);
 
   return (
-    <div className="flex min-h-[100vh] flex-col">
-      <div className="relative flex items-center border-b border-border/70 p-3 shadow-sm shadow-slate-50">
-        <img
-          className="mx-2"
-          width="40"
-          src="https://avatars.githubusercontent.com/u/80965139?s=200&v=4"
-        ></img>
-        <h3 className="scroll-m-20 text-2xl font-medium tracking-tight">
-          News article collector
-        </h3>
-      </div>
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <div className="flex min-h-[100vh] flex-col">
+        <Header />
 
-      <div className="mb-8 mt-10 flex justify-center">
-        <div className="flex w-[550px] min-w-[200px] flex-col justify-center">
-          <div className="grid w-full gap-1.5">
-            <Label className="text-base" htmlFor="message">
-              Enter RSS feed URLs, each on their own separate line:
-            </Label>
-            <Textarea
-              value={feedUrls}
-              onChange={handleInputChange}
-              placeholder="RSS-feed addresses here..."
-              rows={4}
-              cols={50}
-              className="min-h-64"
-            />
-          </div>
-        </div>
-      </div>
-      <div className="mb-20 flex justify-center">
-        <div className="grid w-[550px] grid-cols-2 grid-rows-3 gap-4">
-          <Button
-            variant="outline"
-            onClick={handleSubmit}
-            className="col-span-2 p-6 text-base"
-          >
-            <div className="flex justify-center">
-              <CheckIcon className="mr-3 size-6"></CheckIcon>
-              Set RSS feed list
-            </div>
-          </Button>
-          <Button
-            className="p-6 text-base"
-            variant="outline"
-            onClick={handleFetchStart}
-            disabled={isFetching}
-          >
-            <div className="flex justify-center">
-              <BarsArrowUpIcon className="mr-3 size-6"></BarsArrowUpIcon>
-              Activate RSS fetching
-            </div>
-          </Button>
-          <Button
-            className="p-6 text-base"
-            variant="outline"
-            onClick={handleFetchStop}
-          >
-            <div className="flex justify-center">
-              <BarsArrowDownIcon className="mr-3 size-6"></BarsArrowDownIcon>
-              Disable RSS fetching
-            </div>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleArticleDownload}
-            disabled={isDisabled}
-            className="col-span-2 p-6 text-base"
-          >
-            <div className="flex justify-center">
-              <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
-              Download articles
-            </div>
-          </Button>
+        <RssInput feedUrls={feedUrls} handleInputChange={handleInputChange} />
 
-          <Textarea
-            className="h-10 w-full px-3 py-2"
-            onChange={handleFilterInputChange}
-            placeholder="Insert search query..."
-            value={searchQuery}
-          ></Textarea>
-          <Button
-            className="p-6 text-base"
-            variant="outline"
-            onClick={handleSearchQuery}
-          >
-            Search
-          </Button>
-
-          <div className="col-span-2">
-            <ul>
-              {searchData.map((item, index) => (
-                <li key={index} className="rounded-md bg-gray-100 px-4 py-2">
-                  <p>
-                    <strong>Time:</strong> {item.time}
-                  </p>
-                  <p>
-                    <strong>URL:</strong> <a href={item.url}>{item.url}</a>
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="col-span-2 mt-16">
-            <h2 className="scroll-m-20 border-b pb-2 text-2xl font-semibold tracking-tight first:mt-0">
-              Q&A
-            </h2>
-            <Accordion type="single" collapsible>
-              <AccordionItem value="item-1">
-                <AccordionTrigger>
-                  How does the collector work?
-                </AccordionTrigger>
-                <AccordionContent>
-                  The collector gathers all the articles from the RSS-feed
-                  addresses you have provided. When you decide to download the
-                  content, the program parses all the articles and it then forms
-                  a{' '}
-                  <a
-                    className="opacity-50 hover:underline hover:opacity-100"
-                    href="https://en.wikipedia.org/wiki/JSON"
-                  >
-                    JSON-file
-                  </a>{' '}
-                  from the information it gathered.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-2">
-                <AccordionTrigger>How do I use it?</AccordionTrigger>
-                <AccordionContent>
-                  The process is quite simple:
-                  <ul className="mt-2 list-inside list-decimal space-y-2">
-                    <li>Input the wanted RSS-feeds in the textarea</li>
-                    <li>Activate the RSS-fetching</li>
-                    <li>Disable the fetching when needed</li>
-                    <li>Download the gathered articles</li>
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-auto flex w-full flex-col items-center p-3">
-        <div className="mb-3 flex items-center">
-          <Label>
-            <a
-              className="underline-offset-2 hover:underline"
-              href="https://github.com/uh-dcm/news-article-collection-container"
+        <div className="mb-20 flex justify-center">
+          <div className="grid w-[550px] grid-cols-2 grid-rows-3 gap-4">
+            <Button
+              variant="outline"
+              onClick={handleSubmit}
+              className="col-span-2 p-6 text-base"
             >
-              &copy; University of Helsinki, Digital and Computational Methods
-            </a>
-          </Label>
+              <div className="flex justify-center">
+                <CheckIcon className="mr-3 size-6"></CheckIcon>
+                Set RSS feed list
+              </div>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="p-6 text-base"
+              onClick={handleFetchStart}
+              disabled={isFetching}
+            >
+              <div className="flex justify-center">
+                <BarsArrowUpIcon className="mr-3 size-6"></BarsArrowUpIcon>
+                Activate RSS fetching
+              </div>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="p-6 text-base"
+              onClick={handleFetchStop}
+            >
+              <div className="flex justify-center">
+                <BarsArrowDownIcon className="mr-3 size-6"></BarsArrowDownIcon>
+                Disable RSS fetching
+              </div>
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={handleArticleDownload}
+              disabled={isDisabled}
+              className="col-span-2 p-6 text-base"
+            >
+              <div className="flex justify-center">
+                <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
+                Download articles
+              </div>
+            </Button>
+
+            <div className="col-span-2 mt-16">
+              <QuestionsAccordion />
+            </div>
+          </div>
         </div>
+
+        <Footer />
       </div>
-    </div>
+    </ThemeProvider>
   );
 }
 
