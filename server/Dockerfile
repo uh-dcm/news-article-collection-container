@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* \
 COPY . .
 
 # Make directory for data and add file
-RUN mkdir server/rss-fetcher/data && touch rss-fetcher/data/feeds.txt
+RUN mkdir -p rss-fetcher/data && touch rss-fetcher/data/feeds.txt
 
 # Install dependencies of flask backend, but do not cache them
 RUN pip install --no-cache-dir -r requirements.txt
