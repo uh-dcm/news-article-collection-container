@@ -31,7 +31,7 @@ export const serverUrl = import.meta.env.PROD
   ? 'http://localhost:4000'
   : 'http://localhost:5000';
 
-function App() {
+export default function App() {
   const [feedUrls, setFeedUrls] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
@@ -63,12 +63,9 @@ function App() {
   };
 
   const handleFetchStart = () => {
-    toast.loading('RSS fetching in progress...', {
-      style: {
-        background: 'hsl(208, 100%, 97%)',
-        border: '1px solid hsl(221, 91%, 91%)',
-        color: 'hsl(210, 92%, 45%)',
-      },
+    toast.info('RSS fetching in progress', {
+      description: 'Gathering articles...',
+      duration: Infinity,
       classNames: {
         title: 'text-sm',
       },
@@ -98,6 +95,7 @@ function App() {
     const toastOptions = {
       loading: 'Downloading...',
       description: 'Please note that the download might take some time.',
+      duration: 4000,
       success: (msg: string) => msg,
       error: (error: string) => {
         console.error('Error downloading:', error);
@@ -243,5 +241,3 @@ function App() {
     </ThemeProvider>
   );
 }
-
-export default App;
