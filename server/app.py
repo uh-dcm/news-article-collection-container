@@ -19,18 +19,15 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 scheduler = BackgroundScheduler()
 
-def run_collect_script():
+def run_collect_and_process_script():
     subprocess.run(["python", "collect.py"], cwd='./rss-fetcher') # setting script to happen in rss-fetcher folder
-
-def run_process_script():
     subprocess.run(["python", "process.py"], cwd='./rss-fetcher') # setting script to happen in rss-fetcher folder
 
 
 @app.route('/api/start', methods=['POST'])
 def start_fetching():
     if not scheduler.get_jobs():
-        scheduler.add_job(run_collect_script, 'interval', minutes=5, id='fetcher-collect', next_run_time=datetime.now())
-        scheduler.add_job(run_process_script, 'interval', minutes=6, id='fetcher-process')
+        scheduler.add_job(run_collect_and_process_script, 'interval', minutes=5, id='fetcher-collect', next_run_time=datetime.now())
         scheduler.start()
         return jsonify({"status": "started"}), 200
     return jsonify({"status": "already running"}), 200
@@ -39,7 +36,6 @@ def start_fetching():
 def stop_fetching():
     if scheduler.get_jobs():
         scheduler.remove_job('fetcher-collect')
-        scheduler.remove_job('fetcher-process')
         return jsonify({"status": "stopped"}), 200
     return jsonify({"status": "it was not running"}), 200
 
