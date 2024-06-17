@@ -8,7 +8,7 @@ This is being worked on as part of the University of Helsinki [Ohjelmistotuotant
 
 ## Development documentation
 
-- [Definition of Done & Practices](https://github.com/uh-dcm/news-article-collection-container/blob/main/doc/DoD%26Practices.md)
+- [Definition of Done & Practices](https://github.com/uh-dcm/news-article-collection-container/blob/main/docs/DoD%26Practices.md)
 - [Product Backlog](https://github.com/orgs/uh-dcm/projects/3/views/1)
 - [Sprint 1 Task Board](https://github.com/orgs/uh-dcm/projects/6/views/1)
 - [Sprint 2 Task Board](https://github.com/orgs/uh-dcm/projects/9/views/1)
