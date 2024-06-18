@@ -13,13 +13,33 @@ import {
   CheckIcon,
   BarsArrowDownIcon,
   BarsArrowUpIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/solid';
 
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ThemeProvider } from './components/ui/theme-provider';
 import { Textarea } from './components/ui/textarea';
+
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 import QuestionsAccordion from './components/questions-accordion';
 import Footer from './components/footer';
@@ -271,18 +291,26 @@ export default function App() {
             </Button>
 
             <div className="col-span-2">
-              <ul>
-                {searchData.map((item, index) => (
-                  <li key={index} className="rounded-md bg-slate-950 px-4 py-2">
-                    <p>
-                      <strong>Time:</strong> {item.time}
-                    </p>
-                    <p>
-                      <strong>URL:</strong> <a href={item.url}>{item.url}</a>
-                    </p>
-                  </li>
-                ))}
-              </ul>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Time:</TableHead>
+                    <TableHead>URL:</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {searchData.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">{item.time}</TableCell>
+                      <TableCell>
+                        <a className="hover:underline" href={item.url}>
+                          {item.url}
+                        </a>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
 
             <div className="col-span-2 mt-16">
