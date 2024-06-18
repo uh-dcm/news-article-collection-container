@@ -26,14 +26,22 @@ type Article = {
   url: string;
 };
 
+type ToastOptions = {
+  loading: string;
+  description: string | null;
+  success: (msg: string) => string;
+  error: (error: string) => string;
+};
+
 // eslint-disable-next-line react-refresh/only-export-components
-export const serverUrl = import.meta.env.VITE_WEBPAGE_URL || (import.meta.env.PROD
-  ? 'http://localhost:4000'
-  : 'http://localhost:5000');
+export const serverUrl =
+  import.meta.env.VITE_WEBPAGE_URL ||
+  (import.meta.env.PROD ? 'http://localhost:4000' : 'http://localhost:5000');
 
 export default function App() {
   const [feedUrls, setFeedUrls] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
+  const [isUrlSetDisabled, setIsUrlSetDisabled] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [searchData, setSearchData] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,14 +60,43 @@ export default function App() {
 
   const handleSubmit = async () => {
     toast.dismiss();
-    const rssFeeds = feedUrls
-      .split('\n')
-      .map((url) => url.trim())
-      .filter((url) => url !== '');
-    console.log(rssFeeds);
-    if ((await sendAllFeedUrls(rssFeeds)).status == 200) {
-      toast.success('Feed list set successfully!');
-    }
+    setIsUrlSetDisabled(true);
+
+    const toastOptions = {
+      loading: 'Submitting...',
+      description: 'Processing the feed URLs. Please wait...',
+      duration: 4000,
+      success: (msg: string) => msg,
+      error: (error: string) => {
+        console.error('Error submitting:', error);
+        toastOptions.description = 'Please try again.';
+        return 'Failed to submit the feed URLs.';
+      },
+    } as ToastOptions satisfies ToastOptions;
+
+    toast.promise(async () => {
+      try {
+        const rssFeeds = feedUrls
+          .split('\n')
+          .map((url) => url.trim())
+          .filter((url) => url !== '');
+
+        console.log(rssFeeds);
+
+        const response = await sendAllFeedUrls(rssFeeds);
+
+        if (response.status == 200) {
+          toastOptions.description = null;
+          return 'Feed list set successfully!';
+        } else {
+          throw new Error();
+        }
+      } catch (error) {
+        throw new Error();
+      } finally {
+        setIsUrlSetDisabled(false);
+      }
+    }, toastOptions);
   };
 
   const handleFetchStart = () => {
@@ -84,13 +121,6 @@ export default function App() {
   const handleArticleDownload = async () => {
     toast.dismiss();
     setIsDisabled(true);
-
-    type ToastOptions = {
-      loading: string;
-      description: string | null;
-      success: (msg: string) => string;
-      error: (error: string) => string;
-    };
 
     const toastOptions = {
       loading: 'Downloading...',
@@ -157,6 +187,7 @@ export default function App() {
               variant="outline"
               onClick={handleSubmit}
               className="col-span-2 p-6 text-base"
+              disabled={isUrlSetDisabled}
             >
               <div className="flex justify-center">
                 <CheckIcon className="mr-3 size-6"></CheckIcon>
