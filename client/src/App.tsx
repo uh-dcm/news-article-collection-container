@@ -231,6 +231,7 @@ export default function App() {
               variant="outline"
               className="p-6 text-base"
               onClick={handleFetchStop}
+              disabled={!isFetching}
             >
               <div className="flex justify-center">
                 <BarsArrowDownIcon className="mr-3 size-6"></BarsArrowDownIcon>
