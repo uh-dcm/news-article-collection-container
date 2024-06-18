@@ -6,7 +6,7 @@
 FROM node:22-bookworm-slim AS build-stage
 
 # Define build arguments for environment variables
-ARG VITE_API_BASE_URL=http://localhost:4000
+ARG VITE_API_BASE_URL=" "
 
 # Set environment variables during the build process
 ENV VITE_WEBPAGE_URL=${VITE_API_BASE_URL}
