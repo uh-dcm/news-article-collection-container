@@ -110,7 +110,7 @@ def download_articles():
 def search_articles():
     try:
         search_query = request.args.get('searchQuery', '')
-        stmt = text("SELECT time, url FROM articles WHERE full_text LIKE :word")
+        stmt = text("SELECT STRFTIME('%d/%m/%Y, %H:%M', time), url FROM articles WHERE full_text LIKE :word")
         stmt = stmt.bindparams(word=f'%{search_query}%')
         result = connection.execute(stmt)
         rows = result.fetchall()

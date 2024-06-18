@@ -13,6 +13,7 @@ import {
   CheckIcon,
   BarsArrowDownIcon,
   BarsArrowUpIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/solid';
 
 import { Button } from '@/components/ui/button';
@@ -263,14 +264,16 @@ export default function App() {
               variant="outline"
               onClick={handleSearchQuery}
             >
-              {' '}
-              Search
+              <div className="flex justify-center">
+                <MagnifyingGlassIcon className="mr-3 size-6"></MagnifyingGlassIcon>
+                Search
+              </div>
             </Button>
 
             <div className="col-span-2">
               <ul>
                 {searchData.map((item, index) => (
-                  <li key={index} className="rounded-md bg-gray-100 px-4 py-2">
+                  <li key={index} className="rounded-md bg-slate-950 px-4 py-2">
                     <p>
                       <strong>Time:</strong> {item.time}
                     </p>
