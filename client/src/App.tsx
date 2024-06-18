@@ -27,7 +27,7 @@ type Article = {
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const serverUrl =  import.meta.env.WEBPAGE_URL || (import.meta.env.PROD
+export const serverUrl = import.meta.env.VITE_WEBPAGE_URL || (import.meta.env.PROD
   ? 'http://localhost:4000'
   : 'http://localhost:5000');
 
