@@ -8,6 +8,8 @@ services:
     volumes:
       - ./client/src:/app/client/src
       - ./client/index.html:/app/client/index.html
+    environment:
+      - VITE_WEBPAGE_URL=http://localhost:5000
     depends_on:
       - backend
   backend:
