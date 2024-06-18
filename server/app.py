@@ -1,11 +1,10 @@
 from os.path import exists
 import os
-from flask import Flask, jsonify, send_from_directory, request
-import json
-from flask_cors import CORS
-from apscheduler.schedulers.background import BackgroundScheduler
+import threading
 import subprocess
-from datetime import datetime
+from flask import Flask, jsonify, send_from_directory, request
+from flask_cors import CORS
+
 
 from sqlalchemy import create_engine, MetaData, text
 
@@ -17,27 +16,55 @@ connection = engine.connect()
 app = Flask(__name__, static_folder='static')
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-scheduler = BackgroundScheduler()
+SCHEDULER_RUNNING = False
+SCHEDULER_THREAD = None
 
 def run_collect_and_process_script():
-    subprocess.run(["python", "collect.py"], cwd='./rss-fetcher') # setting script to happen in rss-fetcher folder
-    subprocess.run(["python", "process.py"], cwd='./rss-fetcher') # setting script to happen in rss-fetcher folder
+    global SCHEDULER_THREAD, SCHEDULER_RUNNING
 
+    while SCHEDULER_RUNNING:
+        try:
+            subprocess.run(['python', 'collect.py'], cwd='./rss-fetcher', check=True)
+            subprocess.run(['python', 'process.py'], cwd='./rss-fetcher', check=True)
+        except subprocess.CalledProcessError as e:
+            print("Error: ", e.stderr)
+
+        # Wait for 5 min before rerun
+        # ---- unfinished/not tested ----
+        # scheduler_thread_timer = threading.Timer(300.0, run_collect_and_process_script())
+        # scheduler_thread_timer.start()
 
 @app.route('/api/start', methods=['POST'])
 def start_fetching():
-    if not scheduler.get_jobs():
-        scheduler.add_job(run_collect_and_process_script, 'interval', minutes=5, id='fetcher-collect', next_run_time=datetime.now())
-        scheduler.start()
-        return jsonify({"status": "started"}), 200
-    return jsonify({"status": "already running"}), 200
+    global SCHEDULER_THREAD, SCHEDULER_RUNNING
+
+    if not SCHEDULER_RUNNING:
+        SCHEDULER_RUNNING = True
+        SCHEDULER_THREAD = threading.Thread(target=run_collect_and_process_script)
+        SCHEDULER_THREAD.start()
+        return jsonify({"status": "started"}), 201
+    else:
+        return jsonify({"status": "already running"}), 409
 
 @app.route('/api/stop', methods=['POST'])
 def stop_fetching():
-    if scheduler.get_jobs():
-        scheduler.remove_job('fetcher-collect')
+    global SCHEDULER_THREAD, SCHEDULER_RUNNING
+
+    if SCHEDULER_RUNNING:
+        SCHEDULER_RUNNING = False
+        SCHEDULER_THREAD = None
         return jsonify({"status": "stopped"}), 200
-    return jsonify({"status": "it was not running"}), 200
+    else:
+        return jsonify({"status": "it was not running"}), 409
+
+@app.route('/api/status', methods=['GET'])
+def fetching_status():
+    global SCHEDULER_RUNNING
+
+    if SCHEDULER_RUNNING:
+        return jsonify({"status": "running"}), 200
+    else:
+        return jsonify({"status": "stopped"}), 400
 
 @app.route('/api/get_feed_urls', methods=['GET'])
 def get_feed_urls():
@@ -47,7 +74,7 @@ def get_feed_urls():
             with open('./rss-fetcher/data/feeds.txt') as f:
                 feeds = f.readlines()
     except FileNotFoundError as e:
-            print(f"Error in parsing rss-feeds from feeds.txt: {e.strerror}")
+        print(f"Error in parsing rss-feeds from feeds.txt: {e.strerror}")
     return jsonify(feeds), 200
 
 @app.route('/api/set_feed_urls', methods=['POST'])
@@ -68,7 +95,8 @@ def serve(path):
 
 @app.route('/api/articles', methods=['GET'])
 def download_articles():
-    cwd = os.path.dirname(os.path.abspath(__file__))
+    stop_fetching()
+
     try:
         subprocess.run(['python', 'process.py'], check=True, cwd='./rss-fetcher')
         subprocess.run(['python', 'db_to_json.py'], check=True)
@@ -76,6 +104,7 @@ def download_articles():
     except subprocess.CalledProcessError as e:
         print("Running process and export resulted in failure")
         print("Error: ", e.stderr)
+        return jsonify({"status": f"{e}"}), 400
 
 @app.route('/api/articles/search', methods=['GET'])
 def search_articles():
