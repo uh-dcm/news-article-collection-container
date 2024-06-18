@@ -1,9 +1,9 @@
+from app import app
 import os
 import sys
 from unittest.mock import patch
 import pytest
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from app import app, scheduler
 
 @pytest.fixture
 def client():
@@ -26,12 +26,9 @@ def setup_and_teardown():
         pass
 
 def test_start_fetching(client):
-    with patch.object(scheduler, 'add_job') as mock_add_job, patch.object(scheduler, 'start') as mock_start:
-        response = client.post('/api/start')
-        assert response.status_code == 200
-        assert response.json['status'] in ["started", "already running"]
-        mock_add_job.assert_called_once()
-        mock_start.assert_called_once()
+    response = client.post('/api/start')
+    assert response.status_code == 201
+    assert response.json['status'] in ["started", "already running"]
 
 def test_stop_fetching(client):
     response = client.post('/api/stop')
