@@ -94,12 +94,12 @@ export default function App() {
 
     const toastOptions = {
       loading: 'Downloading...',
-      description: 'Please note that the download might take some time.',
+      description: 'Please note that the process might take some time.',
       duration: 4000,
       success: (msg: string) => msg,
       error: (error: string) => {
         console.error('Error downloading:', error);
-        return 'Failed to download the file.';
+        return 'Failed to download the file. Try waiting longer before downloading.';
       },
     } as ToastOptions satisfies ToastOptions;
 
