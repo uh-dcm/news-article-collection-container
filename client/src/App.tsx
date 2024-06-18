@@ -19,7 +19,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ThemeProvider } from './components/ui/theme-provider';
-import { Textarea } from './components/ui/textarea';
 
 import {
   Table,
@@ -29,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 
 import QuestionsAccordion from './components/questions-accordion';
 import Footer from './components/footer';
@@ -261,12 +261,12 @@ export default function App() {
               </div>
             </Button>
 
-            <Textarea
-              className="h-10 w-full px-3 py-2"
+            <Input
+              className="w-full p-6"
               onChange={handleFilterInputChange}
               placeholder="Insert search query..."
               value={searchQuery}
-            ></Textarea>
+            ></Input>
 
             <Button
               className="p-6 text-base"
@@ -292,7 +292,11 @@ export default function App() {
                     <TableRow key={index}>
                       <TableCell className="font-medium">{item.time}</TableCell>
                       <TableCell>
-                        <a className="hover:underline" href={item.url}>
+                        <a
+                          className="hover:underline"
+                          href={item.url}
+                          target="_blank"
+                        >
                           {item.url}
                         </a>
                       </TableCell>
