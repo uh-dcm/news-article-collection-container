@@ -4,7 +4,8 @@ export default {
       
     },
     supportFile: false,
-    downloadsFolder: 'cypress/downloads'
+    downloadsFolder: 'tests/e2e/downloads',
+    specPattern: 'tests/e2e/**/*.cy.js'
   },
 };
 
