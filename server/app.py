@@ -110,11 +110,11 @@ def download_articles():
 def search_articles():
     try:
         search_query = request.args.get('searchQuery', '')
-        stmt = text("SELECT STRFTIME('%d/%m/%Y, %H:%M', time), url FROM articles WHERE full_text LIKE :word COLLATE utf8_general_ci")
+        stmt = text("SELECT STRFTIME('%d/%m/%Y, %H:%M', time), url, full_text FROM articles WHERE full_text LIKE :word COLLATE utf8_general_ci")
         stmt = stmt.bindparams(word=f'%{search_query}%')
         result = connection.execute(stmt)
         rows = result.fetchall()
-        data = [{"time": time, "url": url} for time, url in rows]
+        data = [{"time": time, "url": url, "full_text": full_text} for time, url, full_text in rows]
         return jsonify(data), 200
     except Exception as e:
         print("Error: ", e)

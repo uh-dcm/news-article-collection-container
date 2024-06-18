@@ -20,25 +20,14 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ThemeProvider } from './components/ui/theme-provider';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 
 import QuestionsAccordion from './components/questions-accordion';
 import Footer from './components/footer';
 import RssInput from './components/rss-input';
 import Header from './components/header';
-
-type Article = {
-  time: string;
-  url: string;
-};
+import { DataTable } from './components/ui/data-table';
+import { columns, Article } from './components/ui/columns';
 
 type ToastOptions = {
   loading: string;
@@ -280,30 +269,7 @@ export default function App() {
             </Button>
 
             <div className="col-span-2">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Time:</TableHead>
-                    <TableHead>URL:</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {searchData.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{item.time}</TableCell>
-                      <TableCell>
-                        <a
-                          className="hover:underline"
-                          href={item.url}
-                          target="_blank"
-                        >
-                          {item.url}
-                        </a>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable columns={columns} data={searchData} />
             </div>
 
             <div className="col-span-2 mt-16">
