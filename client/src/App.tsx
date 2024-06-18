@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { getAllFeedUrls, sendAllFeedUrls } from './services/feed_urls';
-import { keepFetching, stopFetching } from './services/fetching-news';
+import {
+  getFetchingStatus,
+  keepFetching,
+  stopFetching,
+} from './services/fetching-news';
 import { sendSearchQuery } from './services/database_queries';
 import axios from 'axios';
 import './css/index.css';
@@ -98,6 +102,7 @@ export default function App() {
   };
 
   const handleFetchStart = () => {
+    toast.dismiss();
     toast.info('RSS fetching in progress', {
       description: 'Gathering articles...',
       duration: Infinity,
@@ -165,11 +170,28 @@ export default function App() {
   };
 
   useEffect(() => {
+    toast.dismiss();
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
       setFeedUrls(feedUrls.join('\n'));
     };
     fetchFeedUrls();
+
+    const isFetching = async () => {
+      const response = await getFetchingStatus();
+      if (response.status === 'running') {
+        toast.dismiss();
+        toast.info('RSS fetching in progress', {
+          description: 'Gathering articles...',
+          duration: Infinity,
+          classNames: {
+            title: 'text-sm',
+          },
+        });
+        setIsFetching(true);
+      }
+    };
+    isFetching();
   }, []);
 
   return (
