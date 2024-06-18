@@ -34,4 +34,10 @@ spec:
             limits:
               memory: 100Mi
               cpu: 100m
+          env:
+            - name: WEBPAGE_URL
+              value: newscollection.2.rahtiapp.fi
+          volumeMounts:
+            - name: news-collection-pvc
+              mountPath: /app/server/rss-fetcher/data
   revisionHistoryLimit: 2
