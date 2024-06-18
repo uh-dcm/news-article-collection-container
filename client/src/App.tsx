@@ -27,9 +27,7 @@ type Article = {
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const serverUrl = import.meta.env.VITE_WEBPAGE_URL || (import.meta.env.PROD
-  ? 'http://localhost:4000'
-  : 'http://localhost:5000');
+export const serverUrl = import.meta.env.VITE_WEBPAGE_URL
 
 export default function App() {
   const [feedUrls, setFeedUrls] = useState('');
