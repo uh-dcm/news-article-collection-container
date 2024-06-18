@@ -1,4 +1,4 @@
-.# Rahti 2
+# Rahti 2
 
 The application runs on a [RedHat OpenShift](https://en.wikipedia.org/wiki/OpenShift) based container hosting service called
 **Rahti 2**. To get started, see the [Rahti2 documentation](https://docs.csc.fi/cloud/rahti2/).
