@@ -12,6 +12,7 @@ This is being worked on as part of the University of Helsinki [Ohjelmistotuotant
 - [Product Backlog](https://github.com/orgs/uh-dcm/projects/3/views/1)
 - [Sprint 1 Task Board](https://github.com/orgs/uh-dcm/projects/6/views/1)
 - [Sprint 2 Task Board](https://github.com/orgs/uh-dcm/projects/9/views/1)
+- [Sprint 3 Task Board](https://github.com/orgs/uh-dcm/projects/10/views/1)
 
 ## Starting the app
 
