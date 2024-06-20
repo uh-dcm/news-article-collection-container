@@ -213,9 +213,17 @@ export default function App() {
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <div className="flex min-h-[100vh] flex-col">
         <Header />
+        <div className="flex justify-center">
+          <div className="mt-10 grid w-[1000px] grid-cols-5 grid-rows-1 gap-4">
+            <h1 className="col-span-5 mb-6 h-4 text-3xl font-semibold">
+              Dashboard
+            </h1>
+            <Separator className="col-span-5" />
+          </div>
+        </div>
         <div className="mb-20 flex justify-center">
-          <div className="mt-10 grid w-[1000px] grid-cols-5 grid-rows-3 gap-4">
-            <Card className="col-span-3 row-span-3 mt-10">
+          <div className="grid w-[1000px] grid-cols-5 grid-rows-3 gap-6">
+            <Card className="col-span-3 row-span-3 mt-12">
               <CardHeader>
                 <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
                 <CardDescription>Add, Select or Delete feeds</CardDescription>
@@ -224,7 +232,7 @@ export default function App() {
                 <RssInput handleFeedAdd={handleFeedAdd} />
               </CardContent>
               <CardContent>
-                <Separator className="mb-5" />
+                <Separator className="my-5" />
                 <DataTable
                   columns={feedColumns}
                   data={feedUrlList}
@@ -246,7 +254,7 @@ export default function App() {
                 </Button>
               </CardContent>
             </Card>
-            <Card className="col-span-2 row-span-2 mt-10">
+            <Card className="col-span-2 row-span-2 mt-12">
               <CardHeader className="mb-2">
                 <CardTitle className="text-lg">Collector</CardTitle>
                 <CardDescription>Manage article fetching</CardDescription>
@@ -255,7 +263,7 @@ export default function App() {
                 <Separator />
                 <Button
                   variant="outline"
-                  className="mt-8 w-full p-6 text-base"
+                  className="mt-10 w-full p-6 text-base"
                   onClick={handleFetchStart}
                   disabled={isFetching}
                 >
