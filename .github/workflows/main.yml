@@ -2,8 +2,8 @@ name: CI for main branch
 
 on:
   push:
-    branches:
-      - main
+    branches-ignore:
+      - "playground**"
 
 jobs:
   build:
