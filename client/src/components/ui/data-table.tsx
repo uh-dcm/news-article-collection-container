@@ -26,12 +26,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onDeleteSelected?: (selectedRows: TData[]) => void;
+  tableName: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   onDeleteSelected,
+  tableName,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -64,7 +66,7 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <div className="mb-4 flex h-8 items-center justify-between">
-        <Label className="text-base font-medium">List of RSS feeds</Label>
+        <Label className="text-base font-medium">{tableName}</Label>
 
         {onDeleteSelected && table.getSelectedRowModel().rows.length > 0 && (
           <Button onClick={handleDeleteSelected} variant="destructive">

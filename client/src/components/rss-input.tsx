@@ -32,35 +32,29 @@ export default function RssInput({
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     handleFeedAdd(values);
+    form.reset({ url: '' });
   }
 
   return (
-    <div className="mb-8 mt-10 flex justify-center">
-      <div className="flex w-[550px] min-w-[200px] flex-col justify-center">
-        <div className="grid w-full gap-1.5">
-          <Label className="text-base">Enter RSS feed URL:</Label>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        placeholder="RSS-feed address here..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit">Submit</Button>
-            </form>
-          </Form>
-        </div>
-      </div>
+    <div>
+      <Label className="text-base">Enter RSS feed URL:</Label>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="url"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input placeholder="RSS-feed address here..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit">Add to list</Button>
+        </form>
+      </Form>
     </div>
   );
 }
