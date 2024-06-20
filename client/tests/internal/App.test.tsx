@@ -17,5 +17,5 @@ global.matchMedia =
 test('renders app component', async () => {
   render(<App />);
   expect(screen.getByText(/News article collector/i)).toBeInTheDocument();
-  expect(await screen.findByText(/Set RSS feed list/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Enter RSS feed URL/i)).toBeInTheDocument();
 });
