@@ -29,6 +29,7 @@ import Header from './components/header';
 import { DataTable } from './components/ui/data-table';
 import { articleColumns, Article } from './components/ui/article-columns';
 import { feedColumns, Feed } from './components/ui/feed-columns';
+import { Label } from '@radix-ui/react-label';
 
 type ToastOptions = {
   loading: string;
@@ -163,20 +164,21 @@ export default function App() {
     setSearchData(data);
   };
 
+  const deleteSelectedRows = (selectedRows: Feed[]) => {
+    setFeedUrlList((prevData) =>
+      prevData.filter((item) => !selectedRows.includes(item))
+    );
+  };
+
   useEffect(() => {
     toast.dismiss();
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
 
-      const parsedFeedUrls = feedUrls
-        .map((str: string) => str.replace(/\n/g, '')) // Remove all newline characters
-        .filter((str: string) => str !== '');
-
-      const feedUrlObjArray = parsedFeedUrls.map((feedUrl: unknown) => ({
-        url: feedUrl,
+      const feedUrlObjArray = feedUrls.map((feedUrl: string) => ({
+        url: feedUrl.trim(),
       }));
 
-      console.log(feedUrlObjArray);
       setFeedUrlList(feedUrlObjArray);
     };
     fetchFeedUrls();
@@ -208,7 +210,11 @@ export default function App() {
         <div className="mb-20 flex justify-center">
           <div className="grid-rows- grid w-[550px] grid-cols-2 gap-4">
             <div className="col-span-2">
-              <DataTable columns={feedColumns} data={feedUrlList} />
+              <DataTable
+                columns={feedColumns}
+                data={feedUrlList}
+                onDeleteSelected={deleteSelectedRows}
+              />
             </div>
             <Button
               variant="outline"
@@ -218,7 +224,7 @@ export default function App() {
             >
               <div className="flex justify-center">
                 <CheckIcon className="mr-3 size-6"></CheckIcon>
-                Set RSS feed list
+                Send selected RSS feeds
               </div>
             </Button>
 

@@ -35,13 +35,6 @@ export const feedColumns: ColumnDef<Feed>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue('status')}</div>
-    ),
-  },
-  {
     accessorKey: 'url',
     header: 'URL',
     cell: ({ row }) => {
