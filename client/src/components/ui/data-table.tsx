@@ -112,10 +112,7 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="text-center">
                   No results.
                 </TableCell>
               </TableRow>
@@ -123,7 +120,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      {table.getCanNextPage() && (
+      {(table.getCanNextPage() || table.getCanPreviousPage()) && (
         <div className="flex items-center justify-end space-x-2 py-4">
           <Button
             variant="outline"
