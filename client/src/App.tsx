@@ -29,7 +29,6 @@ import Header from './components/header';
 import { DataTable } from './components/ui/data-table';
 import { articleColumns, Article } from './components/ui/article-columns';
 import { feedColumns, Feed } from './components/ui/feed-columns';
-import { Label } from '@radix-ui/react-label';
 
 type ToastOptions = {
   loading: string;
