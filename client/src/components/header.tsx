@@ -14,7 +14,7 @@ export default function Header() {
       </h3>
       <div className="grow"></div>
       <Button asChild variant="ghost" className="mr-1" size="icon">
-        <a href="https://github.com/uh-dcm/news-article-collection-container">
+        <a href="https://github.com/uh-dcm/news-article-collection-container" aria-label="GitHub repository">
           {/*github icon by Free Icons (https://free-icons.github.io/free-icons/)*/}
           <svg
             xmlns="http://www.w3.org/2000/svg"
