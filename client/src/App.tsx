@@ -30,6 +30,16 @@ import { DataTable } from './components/ui/data-table';
 import { articleColumns, Article } from './components/ui/article-columns';
 import { feedColumns, Feed } from './components/ui/feed-columns';
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+
+import { Separator } from '@/components/ui/separator';
+
 type ToastOptions = {
   loading: string;
   description: string | null;
@@ -203,89 +213,128 @@ export default function App() {
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <div className="flex min-h-[100vh] flex-col">
         <Header />
-
-        <RssInput handleFeedAdd={handleFeedAdd} />
-
         <div className="mb-20 flex justify-center">
-          <div className="grid-rows- grid w-[550px] grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <DataTable
-                columns={feedColumns}
-                data={feedUrlList}
-                onDeleteSelected={deleteSelectedRows}
-              />
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleSubmit}
-              className="col-span-2 p-6 text-base"
-              disabled={isUrlSetDisabled}
-            >
-              <div className="flex justify-center">
-                <CheckIcon className="mr-3 size-6"></CheckIcon>
-                Send selected RSS feeds
-              </div>
-            </Button>
+          <div className="mt-10 grid w-[1000px] grid-cols-5 grid-rows-3 gap-4">
+            <Card className="col-span-3 row-span-3 mt-10">
+              <CardHeader>
+                <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
+                <CardDescription>Add, Select or Delete feeds</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RssInput handleFeedAdd={handleFeedAdd} />
+              </CardContent>
+              <CardContent>
+                <Separator className="mb-5" />
+                <DataTable
+                  columns={feedColumns}
+                  data={feedUrlList}
+                  onDeleteSelected={deleteSelectedRows}
+                  tableName={'List of RSS feeds'}
+                />
+              </CardContent>
+              <CardContent>
+                <Button
+                  variant="outline"
+                  onClick={handleSubmit}
+                  className="w-full p-6 text-base"
+                  disabled={isUrlSetDisabled}
+                >
+                  <div className="flex justify-center">
+                    <CheckIcon className="mr-3 size-6"></CheckIcon>
+                    Send selected RSS feeds
+                  </div>
+                </Button>
+              </CardContent>
+            </Card>
+            <Card className="col-span-2 row-span-2 mt-10">
+              <CardHeader className="mb-2">
+                <CardTitle className="text-lg">Collector</CardTitle>
+                <CardDescription>Manage article fetching</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Separator />
+                <Button
+                  variant="outline"
+                  className="mt-8 w-full p-6 text-base"
+                  onClick={handleFetchStart}
+                  disabled={isFetching}
+                >
+                  <div className="flex justify-center">
+                    <BarsArrowUpIcon className="mr-3 size-6"></BarsArrowUpIcon>
+                    Activate RSS fetching
+                  </div>
+                </Button>
+              </CardContent>
+              <CardContent>
+                <Button
+                  variant="outline"
+                  className="w-full p-6 text-base"
+                  onClick={handleFetchStop}
+                  disabled={!isFetching}
+                >
+                  <div className="flex justify-center">
+                    <BarsArrowDownIcon className="mr-3 size-6"></BarsArrowDownIcon>
+                    Disable RSS fetching
+                  </div>
+                </Button>
+              </CardContent>
+            </Card>
+            <Card className="col col-span-2">
+              <CardHeader>
+                <CardTitle className="text-lg">Export</CardTitle>
+                <CardDescription>
+                  Download article data in JSON format
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  variant="outline"
+                  onClick={handleArticleDownload}
+                  disabled={isDisabled}
+                  className="col-span-2 w-full p-6 text-base"
+                >
+                  <div className="flex justify-center">
+                    <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
+                    Download articles
+                  </div>
+                </Button>
+              </CardContent>
+            </Card>
+            <Card className="col-span-5">
+              <CardHeader>
+                <CardTitle className="text-lg">Search articles</CardTitle>
+                <CardDescription>
+                  Filter articles based on matching text
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-4">
+                <Input
+                  className="w-full p-6"
+                  onChange={handleFilterInputChange}
+                  placeholder="Insert search query..."
+                  value={searchQuery}
+                ></Input>
 
-            <Button
-              variant="outline"
-              className="p-6 text-base"
-              onClick={handleFetchStart}
-              disabled={isFetching}
-            >
-              <div className="flex justify-center">
-                <BarsArrowUpIcon className="mr-3 size-6"></BarsArrowUpIcon>
-                Activate RSS fetching
-              </div>
-            </Button>
-
-            <Button
-              variant="outline"
-              className="p-6 text-base"
-              onClick={handleFetchStop}
-              disabled={!isFetching}
-            >
-              <div className="flex justify-center">
-                <BarsArrowDownIcon className="mr-3 size-6"></BarsArrowDownIcon>
-                Disable RSS fetching
-              </div>
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={handleArticleDownload}
-              disabled={isDisabled}
-              className="col-span-2 p-6 text-base"
-            >
-              <div className="flex justify-center">
-                <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
-                Download articles
-              </div>
-            </Button>
-
-            <Input
-              className="w-full p-6"
-              onChange={handleFilterInputChange}
-              placeholder="Insert search query..."
-              value={searchQuery}
-            ></Input>
-
-            <Button
-              className="p-6 text-base"
-              variant="outline"
-              onClick={handleSearchQuery}
-            >
-              <div className="flex justify-center">
-                <MagnifyingGlassIcon className="mr-3 size-6"></MagnifyingGlassIcon>
-                Search
-              </div>
-            </Button>
-
-            <div className="col-span-2">
-              <DataTable columns={articleColumns} data={searchData} />
-            </div>
-
-            <div className="col-span-2 mt-16">
+                <Button
+                  className="p-6 text-base"
+                  variant="outline"
+                  onClick={handleSearchQuery}
+                >
+                  <div className="flex justify-center">
+                    <MagnifyingGlassIcon className="mr-3 size-6"></MagnifyingGlassIcon>
+                    Search
+                  </div>
+                </Button>
+              </CardContent>
+              <CardContent>
+                <DataTable
+                  columns={articleColumns}
+                  data={searchData}
+                  tableName={'Query results'}
+                />
+              </CardContent>
+            </Card>
+            <div className="col-start-2 col-end-5 mt-16">
               <QuestionsAccordion />
             </div>
           </div>
