@@ -30,3 +30,6 @@ data.db
 
 venv
 __pycache__
+
+# pytest may add rss-fetcher
+rss-fetcher/
