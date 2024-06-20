@@ -11,7 +11,7 @@ test('renders RSS Input component and handles URL submission', async () => {
   const input = screen.getByPlaceholderText('RSS-feed address here...');
   expect(input).toBeInTheDocument();
 
-  const submitButton = screen.getByText(/Submit/i);
+  const submitButton = screen.getByText(/Add to list/i);
   expect(submitButton).toBeInTheDocument();
 
   fireEvent.change(input, { target: { value: 'https://blabla.com/feed' } });
@@ -19,5 +19,7 @@ test('renders RSS Input component and handles URL submission', async () => {
 
   await screen.findByDisplayValue('https://blabla.com/feed');
 
-  expect(handleFeedAdd).toHaveBeenCalledWith({ url: 'https://blabla.com/feed' });
+  expect(handleFeedAdd).toHaveBeenCalledWith({
+    url: 'https://blabla.com/feed',
+  });
 });
