@@ -1,9 +1,9 @@
-name: CI for main branch
+name: CI for playground branch
 
 on:
   push:
     branches:
-      - main
+      - playground
 
 jobs:
   build:
@@ -22,7 +22,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ohtukontitus/news-collection:latest
+          tags: ohtukontitus/news-collection-playground:latest
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -77,4 +77,4 @@ jobs:
 
       - name: OpenShift-webhook trigger
         run: |
-          curl -X POST -k "${{ secrets.OPENSHIFT_WEBHOOK_URL }}"
+          curl -X POST -k "${{ secrets.PLAYGROUND_OPENSHIFT_WEBHOOK_URL }}"
