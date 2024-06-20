@@ -4,12 +4,16 @@ import threading
 import subprocess
 from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
-
-
 from sqlalchemy import create_engine, MetaData, text
 
+# check whether to run test database
+if os.getenv('FLASK_ENV') == 'testing':
+    DATABASE_URL = 'sqlite:///:memory:'
+else:
+    DATABASE_URL = 'sqlite:///./rss-fetcher/data/data.db'
+
 os.makedirs("./rss-fetcher/data/", exist_ok=True)
-engine = create_engine(f'sqlite:///./rss-fetcher/data/data.db', echo=False)
+engine = create_engine(DATABASE_URL, echo=False)
 meta = MetaData()
 connection = engine.connect()
 
