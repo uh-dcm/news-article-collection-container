@@ -11,6 +11,7 @@ from sqlalchemy import text
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
+    app.config['FLASK_ENV'] = 'testing'
     with app.test_client() as client:
         yield client
 
