@@ -22,7 +22,7 @@ export type Article = {
   full_text: string;
 };
 
-export const columns: ColumnDef<Article>[] = [
+export const articleColumns: ColumnDef<Article>[] = [
   {
     id: 'actions',
     cell: ({ row }) => {

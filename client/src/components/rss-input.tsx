@@ -1,32 +1,66 @@
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface RssInputProps {
-  feedUrls: string;
-  handleInputChange: (event: {
-    target: { value: React.SetStateAction<string> };
-  }) => void;
+  handleFeedAdd: (event: { url: string }) => void;
 }
 
+const formSchema = z.object({
+  url: z.string().url(),
+});
+
 export default function RssInput({
-  feedUrls,
-  handleInputChange,
+  handleFeedAdd,
 }: RssInputProps): JSX.Element {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      url: '',
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    handleFeedAdd(values);
+  }
+
   return (
     <div className="mb-8 mt-10 flex justify-center">
       <div className="flex w-[550px] min-w-[200px] flex-col justify-center">
         <div className="grid w-full gap-1.5">
           <Label className="text-base" htmlFor="message">
-            Enter RSS feed URLs, each on their own separate line:
+            Enter RSS feed URL:
           </Label>
-          <Textarea
-            value={feedUrls}
-            onChange={handleInputChange}
-            placeholder="RSS-feed addresses here..."
-            rows={4}
-            cols={50}
-            className="min-h-64 text-nowrap p-2 font-mono text-[14px] hover:overflow-scroll"
-          />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        placeholder="RSS-feed address here..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Submit</Button>
+            </form>
+          </Form>
         </div>
       </div>
     </div>

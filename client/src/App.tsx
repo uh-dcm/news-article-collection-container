@@ -27,7 +27,8 @@ import Footer from './components/footer';
 import RssInput from './components/rss-input';
 import Header from './components/header';
 import { DataTable } from './components/ui/data-table';
-import { columns, Article } from './components/ui/columns';
+import { articleColumns, Article } from './components/ui/article-columns';
+import { feedColumns, Feed } from './components/ui/feed-columns';
 
 type ToastOptions = {
   loading: string;
@@ -40,23 +41,21 @@ type ToastOptions = {
 export const serverUrl = import.meta.env.VITE_WEBPAGE_URL;
 
 export default function App() {
-  const [feedUrls, setFeedUrls] = useState('');
+  const [feedUrlList, setFeedUrlList] = useState<Feed[]>([]);
   const [isDisabled, setIsDisabled] = useState(false);
   const [isUrlSetDisabled, setIsUrlSetDisabled] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [searchData, setSearchData] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleInputChange = (event: {
-    target: { value: React.SetStateAction<string> };
-  }) => {
-    setFeedUrls(event.target.value);
-  };
-
   const handleFilterInputChange = (event: {
     target: { value: React.SetStateAction<string> };
   }) => {
     setSearchQuery(event.target.value);
+  };
+
+  const handleFeedAdd = (url: Feed) => {
+    setFeedUrlList([...feedUrlList, url]);
   };
 
   const handleSubmit = async () => {
@@ -77,14 +76,10 @@ export default function App() {
 
     toast.promise(async () => {
       try {
-        const rssFeeds = feedUrls
-          .split('\n')
-          .map((url) => url.trim())
-          .filter((url) => url !== '');
+        console.log(feedUrlList);
+        const feedUrlArray = feedUrlList.map((feedObject) => feedObject.url);
 
-        console.log(rssFeeds);
-
-        const response = await sendAllFeedUrls(rssFeeds);
+        const response = await sendAllFeedUrls(feedUrlArray);
 
         if (response.status == 200) {
           toastOptions.description = null;
@@ -172,7 +167,17 @@ export default function App() {
     toast.dismiss();
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
-      setFeedUrls(feedUrls.join('\n'));
+
+      const parsedFeedUrls = feedUrls
+        .map((str: string) => str.replace(/\n/g, '')) // Remove all newline characters
+        .filter((str: string) => str !== '');
+
+      const feedUrlObjArray = parsedFeedUrls.map((feedUrl: unknown) => ({
+        url: feedUrl,
+      }));
+
+      console.log(feedUrlObjArray);
+      setFeedUrlList(feedUrlObjArray);
     };
     fetchFeedUrls();
 
@@ -198,10 +203,13 @@ export default function App() {
       <div className="flex min-h-[100vh] flex-col">
         <Header />
 
-        <RssInput feedUrls={feedUrls} handleInputChange={handleInputChange} />
+        <RssInput handleFeedAdd={handleFeedAdd} />
 
         <div className="mb-20 flex justify-center">
-          <div className="grid w-[550px] grid-cols-2 grid-rows-3 gap-4">
+          <div className="grid-rows- grid w-[550px] grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <DataTable columns={feedColumns} data={feedUrlList} />
+            </div>
             <Button
               variant="outline"
               onClick={handleSubmit}
@@ -269,7 +277,7 @@ export default function App() {
             </Button>
 
             <div className="col-span-2">
-              <DataTable columns={columns} data={searchData} />
+              <DataTable columns={articleColumns} data={searchData} />
             </div>
 
             <div className="col-span-2 mt-16">
