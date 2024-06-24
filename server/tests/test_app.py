@@ -1,12 +1,11 @@
 import os
 import sys
+import pytest
+from sqlalchemy import text
 
 # path needs to be before app import, at least in local tests
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from app import app, engine  # noqa: E402
-
-import pytest
-from sqlalchemy import text
+from app import app, engine, STOP_EVENT  # noqa: E402
 
 @pytest.fixture
 def client():
@@ -43,6 +42,8 @@ def setup_and_teardown():
     conn.close()
     
     yield
+
+    STOP_EVENT.set()
 
     # doesn't seem to work well
     # leaves rss-fetcher behind
