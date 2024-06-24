@@ -24,14 +24,16 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 SCHEDULER_RUNNING = False
 SCHEDULER_THREAD = None
 FETCHING_COMPLETE = False
+FETCHING_STARTED = False
 STOP_EVENT = threading.Event()
 
 def run_collect_and_process_script():
-    global SCHEDULER_THREAD, SCHEDULER_RUNNING, FETCHING_COMPLETE
+    global SCHEDULER_THREAD, SCHEDULER_RUNNING, FETCHING_COMPLETE, FETCHING_STARTED
 
     while SCHEDULER_RUNNING:
         try:
             FETCHING_COMPLETE = False
+            FETCHING_STARTED = True
             subprocess.run(['python', 'collect.py'], cwd='./rss-fetcher', check=True)
             subprocess.run(['python', 'process.py'], cwd='./rss-fetcher', check=True)
             FETCHING_COMPLETE = True
@@ -104,10 +106,11 @@ def serve(path):
 
 @app.route('/api/articles', methods=['GET'])
 def download_articles():
-    global FETCHING_COMPLETE
+    global FETCHING_COMPLETE, FETCHING_STARTED
 
-    while not FETCHING_COMPLETE:
-        time.sleep(1)
+    if FETCHING_STARTED:
+        while not FETCHING_COMPLETE:
+            time.sleep(1)
 
     try:
         subprocess.run(['python', 'process.py'], check=True, cwd='./rss-fetcher')
