@@ -153,6 +153,12 @@ export default function App() {
         document.body.appendChild(link);
         link.click();
 
+        const link2 = document.createElement('a');
+        link2.href = url;
+        link2.setAttribute('download', 'articles.csv');
+        document.body.appendChild(link2);
+        link2.click();
+
         link.parentNode!.removeChild(link);
         window.URL.revokeObjectURL(url);
 
