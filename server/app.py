@@ -2,6 +2,7 @@ from os.path import exists
 import os
 import threading
 import subprocess
+import time
 from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
 from sqlalchemy import create_engine, MetaData, text
@@ -22,21 +23,25 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 SCHEDULER_RUNNING = False
 SCHEDULER_THREAD = None
+FETCHING_COMPLETE = False
+STOP_EVENT = threading.Event()
 
 def run_collect_and_process_script():
-    global SCHEDULER_THREAD, SCHEDULER_RUNNING
+    global SCHEDULER_THREAD, SCHEDULER_RUNNING, FETCHING_COMPLETE
 
     while SCHEDULER_RUNNING:
         try:
+            FETCHING_COMPLETE = False
             subprocess.run(['python', 'collect.py'], cwd='./rss-fetcher', check=True)
             subprocess.run(['python', 'process.py'], cwd='./rss-fetcher', check=True)
+            FETCHING_COMPLETE = True
         except subprocess.CalledProcessError as e:
             print("Error: ", e.stderr)
-
-        # Wait for 5 min before rerun
-        # ---- unfinished/not tested ----
-        # scheduler_thread_timer = threading.Timer(300.0, run_collect_and_process_script())
-        # scheduler_thread_timer.start()
+            FETCHING_COMPLETE = True
+        
+        # this process will repeat, and this is to make it 5 mins
+        # the stop_event is to make the tests not wait
+        STOP_EVENT.wait(300)
 
 @app.route('/api/start', methods=['POST'])
 def start_fetching():
@@ -99,12 +104,18 @@ def serve(path):
 
 @app.route('/api/articles', methods=['GET'])
 def download_articles():
-    stop_fetching()
+    global FETCHING_COMPLETE
+
+    while not FETCHING_COMPLETE:
+        time.sleep(1)
 
     try:
         subprocess.run(['python', 'process.py'], check=True, cwd='./rss-fetcher')
-        subprocess.run(['python', 'db_to_json.py'], check=True)
-        return send_from_directory('./rss-fetcher/data', "articles.json", as_attachment=True)
+        success = subprocess.run(['python', 'db_to_json.py'], check=True, capture_output=True, text=True)
+        if success.returncode == 0:
+            return send_from_directory('./rss-fetcher/data', "articles.json", as_attachment=True)
+        else:
+            return jsonify({"status": "error", "message": "Failed to generate articles.json"}), 500
     except subprocess.CalledProcessError as e:
         print("Running process and export resulted in failure")
         print("Error: ", e.stderr)
