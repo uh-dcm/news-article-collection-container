@@ -23,7 +23,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ohtukontitus/news-collection-playground:latest
+          tags: yyrsi/news-collection-playground:latest
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
