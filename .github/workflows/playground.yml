@@ -75,7 +75,3 @@ jobs:
           working-directory: client
         env:
           CI: true
-
-      - name: OpenShift-webhook trigger
-        run: |
-          curl -X POST -k -H "Content-Type: application/json" "${{ secrets.PLAYGROUND_OPENSHIFT_WEBHOOK_URL }}"
