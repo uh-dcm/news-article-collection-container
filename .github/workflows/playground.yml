@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - playground
+  workflow_dispatch:
 
 jobs:
   build:
