@@ -58,6 +58,12 @@ export default function App() {
   const [searchData, setSearchData] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
+  useEffect(() => {
+    setInterval(() => {
+      console.log('Hello to you!', Math.random() * 1000);
+    });
+  }, []);
+
   const handleFilterInputChange = (event: {
     target: { value: React.SetStateAction<string> };
   }) => {
