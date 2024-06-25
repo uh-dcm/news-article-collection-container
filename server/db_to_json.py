@@ -16,14 +16,15 @@ with open('./rss-fetcher/data/articles.json', 'w', encoding='utf-8') as file:
     # format defaults to string, to enable DateTime parsing
     json.dump(df.to_dict(orient='records'), file, indent=4, ensure_ascii=False, default=str)
 
- # convert .json to .csv and save file.csv
-    data = json.loads(articles.json)
-    # create dataframe
-    df2 = pd.json_normalize(data)
+# convert .json to .csv and save file.csv
+#   df = json.loads(articles.json)
+    # normalize json-dataframe
+    df2 = pd.json_normalize(df)
+with open('./rss-fetcher/data/articles.csv', 'w', encoding='utf-8') as file:
+     # format defaults to string, to enable DateTime parsing
+    json.dump(df2.to_csv(orient='records'), file, indent=4, ensure_ascii=False, default=str)
     # save to csv
-    df2.to_csv('test.csv', index=False, encoding='utf-8')
-
-
+    #df2.to_csv('articles.csv', index=False, encoding='utf-8')
 
 # Test for decoding encoded data in the articles.json
 # Reads the last encoded article, and decodes it to test.html
