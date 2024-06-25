@@ -24,4 +24,4 @@ See [this](https://docs.csc.fi/cloud/rahti2/access/).
 
 ## Setting up an environment using the OpenShift CLI tool
 
-*To do*
+*Todo*
