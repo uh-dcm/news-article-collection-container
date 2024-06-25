@@ -75,7 +75,3 @@ jobs:
           working-directory: client
         env:
           CI: true
-
-      - name: OpenShift-webhook trigger
-        run: |
-          curl -X POST -k "${{ secrets.OPENSHIFT_WEBHOOK_URL }}"
