@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: news-collection-service-prod
+spec:
+  ports:
+  - port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    name: news-collection-prod
+
+---
+
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: news-collection-route-prod
+spec:
+  host: news-collection.2.rahtiapp.fi
+  to:
+    kind: Service
+    name: news-collection-service-prod
+  port:
+    targetPort: 5000
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
