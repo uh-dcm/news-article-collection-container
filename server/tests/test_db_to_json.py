@@ -10,7 +10,7 @@ from database_filler import fill_test_database
 
 # path needs to be before db_to_json import, at least in local tests
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from db_to_json import db_connect, FETCHER_FOLDER, transform_articles_to_json  # pylint: disable=import-error
+from db_to_json import db_connect, transform_articles_to_json  # pylint: disable=import-error
 
 @pytest.fixture(scope='module')
 def setup_database():
@@ -21,11 +21,11 @@ def setup_database():
 
 # setup_database is passed as parameter, invoking it
 def test_db_to_json(setup_database):
-    os.makedirs(f'./{FETCHER_FOLDER}/data', exist_ok=True)
+    os.makedirs('test-rss-fetcher/data', exist_ok=True)
     
     transform_articles_to_json()
 
-    file_path = f'./{FETCHER_FOLDER}/data/articles.json'
+    file_path = 'test-rss-fetcher/data/articles.json'
     assert os.path.exists(file_path), "The articles.json file was not created."
 
     with open(file_path, 'r', encoding='utf-8') as file:

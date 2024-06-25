@@ -12,7 +12,7 @@ from database_filler import fill_test_database
 
 # path needs to be before app import, at least in local tests
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from app import app, engine, STOP_EVENT, FETCHER_FOLDER # pylint: disable=import-error
+from app import app, engine, STOP_EVENT # pylint: disable=import-error
 
 @pytest.fixture
 def client():
@@ -22,7 +22,7 @@ def client():
 
 @pytest.fixture(autouse=True)
 def setup_and_teardown():
-    base_dir = os.path.abspath(f'./{FETCHER_FOLDER}')
+    base_dir = os.path.abspath('test-rss-fetcher')
     data_dir = os.path.join(base_dir, 'data')
 
     os.makedirs(data_dir, exist_ok=True)
