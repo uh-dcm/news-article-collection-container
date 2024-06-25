@@ -8,6 +8,8 @@ See [this](https://docs.csc.fi/cloud/rahti2/access/).
 
 ## Setting up an environment using the web interface
 
+If you'd like to setup the environment using the graphical UI, you can do the following:
+
 1. See the instructions on [how to apply for Rahti 2 access](https://docs.csc.fi/cloud/rahti2/access/)
 2. [Login to Rahti 2](https://docs.csc.fi/cloud/rahti2/usage/getting_started/) from [https://rahti.csc.fi](https://rahti.csc.fi).
 3. Once logged in, click `+Add` from the left hand side panel.
@@ -24,4 +26,9 @@ See [this](https://docs.csc.fi/cloud/rahti2/access/).
 
 ## Setting up an environment using the OpenShift CLI tool
 
-*Todo*
+Alternatively, you can use the CLI tool to setup the environment by doing the following:
+
+1. [Login to Rahti 2](https://docs.csc.fi/cloud/rahti2/usage/getting_started/) from [https://rahti.csc.fi](https://rahti.csc.fi).
+
+2. Run `oc apply -f <cfg_file>.yaml` for each config file in `../manifests`
+3. The app may be accessed in the URL defined by the `spec.host` field in `service-route-prod.yaml`.
