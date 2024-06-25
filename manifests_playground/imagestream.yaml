@@ -1,0 +1,44 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    openshift.io/image.dockerRepositoryCheck: "2024-06-24T17:02:37Z"
+  creationTimestamp: "2024-06-24T15:43:01Z"
+  generation: 4
+  name: news-collection-playground
+  namespace: news-container
+  resourceVersion: "166354878"
+  uid: 88279932-0c99-43ca-9b8e-8da94fbc26fa
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: docker.io/yyrsi/news-collection-playground:latest
+      generation: 4
+      importPolicy:
+        importMode: Legacy
+        scheduled: true
+      name: latest
+      referencePolicy:
+        type: Source
+status:
+  dockerImageRepository: image-registry.openshift-image-registry.svc:5000/news-container/news-collection-playground
+  publicDockerImageRepository: image-registry.apps.2.rahti.csc.fi/news-container/news-collection-playground
+  tags:
+    - items:
+        - created: "2024-06-24T17:02:37Z"
+          dockerImageReference: docker.io/yyrsi/news-collection-playground@sha256:8d1c4b1a1bfef4b2d18f54e002703100aa3127a3f3f2882fe145bb02b82dd7b1
+          generation: 4
+          image: sha256:8d1c4b1a1bfef4b2d18f54e002703100aa3127a3f3f2882fe145bb02b82dd7b1
+        - created: "2024-06-24T16:47:37Z"
+          dockerImageReference: docker.io/yyrsi/news-collection-playground@sha256:22c8708f3be31da9b32e96739ff9977a97edbcb3cc150012b3b9ea9a879ce26d
+          generation: 3
+          image: sha256:22c8708f3be31da9b32e96739ff9977a97edbcb3cc150012b3b9ea9a879ce26d
+        - created: "2024-06-24T16:13:53Z"
+          dockerImageReference: docker.io/yyrsi/news-collection-playground@sha256:9e23b6cd480ab9e21c3c018f6b306ad5c13882e707b87e33f27f96924d4532b8
+          generation: 2
+          image: sha256:9e23b6cd480ab9e21c3c018f6b306ad5c13882e707b87e33f27f96924d4532b8
+      tag: latest
