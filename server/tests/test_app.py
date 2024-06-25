@@ -43,7 +43,7 @@ def setup_and_teardown():
 
     STOP_EVENT.set()
 
-    shutil.rmtree(FETCHER_FOLDER)
+    shutil.rmtree('test-rss-fetcher')
 
 @pytest.fixture
 def mock_subprocess():

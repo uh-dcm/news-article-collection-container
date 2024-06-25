@@ -51,4 +51,4 @@ def test_db_to_json(setup_database):
     ]
     assert json_data == expected_data, "The data in articles.json does not match the expected data."
 
-    shutil.rmtree(FETCHER_FOLDER)
+    shutil.rmtree('test-rss-fetcher')
