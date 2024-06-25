@@ -105,7 +105,7 @@ def serve(path):
         return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/api/articles/json', methods=['GET'])
-def download_articles():
+def download_articles_json():
     global FETCHING_COMPLETE, FETCHING_STARTED
 
     if FETCHING_STARTED:
@@ -128,7 +128,7 @@ def download_articles():
 
 
 @app.route('/api/articles/csv', methods=['GET'])
-def download_articles():
+def download_articles_csv():
     global FETCHING_COMPLETE, FETCHING_STARTED
 
     if FETCHING_STARTED:

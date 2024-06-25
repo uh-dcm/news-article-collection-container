@@ -11,7 +11,7 @@ df = pd.read_sql_table('articles', con=db_connect)
 
 # Encode html-column data before writing
 df["html"] = df["html"].apply(html.escape)
-
+'./rss-fetcher/data/articles.json'
 with open('./rss-fetcher/data/articles.json', 'w', encoding='utf-8') as file:
     # format defaults to string, to enable DateTime parsing
     json.dump(df.to_dict(orient='records'), file, indent=4, ensure_ascii=False, default=str)
