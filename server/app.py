@@ -1,3 +1,6 @@
+"""
+This is the main backend app for the project.
+"""
 from os.path import exists
 import os
 import threading
@@ -6,14 +9,9 @@ import time
 from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
 from sqlalchemy import create_engine, MetaData, text
+from config import DATABASE_URL, FETCHER_FOLDER
 
-# check whether to run test database
-if os.getenv('FLASK_ENV') == 'testing':
-    DATABASE_URL = 'sqlite:///:memory:'
-else:
-    DATABASE_URL = 'sqlite:///./rss-fetcher/data/data.db'
-
-os.makedirs("./rss-fetcher/data/", exist_ok=True)
+os.makedirs(f"./{FETCHER_FOLDER}/data/", exist_ok=True)
 engine = create_engine(DATABASE_URL, echo=False)
 meta = MetaData()
 connection = engine.connect()
@@ -34,8 +32,8 @@ def run_collect_and_process_script():
         try:
             FETCHING_COMPLETE = False
             FETCHING_STARTED = True
-            subprocess.run(['python', 'collect.py'], cwd='./rss-fetcher', check=True)
-            subprocess.run(['python', 'process.py'], cwd='./rss-fetcher', check=True)
+            subprocess.run(['python', 'collect.py'], cwd=f'./{FETCHER_FOLDER}', check=True)
+            subprocess.run(['python', 'process.py'], cwd=f'./{FETCHER_FOLDER}', check=True)
             FETCHING_COMPLETE = True
         except subprocess.CalledProcessError as e:
             print("Error: ", e.stderr)
@@ -81,8 +79,8 @@ def fetching_status():
 def get_feed_urls():
     feeds = []
     try:
-        if exists('./rss-fetcher/data/feeds.txt'):
-            with open('./rss-fetcher/data/feeds.txt') as f:
+        if exists(f'./{FETCHER_FOLDER}/data/feeds.txt'):
+            with open(f'./{FETCHER_FOLDER}/data/feeds.txt') as f:
                 feeds = f.readlines()
     except FileNotFoundError as e:
         print(f"Error in parsing rss-feeds from feeds.txt: {e.strerror}")
@@ -92,7 +90,7 @@ def get_feed_urls():
 def set_feed_urls():
     feeds = request.json
     feed_urls = feeds['feedUrls']
-    with open('./rss-fetcher/data/feeds.txt', 'w') as f:
+    with open(f'./{FETCHER_FOLDER}/data/feeds.txt', 'w') as f:
         f.write("\n".join(feed_urls))
     return jsonify({"status": "success"}), 200
 
@@ -113,12 +111,9 @@ def download_articles():
             time.sleep(1)
 
     try:
-        subprocess.run(['python', 'process.py'], check=True, cwd='./rss-fetcher')
-        success = subprocess.run(['python', 'db_to_json.py'], check=True, capture_output=True, text=True)
-        if success.returncode == 0:
-            return send_from_directory('./rss-fetcher/data', "articles.json", as_attachment=True)
-        else:
-            return jsonify({"status": "error", "message": "Failed to generate articles.json"}), 500
+        subprocess.run(['python', 'process.py'], check=True, cwd=f'./{FETCHER_FOLDER}')
+        subprocess.run(['python', 'db_to_json.py'], check=True)
+        return send_from_directory(f'./{FETCHER_FOLDER}/data', "articles.json", as_attachment=True)
     except subprocess.CalledProcessError as e:
         print("Running process and export resulted in failure")
         print("Error: ", e.stderr)
