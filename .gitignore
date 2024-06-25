@@ -7,9 +7,15 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+venv
+
+# Build process
 dist
 dist-ssr
+
+# Locals
 *.local
 
 # Editor directories and files
@@ -23,13 +29,10 @@ dist-ssr
 *.sln
 *.sw?
 
-
-# do not take json to git
-**/articles.json
-data.db
-
-venv
+# Python cache
 __pycache__
 
-# pytest may add rss-fetcher
+# Project-specific
+**/articles.json
+data.db
 rss-fetcher/
