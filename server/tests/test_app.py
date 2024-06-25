@@ -99,7 +99,7 @@ def test_download_articles(client):
     response = client.get('/api/articles')
     assert response.status_code in [200, 400]
     if response.status_code == 200:
-        assert response.content_type == 'application/json'
+        assert response.content_type == 'application/csv' or response.content_type == 'application/json'
 
 def test_search_articles(client):
     response = client.get('/api/articles/search', query_string={'searchQuery': 'blabla'})

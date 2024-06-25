@@ -104,7 +104,7 @@ def serve(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/api/articles', methods=['GET'])
+@app.route('/api/articles/json', methods=['GET'])
 def download_articles():
     global FETCHING_COMPLETE, FETCHING_STARTED
 
@@ -115,14 +115,40 @@ def download_articles():
     try:
         subprocess.run(['python', 'process.py'], check=True, cwd='./rss-fetcher')
         success = subprocess.run(['python', 'db_to_json.py'], check=True, capture_output=True, text=True)
-        if success.returncode == 0:
+        
+        if (exists('./rss-fetcher/data/articles.json') and success.returncode == 0):
             return send_from_directory('./rss-fetcher/data', "articles.json", as_attachment=True)
         else:
             return jsonify({"status": "error", "message": "Failed to generate articles.json"}), 500
+
     except subprocess.CalledProcessError as e:
         print("Running process and export resulted in failure")
         print("Error: ", e.stderr)
         return jsonify({"status": f"{e}"}), 400
+
+
+@app.route('/api/articles/csv', methods=['GET'])
+def download_articles():
+    global FETCHING_COMPLETE, FETCHING_STARTED
+
+    if FETCHING_STARTED:
+        while not FETCHING_COMPLETE:
+            time.sleep(1)
+
+    try:
+        subprocess.run(['python', 'process.py'], check=True, cwd='./rss-fetcher')
+        success = subprocess.run(['python', 'db_to_csv.py'], check=True, capture_output=True, text=True)
+
+        if (exists('./rss-fetcher/data/articles.csv') and success.returncode == 0):
+            return send_from_directory('./rss-fetcher/data', "articles.csv", as_attachment=True)
+        else:
+            return jsonify({"status": "error", "message": "Failed to generate articles.csv"}), 500
+
+    except subprocess.CalledProcessError as e:
+        print("Running process and export resulted in failure")
+        print("Error: ", e.stderr)
+        return jsonify({"status": f"{e}"}), 400
+
 
 @app.route('/api/articles/search', methods=['GET'])
 def search_articles():

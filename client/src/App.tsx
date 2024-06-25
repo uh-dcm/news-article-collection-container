@@ -125,12 +125,12 @@ export default function App() {
     stopFetching();
   };
 
-  const handleArticleDownload = async () => {
+  const handleArticleDownloadJson = async () => {
     toast.dismiss();
     setIsDisabled(true);
 
     const toastOptions = {
-      loading: 'Downloading...',
+      loading: 'Downloading articles.json...',
       description: 'Please note that the process might take some time.',
       duration: 4000,
       success: (msg: string) => msg,
@@ -142,7 +142,7 @@ export default function App() {
 
     toast.promise(async () => {
       try {
-        const response = await axios.get(`${serverUrl}/api/articles`, {
+        const response = await axios.get(`${serverUrl}/api/articles/json`, {
           responseType: 'blob',
         });
 
@@ -153,11 +153,48 @@ export default function App() {
         document.body.appendChild(link);
         link.click();
 
-        const link2 = document.createElement('a');
-        link2.href = url;
-        link2.setAttribute('download', 'articles.csv');
-        document.body.appendChild(link2);
-        link2.click();
+        link.parentNode!.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        toastOptions.description = null;
+
+        return 'Download successful!';
+      } catch (error) {
+        console.error('Download failed', error);
+        throw new Error('Failed to download the file.');
+      } finally {
+        setIsDisabled(false);
+      }
+    }, toastOptions);
+  };
+
+  const handleArticleDownloadCsv = async () => {
+    toast.dismiss();
+    setIsDisabled(true);
+
+    const toastOptions = {
+      loading: 'Downloading articles.csv...',
+      description: 'Please note that the process might take some time.',
+      duration: 4000,
+      success: (msg: string) => msg,
+      error: (error: string) => {
+        console.error('Error downloading:', error);
+        return 'Failed to download the file. Try waiting longer before downloading.';
+      },
+    } as ToastOptions satisfies ToastOptions;
+
+    toast.promise(async () => {
+      try {
+        const response = await axios.get(`${serverUrl}/api/articles/csv`, {
+          responseType: 'blob',
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'articles.json');
+        document.body.appendChild(link);
+        link.click();
 
         link.parentNode!.removeChild(link);
         window.URL.revokeObjectURL(url);
@@ -297,19 +334,30 @@ export default function App() {
               <CardHeader>
                 <CardTitle className="text-lg">Export</CardTitle>
                 <CardDescription>
-                  Download article data in JSON format
+                  Download article data in JSON- or CSV-format
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button
                   variant="outline"
-                  onClick={handleArticleDownload}
+                  onClick={handleArticleDownloadJson}
                   disabled={isDisabled}
                   className="col-span-2 w-full p-6 text-base"
                 >
                   <div className="flex justify-center">
                     <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
-                    Download articles
+                    Download in JSON
+                  </div>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleArticleDownloadCsv}
+                  disabled={isDisabled}
+                  className="col-span-2 w-full p-6 text-base"
+                >
+                  <div className="flex justify-center">
+                    <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
+                    Download in CSV
                   </div>
                 </Button>
               </CardContent>
