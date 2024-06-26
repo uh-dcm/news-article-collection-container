@@ -8,7 +8,7 @@ import subprocess
 import time
 from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
-from sqlalchemy import create_engine, MetaData, text
+from sqlalchemy import create_engine, MetaData, text, inspect
 from config import DATABASE_URL, FETCHER_FOLDER
 
 os.makedirs(f"./{FETCHER_FOLDER}/data/", exist_ok=True)
@@ -109,6 +109,10 @@ def download_articles():
     if FETCHING_STARTED:
         while not FETCHING_COMPLETE:
             time.sleep(1)
+
+    inspector = inspect(engine)
+    if not inspector.has_table('articles'):
+        return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 400
 
     try:
         subprocess.run(['python', 'db_to_json.py'], check=True)
