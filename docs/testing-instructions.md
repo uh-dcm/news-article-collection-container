@@ -19,7 +19,6 @@
 - `$ npm test` (run Vitests)
 
 ### E2E tests (Cypress)
-
 - Open a new CLI window next to the main testing window and in it:
   
 - `$ docker compose up --build` (run the app normally)

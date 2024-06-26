@@ -4,6 +4,7 @@ This sets FLASK_ENV as testing for all test files.
 import os
 import pytest
 
+# invokes config
 def pytest_configure(config):
     os.environ['FLASK_ENV'] = 'testing'
 

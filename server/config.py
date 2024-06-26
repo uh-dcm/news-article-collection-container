@@ -1,5 +1,5 @@
 """
-This checks FLASK_ENV to whether run test mode or regular.
+This checks FLASK_ENV to verify whether to run test mode or regular.
 """
 import os
 

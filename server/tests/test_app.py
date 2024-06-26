@@ -41,6 +41,7 @@ def setup_and_teardown():
     
     yield
 
+    # stops the wait in run_collect_and_process_script
     STOP_EVENT.set()
 
     shutil.rmtree('test-rss-fetcher')
