@@ -1,7 +1,6 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { defineConfig as defineTestConfig } from 'vitest/config';
 import path from 'path';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vitest/config';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -22,9 +21,9 @@ export default defineConfig({
     host: true,
     origin: 'http://0.0.0.0:4000',
   },
-  test: defineTestConfig({
+  test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './src/setupTests.ts',
-  }),
+    setupFiles: './tests/internal/setupTests.ts',
+  },
 });
