@@ -1,4 +1,4 @@
-name: CI for main branch and its short-lived feature branches
+name: CI for Main
 
 on:
   push:
