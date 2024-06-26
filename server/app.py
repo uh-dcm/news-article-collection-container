@@ -21,21 +21,21 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 SCHEDULER_RUNNING = False
 SCHEDULER_THREAD = None
-FETCHING_ACTIVE = False
+PROCESSING_ACTIVE = False
 STOP_EVENT = threading.Event()
 
 def run_collect_and_process_script():
-    global SCHEDULER_THREAD, SCHEDULER_RUNNING, FETCHING_ACTIVE
+    global SCHEDULER_THREAD, SCHEDULER_RUNNING, PROCESSING_ACTIVE
 
     while SCHEDULER_RUNNING:
         try:
-            FETCHING_ACTIVE = True
+            PROCESSING_ACTIVE = True
             subprocess.run(['python', 'collect.py'], cwd=f'./{FETCHER_FOLDER}', check=True)
             subprocess.run(['python', 'process.py'], cwd=f'./{FETCHER_FOLDER}', check=True)
-            FETCHING_ACTIVE = False
+            PROCESSING_ACTIVE = False
         except subprocess.CalledProcessError as e:
             print("Error: ", e.stderr)
-            FETCHING_ACTIVE = False
+            PROCESSING_ACTIVE = False
         
         # this process will repeat, and this is to make it 5 mins
         # the stop_event is to make the tests not wait
@@ -102,9 +102,9 @@ def serve(path):
 
 @app.route('/api/articles', methods=['GET'])
 def download_articles():
-    global FETCHING_ACTIVE
+    global PROCESSING_ACTIVE
 
-    while FETCHING_ACTIVE:
+    while PROCESSING_ACTIVE:
         time.sleep(1)
 
     inspector = inspect(engine)
