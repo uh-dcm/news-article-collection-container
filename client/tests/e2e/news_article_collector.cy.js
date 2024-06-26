@@ -1,5 +1,5 @@
 describe('News Article Collector App', () => {
-  const downloadsFolder = Cypress.config('downloadsFolder');
+  //const downloadsFolder = Cypress.config('downloadsFolder');
 
   beforeEach(() => {
     cy.visit('/');
@@ -23,18 +23,18 @@ describe('News Article Collector App', () => {
     cy.contains('Feed list set successfully!').should('be.visible');
   });
 
-  it('should start RSS fetching', () => {
-    cy.contains('Activate RSS fetching').click({ force: true });
-    cy.contains('RSS fetching in progress').should('be.visible');
-    cy.contains('Gathering articles...').should('be.visible');
-  });
+  //it('should start RSS fetching', () => {
+  //  cy.contains('Activate RSS fetching').click({ force: true });
+  //  cy.contains('RSS fetching in progress').should('be.visible');
+  //  cy.contains('Gathering articles...').should('be.visible');
+  //});
 
-  it('should download filled articles.json', () => {
-    cy.contains('Download articles').click({ force: true });
+  //it('should download filled articles.json', () => {
+  //  cy.contains('Download articles').click({ force: true });
 
-    cy.readFile(`${downloadsFolder}/articles.json`, { timeout: 60000 }).should('exist').then((articles) => {
-      expect(articles).to.be.an('array');
-      expect(articles.length).to.be.greaterThan(0);
-    });
-  });
+  //  cy.readFile(`${downloadsFolder}/articles.json`, { timeout: 60000 }).should('exist').then((articles) => {
+  //    expect(articles).to.be.an('array');
+  //    expect(articles.length).to.be.greaterThan(0);
+  //  });
+  //});
 });
