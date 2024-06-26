@@ -111,7 +111,6 @@ def download_articles():
             time.sleep(1)
 
     try:
-        subprocess.run(['python', 'process.py'], check=True, cwd=f'./{FETCHER_FOLDER}')
         subprocess.run(['python', 'db_to_json.py'], check=True)
         return send_from_directory(f'./{FETCHER_FOLDER}/data', "articles.json", as_attachment=True)
     except subprocess.CalledProcessError as e:
