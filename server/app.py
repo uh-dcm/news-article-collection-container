@@ -113,7 +113,7 @@ def serve(path):
 
 # saves the articles from db, currently as json format only
 # uses db_to_json.py to do it
-@app.route('/api/articles', methods=['GET'])
+@app.route('/api/articles/json', methods=['GET'])
 def download_articles():
 
     # wait for collect.py and process.py to finish
@@ -133,8 +133,25 @@ def download_articles():
         print("Error: ", e.stderr)
         return jsonify({"status": f"{e}"}), 400
 
-# search db for a query and return results
-# this might be best to split into its own as it grows
+@app.route('/api/articles/csv', methods=['GET'])
+def download_articles():
+    global PROCESSING_ACTIVE
+
+    while PROCESSING_ACTIVE:
+        time.sleep(1)
+
+    inspector = inspect(engine)
+    if not inspector.has_table('articles'):
+        return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 400
+
+    try:
+        subprocess.run(['python', 'db_to_csv.py'], check=True)
+        return send_from_directory(f'./{FETCHER_FOLDER}/data', "articles.csv", as_attachment=True)
+    except subprocess.CalledProcessError as e:
+        print("Running process and export resulted in failure")
+        print("Error: ", e.stderr)
+        return jsonify({"status": f"{e}"}), 400
+
 @app.route('/api/articles/search', methods=['GET'])
 def search_articles():
     try:

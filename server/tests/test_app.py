@@ -132,7 +132,7 @@ def test_set_feed_urls_invalid_data(client):
     assert response.status_code == 415
 
 def test_download_articles(client):
-    response = client.get('/api/articles')
+    response = client.get('/api/articles/json')
     assert response.status_code in [200, 400]
     if response.status_code == 200:
         assert response.content_type == 'application/json'
@@ -141,11 +141,25 @@ def test_download_articles_no_data(client):
     response = client.get('/api/articles')
     assert response.status_code == 400
 
+def test_download_articles(client):
+    response = client.get('/api/articles/csv')
+    assert response.status_code in [200, 400]
+    if response.status_code == 200:
+        assert response.content_type == 'application/csv'
+
+
 def test_download_articles_subprocess_error(client, mock_subprocess):
     def raise_error(*args, **kwargs):
         raise subprocess.CalledProcessError(1, 'cmd')
     mock_subprocess.side_effect = raise_error
-    response = client.get('/api/articles')
+    response = client.get('/api/articles/json')
+    assert response.status_code == 400
+
+    def test_download_articles_subprocess_error(client, mock_subprocess):
+    def raise_error(*args, **kwargs):
+        raise subprocess.CalledProcessError(1, 'cmd')
+    mock_subprocess.side_effect = raise_error
+    response = client.get('/api/articles/csv')
     assert response.status_code == 400
 
 def test_search_articles(client):
