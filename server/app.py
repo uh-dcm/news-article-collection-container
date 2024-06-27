@@ -10,6 +10,7 @@ from flask_cors import CORS
 from flask_apscheduler import APScheduler
 from sqlalchemy import create_engine, MetaData, text, inspect
 from config import DATABASE_URL, FETCHER_FOLDER
+from log_config import logger, LOG_FILE_PATH
 
 class Config:
     SCHEDULER_API_ENABLED = True
@@ -36,8 +37,14 @@ def run_collect_and_process():
     try:
         with open(LOCK_FILE, 'w') as f:
             f.write('processing')
-        subprocess.run(['python', 'collect.py'], cwd=f'./{FETCHER_FOLDER}', check=True)
-        subprocess.run(['python', 'process.py'], cwd=f'./{FETCHER_FOLDER}', check=True)
+
+        result = subprocess.run(['python3', 'collect.py'], cwd=f'./{FETCHER_FOLDER}', capture_output=True, check=True, text=True)
+        if result.stdout:
+            logger.info(result.stdout.strip())
+        result = subprocess.run(['python3', 'process.py'], cwd=f'./{FETCHER_FOLDER}', capture_output=True, check=True, text=True)
+        if result.stdout:
+            logger.info(result.stdout.strip())
+
     except subprocess.CalledProcessError as e:
         print("Error: ", e.stderr)
     finally:
@@ -134,6 +141,15 @@ def search_articles():
     except Exception as e:
         print("Error: ", e)
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/api/error_logs', methods=['GET'])
+def get_error_log():
+    try:
+        with open(LOG_FILE_PATH, 'r') as log_file:
+            log_records = log_file.read()
+        return jsonify(logs=log_records.splitlines()), 200
+    except Exception as e:
+        return jsonify({"error": "Failed to fetch logs"}), 500
 
 if __name__ == '__main__':
     scheduler.start()
