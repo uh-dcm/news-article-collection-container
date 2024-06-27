@@ -52,6 +52,8 @@ def mock_subprocess():
     def mock_run(*args, **kwargs):
         class CompletedProcess:
             returncode = 0
+            stdout = "Mock subprocess output"
+            stderr = "Mock subprocess error output"
         return CompletedProcess()
     with patch('subprocess.run', side_effect=mock_run) as mock:
         yield mock
