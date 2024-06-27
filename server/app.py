@@ -29,6 +29,9 @@ scheduler.init_app(app)
 
 LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
 
+# this is triggered by start_fetching
+# runs collect.py and process.py on the submitted feeds
+# hogs database for itself with the lock
 def run_collect_and_process():
     if os.path.exists(LOCK_FILE):
         print("Processing is already active.")
@@ -108,6 +111,8 @@ def serve(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
+# saves the articles from db, currently as json format only
+# uses db_to_json.py to do it
 @app.route('/api/articles', methods=['GET'])
 def download_articles():
 
@@ -115,19 +120,21 @@ def download_articles():
     while os.path.exists(LOCK_FILE):
         time.sleep(1)
 
-    # check whether the table is empty
+    # check whether the table exists
     inspector = inspect(engine)
     if not inspector.has_table('articles'):
         return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 400
 
     try:
-        subprocess.run(['python', 'db_to_json.py'], check=True)
+        subprocess.run(['python3', 'db_to_json.py'], check=True)
         return send_from_directory(f'./{FETCHER_FOLDER}/data', "articles.json", as_attachment=True)
     except subprocess.CalledProcessError as e:
         print("Running process and export resulted in failure")
         print("Error: ", e.stderr)
         return jsonify({"status": f"{e}"}), 400
 
+# search db for a query and return results
+# this might be best to split into its own as it grows
 @app.route('/api/articles/search', methods=['GET'])
 def search_articles():
     try:

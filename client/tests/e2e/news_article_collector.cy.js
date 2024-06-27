@@ -23,6 +23,11 @@ describe('News Article Collector App', () => {
     cy.contains('Feed list set successfully!').should('be.visible');
   });
 
+  // the following tests work
+  // but ethical questions about stressing a third party's servers with tests
+  // perhaps could prop up a mock feed
+  // or just use yle as they are a public broadcaster after all
+
   //it('should start RSS fetching', () => {
   //  cy.contains('Activate RSS fetching').click({ force: true });
   //  cy.contains('RSS fetching in progress').should('be.visible');
