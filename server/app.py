@@ -114,7 +114,8 @@ def serve(path):
 # saves the articles from db, currently as json format only
 # uses db_to_json.py to do it
 @app.route('/api/articles/json', methods=['GET'])
-def download_articles():
+def download_articles_json():
+    global PROCESSING_ACTIVE
 
     # wait for collect.py and process.py to finish
     while os.path.exists(LOCK_FILE):
@@ -134,7 +135,7 @@ def download_articles():
         return jsonify({"status": f"{e}"}), 400
 
 @app.route('/api/articles/csv', methods=['GET'])
-def download_articles():
+def download_articles_csv():
     global PROCESSING_ACTIVE
 
     while PROCESSING_ACTIVE:

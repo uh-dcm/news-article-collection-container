@@ -27,8 +27,14 @@ def transform_articles_to_json():
     # Encode html-column data before writing
     df["html"] = df["html"].apply(html.escape)
 
+    #df.to_dict(orient='records'): Converts the DataFrame to a list of dictionaries, where each dictionary represents a row in the DataFrame. The keys in the dictionaries 
+    #correspond to column names, and the values are the corresponding cell values.
     with open(f'./{FETCHER_FOLDER}/data/articles.json', 'w', encoding='utf-8') as file:
-        # format defaults to string, to enable DateTime parsing
+        # The content of the file will be a list of dictionaries, where each dictionary 
+        # represents a row from the “articles” table. Each dictionary 
+        # contains key-value pairs corresponding to the column names 
+        # and their respective values.
+        # Format also defaults to string, to enable DateTime parsing
         json.dump(df.to_dict(orient='records'), file, indent=4, ensure_ascii=False, default=str)
 
 if __name__ == '__main__':

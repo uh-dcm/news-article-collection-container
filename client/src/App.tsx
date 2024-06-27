@@ -125,7 +125,7 @@ export default function App() {
     stopFetching();
   };
 
-  const handleArticleDownload = async () => {
+  const handleArticleDownloadJson = async () => {
     toast.dismiss();
     setIsDisabled(true);
 
@@ -142,7 +142,7 @@ export default function App() {
 
     toast.promise(async () => {
       try {
-        const response = await axios.get(`${serverUrl}/api/articles`, {
+        const response = await axios.get(`${serverUrl}/api/articles/json`, {
           responseType: 'blob',
         });
 
@@ -334,7 +334,7 @@ export default function App() {
               <CardHeader>
                 <CardTitle className="text-lg">Export</CardTitle>
                 <CardDescription>
-                  Download article data in JSON format
+                  Download articles in JSON- or CSV-format
                 </CardDescription>
               </CardHeader>
               <CardContent>
