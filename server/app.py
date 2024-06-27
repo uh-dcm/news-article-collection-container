@@ -3,13 +3,16 @@ This is the main backend app for the project.
 """
 from os.path import exists
 import os
-import threading
 import subprocess
 import time
 from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
+from flask_apscheduler import APScheduler
 from sqlalchemy import create_engine, MetaData, text, inspect
 from config import DATABASE_URL, FETCHER_FOLDER
+
+class Config:
+    SCHEDULER_API_ENABLED = True
 
 os.makedirs(f"./{FETCHER_FOLDER}/data/", exist_ok=True)
 engine = create_engine(DATABASE_URL, echo=False)
@@ -18,57 +21,55 @@ connection = engine.connect()
 
 app = Flask(__name__, static_folder='static')
 CORS(app, resources={r"/*": {"origins": "*"}})
+app.config.from_object(Config())
 
-SCHEDULER_RUNNING = False
-SCHEDULER_THREAD = None
-PROCESSING_ACTIVE = False
-STOP_EVENT = threading.Event()
+scheduler = APScheduler()
+scheduler.init_app(app)
 
-def run_collect_and_process_script():
-    global SCHEDULER_THREAD, SCHEDULER_RUNNING, PROCESSING_ACTIVE
+LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
 
-    while SCHEDULER_RUNNING:
-        try:
-            PROCESSING_ACTIVE = True
-            subprocess.run(['python', 'collect.py'], cwd=f'./{FETCHER_FOLDER}', check=True)
-            subprocess.run(['python', 'process.py'], cwd=f'./{FETCHER_FOLDER}', check=True)
-            PROCESSING_ACTIVE = False
-        except subprocess.CalledProcessError as e:
-            print("Error: ", e.stderr)
-            PROCESSING_ACTIVE = False
-        
-        # this process will repeat, and this is to make it 5 mins
-        # the stop_event is to make the tests not wait
-        STOP_EVENT.wait(300)
+def run_collect_and_process():
+    if os.path.exists(LOCK_FILE):
+        print("Processing is already active.")
+        return
+
+    try:
+        with open(LOCK_FILE, 'w') as f:
+            f.write('processing')
+        subprocess.run(['python', 'collect.py'], cwd=f'./{FETCHER_FOLDER}', check=True)
+        subprocess.run(['python', 'process.py'], cwd=f'./{FETCHER_FOLDER}', check=True)
+    except subprocess.CalledProcessError as e:
+        print("Error: ", e.stderr)
+    finally:
+        if os.path.exists(LOCK_FILE):
+            os.remove(LOCK_FILE)
 
 @app.route('/api/start', methods=['POST'])
 def start_fetching():
-    global SCHEDULER_THREAD, SCHEDULER_RUNNING
-
-    if not SCHEDULER_RUNNING:
-        SCHEDULER_RUNNING = True
-        SCHEDULER_THREAD = threading.Thread(target=run_collect_and_process_script)
-        SCHEDULER_THREAD.start()
+    if not scheduler.get_job('collect_and_process'):
+        scheduler.add_job(
+            id='collect_and_process',
+            func=run_collect_and_process,
+            trigger='interval',
+            minutes=5,
+            misfire_grace_time=300
+        )
+        run_collect_and_process()
         return jsonify({"status": "started"}), 201
     else:
         return jsonify({"status": "already running"}), 409
 
 @app.route('/api/stop', methods=['POST'])
 def stop_fetching():
-    global SCHEDULER_THREAD, SCHEDULER_RUNNING
-
-    if SCHEDULER_RUNNING:
-        SCHEDULER_RUNNING = False
-        SCHEDULER_THREAD = None
+    if scheduler.get_job('collect_and_process'):
+        scheduler.remove_job('collect_and_process')
         return jsonify({"status": "stopped"}), 200
     else:
         return jsonify({"status": "it was not running"}), 409
 
 @app.route('/api/status', methods=['GET'])
 def fetching_status():
-    global SCHEDULER_RUNNING
-
-    if SCHEDULER_RUNNING:
+    if scheduler.get_job('collect_and_process'):
         return jsonify({"status": "running"}), 200
     else:
         return jsonify({"status": "stopped"}), 400
@@ -102,11 +103,12 @@ def serve(path):
 
 @app.route('/api/articles', methods=['GET'])
 def download_articles():
-    global PROCESSING_ACTIVE
 
-    while PROCESSING_ACTIVE:
+    # wait for collect.py and process.py to finish
+    while os.path.exists(LOCK_FILE):
         time.sleep(1)
 
+    # check whether the table is empty
     inspector = inspect(engine)
     if not inspector.has_table('articles'):
         return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 400
@@ -134,4 +136,5 @@ def search_articles():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
+    scheduler.start()
     app.run(host='0.0.0.0', port=5000)
