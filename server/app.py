@@ -139,7 +139,8 @@ def download_articles():
 def search_articles():
     try:
         search_query = request.args.get('searchQuery', '')
-        stmt = text("SELECT STRFTIME('%d/%m/%Y, %H:%M', time), url, full_text FROM articles WHERE full_text LIKE :word COLLATE utf8_general_ci")
+        # Datetime object used instead of string to achieve proper sorting in table
+        stmt = text("SELECT DATETIME(time), url, full_text FROM articles WHERE full_text LIKE :word COLLATE utf8_general_ci")
         stmt = stmt.bindparams(word=f'%{search_query}%')
         result = connection.execute(stmt)
         rows = result.fetchall()
