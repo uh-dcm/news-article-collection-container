@@ -5,3 +5,4 @@ sqlalchemy
 apscheduler
 flask_apscheduler
 pytest
+pyarrow
