@@ -4,7 +4,7 @@ This has tests for app.py.
 import os
 import sys
 import subprocess
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
 import shutil
 import pytest
 from database_filler import fill_test_database
@@ -131,15 +131,38 @@ def test_set_feed_urls_invalid_data(client):
     response = client.post('/api/set_feed_urls', data="invalid data")
     assert response.status_code == 415
 
-def test_download_articles(client):
+def test_download_articles_json(client):
+    response = client.get('/api/articles?format=json')
+    assert response.status_code in [200, 400]
+    if response.status_code == 200:
+        assert response.content_type == 'application/json'
+
+def test_download_articles_csv(client):
+    response = client.get('/api/articles?format=csv')
+    assert response.status_code in [200, 400]
+    if response.status_code == 200:
+        assert response.content_type == 'text/csv'
+
+def test_download_articles_parquet(client):
+    response = client.get('/api/articles?format=parquet')
+    assert response.status_code in [200, 400]
+    if response.status_code == 200:
+        assert response.content_type == 'application/octet-stream'
+
+def test_download_articles_no_format(client):
     response = client.get('/api/articles')
     assert response.status_code in [200, 400]
     if response.status_code == 200:
         assert response.content_type == 'application/json'
-    
+
 def test_download_articles_no_data(client):
     response = client.get('/api/articles')
     assert response.status_code == 400
+
+def test_download_articles_invalid_format(client):
+    response = client.get('/api/articles?format=xml')
+    assert response.status_code == 400
+    assert response.json['message'] == 'Invalid format requested.'
 
 def test_download_articles_subprocess_error(client, mock_subprocess):
     def raise_error(*args, **kwargs):
@@ -153,8 +176,25 @@ def test_search_articles(client):
     assert response.status_code == 200
     assert isinstance(response.json, list)
 
+def test_search_articles_empty_query(client):
+    response = client.get('/api/articles/search', query_string={'searchQuery': ''})
+    assert response.status_code == 200
+    assert isinstance(response.json, list)
+
 def test_search_articles_error(client):
     with patch('app.connection.execute', side_effect=Exception("Database error")):
         response = client.get('/api/articles/search', query_string={'searchQuery': 'blabla'})
         assert response.status_code == 500
         assert response.json['status'] == "error"
+
+def test_get_error_logs(client):
+    with patch('builtins.open', mock_open(read_data="Error 1\nError 2")):
+        response = client.get('/api/error_logs')
+        assert response.status_code == 200
+        assert response.json['logs'] == ["Error 1", "Error 2"]
+
+def test_get_error_logs_file_not_found(client):
+    with patch('builtins.open', side_effect=FileNotFoundError):
+        response = client.get('/api/error_logs')
+        assert response.status_code == 500
+        assert 'error' in response.json

@@ -1,3 +1,6 @@
+"""
+This handles logs.
+"""
 import logging
 import os
 from logging.handlers import RotatingFileHandler

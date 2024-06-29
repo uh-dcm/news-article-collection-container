@@ -4,13 +4,13 @@ This is the main backend app for the project.
 from os.path import exists
 import os
 import subprocess
-import time
 from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
 from flask_apscheduler import APScheduler
-from sqlalchemy import create_engine, MetaData, text, inspect
+from sqlalchemy import create_engine, MetaData, text
 from config import DATABASE_URL, FETCHER_FOLDER
 from log_config import logger, LOG_FILE_PATH
+from downloader.download_articles import download_articles as download_articles_func
 
 class Config:
     SCHEDULER_API_ENABLED = True
@@ -111,27 +111,10 @@ def serve(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
-# saves the articles from db, currently as json format only
-# uses db_to_json.py to do it
+# downloads the articles from db, uses download_articles.py
 @app.route('/api/articles', methods=['GET'])
 def download_articles():
-
-    # wait for collect.py and process.py to finish
-    while os.path.exists(LOCK_FILE):
-        time.sleep(1)
-
-    # check whether the table exists
-    inspector = inspect(engine)
-    if not inspector.has_table('articles'):
-        return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 400
-
-    try:
-        subprocess.run(['python3', 'db_to_json.py'], check=True)
-        return send_from_directory(f'./{FETCHER_FOLDER}/data', "articles.json", as_attachment=True)
-    except subprocess.CalledProcessError as e:
-        print("Running process and export resulted in failure")
-        print("Error: ", e.stderr)
-        return jsonify({"status": f"{e}"}), 400
+    return download_articles_func(engine)
 
 # search db for a query and return results
 # this might be best to split into its own as it grows

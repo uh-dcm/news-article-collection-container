@@ -37,11 +37,27 @@ describe('News Article Collector App', () => {
   });
 
   it('should download filled articles.json', () => {
-    cy.contains('Download articles').click({ force: true });
+    cy.get('button').contains('JSON').click({ force: true });
 
-    cy.readFile(`${downloadsFolder}/articles.json`, { timeout: 240000 }).should('exist').then((articles) => {
+    cy.readFile(`${downloadsFolder}/articles.json`, { timeout: 300000 }).should('exist').then((articles) => {
       expect(articles).to.be.an('array');
       expect(articles.length).to.be.greaterThan(0);
     });
   });
+
+  it('should download filled articles.csv', () => {
+    cy.wait(1000);
+    cy.get('button').contains('CSV').click({ force: true });
+
+    cy.readFile(`${downloadsFolder}/articles.csv`, 'utf-8').should('exist').then((content) => {
+      const rows = content.split('\n');
+      expect(rows.length).to.be.greaterThan(1);
+
+      // remove the double quotes
+      const headers = rows[0].replace(/"/g, '').split(',');
+      expect(headers).to.include.members(['id', 'url', 'html', 'full_text', 'time', 'download_time']);
+    });
+  });
+
+  // parquet seems to require specific import reader
 });

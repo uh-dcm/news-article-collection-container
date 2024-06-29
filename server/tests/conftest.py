@@ -11,7 +11,7 @@ def pytest_configure(config):
 @pytest.fixture(scope='session', autouse=True)
 def reset_flask_env():
     original_flask_env = os.environ.get('FLASK_ENV')
-    
+
     yield
 
     if original_flask_env is None:

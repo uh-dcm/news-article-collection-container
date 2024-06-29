@@ -1,5 +1,5 @@
 """
-This transforms db to json.
+This transforms db to json, called by download_articles.py.
 """
 import os
 import html
@@ -9,14 +9,11 @@ import pandas as pd
 from sqlalchemy import create_engine
 from config import DATABASE_URL, FETCHER_FOLDER
 
-# ! Requires that the database is created with collected and processed data
-
 LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
 
 db_connect = create_engine(DATABASE_URL)
 
 def transform_articles_to_json():
-
     # wait for collect.py and process.py to finish
     while os.path.exists(LOCK_FILE):
         time.sleep(1)
@@ -28,7 +25,6 @@ def transform_articles_to_json():
     df["html"] = df["html"].apply(html.escape)
 
     with open(f'./{FETCHER_FOLDER}/data/articles.json', 'w', encoding='utf-8') as file:
-        # format defaults to string, to enable DateTime parsing
         json.dump(df.to_dict(orient='records'), file, indent=4, ensure_ascii=False, default=str)
 
 if __name__ == '__main__':

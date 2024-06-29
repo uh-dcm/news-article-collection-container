@@ -83,11 +83,15 @@ export const testData = [
   {
     time: '2016-06-06 09:09:09',
     url: 'https://blabla.com/1',
+    html: '<!DOCTYPE html><html lang="fi"><head>',
     full_text: 'Full text 1.',
+    download_time: '2024-04-04 08:08:08.777777',
   },
   {
     time: '2016-06-06 09:09:09',
     url: 'https://blabla.com/2',
+    html: '<p>Html 2</p>',
     full_text: 'Full text 2.',
+    download_time: '2024-04-04 08:08:08.777777',
   },
 ];

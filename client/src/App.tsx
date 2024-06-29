@@ -125,7 +125,7 @@ export default function App() {
     stopFetching();
   };
 
-  const handleArticleDownload = async () => {
+  const handleArticleDownload = async (format: 'json' | 'csv' | 'parquet') => {
     toast.dismiss();
     setIsDisabled(true);
 
@@ -136,20 +136,20 @@ export default function App() {
       success: (msg: string) => msg,
       error: (error: string) => {
         console.error('Error downloading:', error);
-        return 'Failed to download the file. Try waiting longer before downloading.';
+        return 'Failed to download the file. Have you fetched articles yet?';
       },
     } as ToastOptions satisfies ToastOptions;
 
     toast.promise(async () => {
       try {
-        const response = await axios.get(`${serverUrl}/api/articles`, {
+        const response = await axios.get(`${serverUrl}/api/articles?format=${format}`, {
           responseType: 'blob',
         });
 
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'articles.json');
+        link.setAttribute('download', `articles.${format}`);
         document.body.appendChild(link);
         link.click();
 
@@ -291,19 +291,41 @@ export default function App() {
               <CardHeader>
                 <CardTitle className="text-lg">Export</CardTitle>
                 <CardDescription>
-                  Download article data in JSON format
+                  Download article data in JSON, CSV or Parquet
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex justify-between">
                 <Button
                   variant="outline"
-                  onClick={handleArticleDownload}
+                  onClick={() => handleArticleDownload('json')}
                   disabled={isDisabled}
-                  className="col-span-2 w-full p-6 text-base"
+                  className="w-[30%] p-6 text-base"
                 >
                   <div className="flex justify-center">
                     <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
-                    Download articles
+                    JSON
+                  </div>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleArticleDownload('csv')}
+                  disabled={isDisabled}
+                  className="w-[30%] p-6 text-base"
+                >
+                  <div className="flex justify-center">
+                    <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
+                    CSV
+                  </div>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleArticleDownload('parquet')}
+                  disabled={isDisabled}
+                  className="w-[30%] p-6 text-base"
+                >
+                  <div className="flex justify-center">
+                    <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
+                    Parquet
                   </div>
                 </Button>
               </CardContent>
