@@ -28,6 +28,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+downloads/
+screenshots/
 
 # Python cache
 __pycache__
