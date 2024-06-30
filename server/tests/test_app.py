@@ -7,6 +7,8 @@ import subprocess
 from unittest.mock import patch, mock_open
 import shutil
 import pytest
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 from database_filler import fill_test_database
 
 # path needs to be before app import, at least in local tests
@@ -155,14 +157,39 @@ def test_download_articles_no_format(client):
     if response.status_code == 200:
         assert response.content_type == 'application/json'
 
-def test_download_articles_no_data(client):
-    response = client.get('/api/articles')
+def test_download_articles_case_insensitive_format(client):
+    response = client.get('/api/articles?format=JSON')
     assert response.status_code == 400
+    assert response.content_type == 'application/json'
+
+def test_download_articles_whitespace_format(client):
+    response = client.get('/api/articles?format= csv ')
+    assert response.status_code == 400
+    assert response.content_type == 'application/json'
+
+def test_download_articles_multiple_formats(client):
+    response = client.get('/api/articles?format=json&format=csv')
+    assert response.status_code == 400
+    assert response.content_type == 'application/json'
+
+def test_download_articles_empty_format(client):
+    response = client.get('/api/articles?format=')
+    assert response.status_code == 400
+    assert response.content_type == 'application/json'
 
 def test_download_articles_invalid_format(client):
     response = client.get('/api/articles?format=xml')
     assert response.status_code == 400
-    assert response.json['message'] == 'Invalid format requested.'
+    assert response.json['message'] == "Invalid format requested."
+
+def test_download_articles_no_data(client):
+    conn = engine.connect()
+    conn.execute(text("DROP TABLE IF EXISTS articles"))
+    conn.close()
+
+    response = client.get('/api/articles')
+    assert response.status_code == 400
+    assert response.json['message'] == "No articles found. Please fetch the articles first."
 
 def test_download_articles_subprocess_error(client, mock_subprocess):
     def raise_error(*args, **kwargs):
@@ -170,6 +197,14 @@ def test_download_articles_subprocess_error(client, mock_subprocess):
     mock_subprocess.side_effect = raise_error
     response = client.get('/api/articles')
     assert response.status_code == 400
+
+def test_download_articles_db_error(client):
+    with patch('downloader.download_articles.inspect') as mock_inspect:
+        mock_inspect.side_effect = SQLAlchemyError("Mock database error")
+
+        response = client.get('/api/articles')
+        assert response.status_code == 500
+        assert response.json['message'] == "Database error: Mock database error"
 
 def test_search_articles(client):
     response = client.get('/api/articles/search', query_string={'searchQuery': 'blabla'})
