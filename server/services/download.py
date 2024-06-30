@@ -3,6 +3,7 @@ This handles downloads from db, called by app.py.
 """
 import os
 import time
+import subprocess
 from flask import jsonify, send_from_directory, request
 from sqlalchemy import inspect
 from sqlalchemy.exc import SQLAlchemyError
@@ -56,6 +57,9 @@ def download_articles(engine):
     except SQLAlchemyError as e:
         logger.error(f"Database error when downloading: {e}")
         return jsonify({"status": "error", "message": f"Database error when downloading: {str(e)}"}), 500
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Subprocess error when downloading: {e}")
+        return jsonify({"status": "error", "message": "Error during subprocess execution."}), 400
     except Exception as e:
         logger.error(f"Downloading articles resulted in failure: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400

@@ -143,7 +143,7 @@ def test_download_articles_csv(client):
     response = client.get('/api/articles?format=csv')
     assert response.status_code in [200, 400]
     if response.status_code == 200:
-        assert response.content_type == 'text/csv'
+        assert response.content_type.startswith('text/csv')
 
 def test_download_articles_parquet(client):
     response = client.get('/api/articles?format=parquet')
