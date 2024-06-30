@@ -302,7 +302,7 @@ export default function App() {
                   className="w-[30%] p-6 text-base"
                 >
                   <div className="flex justify-center">
-                    <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
+                    <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
                     JSON
                   </div>
                 </Button>
@@ -313,7 +313,7 @@ export default function App() {
                   className="w-[30%] p-6 text-base"
                 >
                   <div className="flex justify-center">
-                    <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
+                    <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
                     CSV
                   </div>
                 </Button>
