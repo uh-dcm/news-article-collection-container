@@ -7,10 +7,11 @@ import subprocess
 from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
 from flask_apscheduler import APScheduler
-from sqlalchemy import create_engine, MetaData, text
+from sqlalchemy import create_engine, MetaData
 from config import DATABASE_URL, FETCHER_FOLDER
 from log_config import logger, LOG_FILE_PATH
-from downloader.download_articles import download_articles as download_articles_func
+from download import download_articles
+from search import search_articles
 
 class Config:
     SCHEDULER_API_ENABLED = True
@@ -113,25 +114,13 @@ def serve(path):
 
 # downloads the articles from db, uses download_articles.py
 @app.route('/api/articles', methods=['GET'])
-def download_articles():
-    return download_articles_func(engine)
+def download():
+    return download_articles(engine)
 
-# search db for a query and return results
-# this might be best to split into its own as it grows
+# search db for a query and return results, uses search_articles.py
 @app.route('/api/articles/search', methods=['GET'])
-def search_articles():
-    try:
-        search_query = request.args.get('searchQuery', '')
-        # Datetime object used instead of string to achieve proper sorting in table
-        stmt = text("SELECT DATETIME(time), url, full_text FROM articles WHERE full_text LIKE :word COLLATE utf8_general_ci")
-        stmt = stmt.bindparams(word=f'%{search_query}%')
-        result = connection.execute(stmt)
-        rows = result.fetchall()
-        data = [{"time": time, "url": url, "full_text": full_text} for time, url, full_text in rows]
-        return jsonify(data), 200
-    except Exception as e:
-        print("Error: ", e)
-        return jsonify({"status": "error", "message": str(e)}), 500
+def search():
+    return search_articles(engine)
 
 @app.route('/api/error_logs', methods=['GET'])
 def get_error_log():
