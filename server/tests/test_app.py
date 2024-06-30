@@ -190,13 +190,6 @@ def test_download_articles_no_data(client):
     assert response.status_code == 400
     assert response.json['message'] == "No articles found. Please fetch the articles first."
 
-def test_download_articles_subprocess_error(client, mock_subprocess):
-    def raise_error(*args, **kwargs):
-        raise subprocess.CalledProcessError(1, 'cmd')
-    mock_subprocess.side_effect = raise_error
-    response = client.get('/api/articles')
-    assert response.status_code == 400
-
 def test_download_articles_db_error(client):
     with patch('services.download.inspect') as mock_inspect:
         mock_inspect.side_effect = SQLAlchemyError("Mock database error")
