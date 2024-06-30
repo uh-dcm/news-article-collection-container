@@ -7,11 +7,9 @@ import json
 import csv
 import time
 import pandas as pd
-from sqlalchemy import create_engine
-from config import DATABASE_URL, FETCHER_FOLDER
+from config import FETCHER_FOLDER
 
 LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
-db_connect = create_engine(DATABASE_URL)
 
 # if escaping html isn't required, remove this and change expected test data
 def escape_html_content(df):
@@ -41,13 +39,13 @@ def transform_db_to_parquet(df):
 
     df.to_parquet(parquet_file_path, index=False)
 
-def transform_db_to_format(format):
+def transform_db_to_format(engine, format):
     # wait for collect.py and process.py to finish
     # double verification in case of possible rare events
     while os.path.exists(LOCK_FILE):
         time.sleep(1)
 
-    df = pd.read_sql_table('articles', con=db_connect)
+    df = pd.read_sql_table('articles', con=engine)
     df = escape_html_content(df)
     
     if format == 'csv':

@@ -8,14 +8,14 @@ from sqlalchemy import inspect
 from sqlalchemy.exc import SQLAlchemyError
 from config import FETCHER_FOLDER
 from log_config import logger
-from transformer import transform_db_to_format
+from services.transformer import transform_db_to_format
 
 LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
 
-def transform_articles(format):
+def transform_articles(engine, format):
     output_file_path = None
     try:
-        transform_db_to_format(format)
+        transform_db_to_format(engine, format)
         if format == 'json':
             output_file_path = "articles.json"
         elif format == 'csv':
@@ -52,7 +52,7 @@ def download_articles(engine):
         if format not in ['json', 'csv', 'parquet']:
             return jsonify({"status": "error", "message": "Invalid format requested."}), 400
 
-        return transform_articles(format)
+        return transform_articles(engine, format)
     except SQLAlchemyError as e:
         logger.error(f"Database error when downloading: {e}")
         return jsonify({"status": "error", "message": f"Database error when downloading: {str(e)}"}), 500

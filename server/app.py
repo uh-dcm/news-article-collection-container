@@ -10,8 +10,8 @@ from flask_apscheduler import APScheduler
 from sqlalchemy import create_engine, MetaData
 from config import DATABASE_URL, FETCHER_FOLDER
 from log_config import logger, LOG_FILE_PATH
-from download import download_articles
-from search import search_articles
+from services.download import download_articles
+from services.search import search_articles
 
 class Config:
     SCHEDULER_API_ENABLED = True

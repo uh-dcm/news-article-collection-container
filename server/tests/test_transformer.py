@@ -13,11 +13,12 @@ from database_filler import fill_test_database
 
 # path needs to be before db_to_format_transformer import, at least in local tests
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from transformer import db_connect, transform_db_to_format  # pylint: disable=import-error
+from app import engine  # pylint: disable=import-error
+from services.transformer import transform_db_to_format  # pylint: disable=import-error
 
 @pytest.fixture(scope='module')
 def setup_database():
-    conn = db_connect.connect()
+    conn = engine.connect()
     fill_test_database(conn)
     yield conn
     conn.close()
@@ -69,19 +70,19 @@ def verify_parquet_data(file_path, expected_data):
     assert parquet_data == expected_data, f"The data in articles.parquet does not match the expected data. Expected: {expected_data}, Actual: {parquet_data}"
 
 def test_transform_articles_to_csv(setup_database, setup_and_teardown):
-    transform_db_to_format('csv')
+    transform_db_to_format(engine, 'csv')
     file_path = 'test-rss-fetcher/data/articles.csv'
     assert os.path.exists(file_path), "The articles.csv file was not created."
     verify_csv_data(file_path, expected_data)
 
 def test_transform_articles_to_json(setup_database, setup_and_teardown):
-    transform_db_to_format('json')
+    transform_db_to_format(engine, 'json')
     file_path = 'test-rss-fetcher/data/articles.json'
     assert os.path.exists(file_path), "The articles.json file was not created."
     verify_json_data(file_path, expected_data)
 
 def test_transform_articles_to_parquet(setup_database, setup_and_teardown):
-    transform_db_to_format('parquet')
+    transform_db_to_format(engine, 'parquet')
     file_path = 'test-rss-fetcher/data/articles.parquet'
     assert os.path.exists(file_path), "The articles.parquet file was not created."
     verify_parquet_data(file_path, expected_data)

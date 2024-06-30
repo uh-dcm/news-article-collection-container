@@ -198,7 +198,7 @@ def test_download_articles_subprocess_error(client, mock_subprocess):
     assert response.status_code == 400
 
 def test_download_articles_db_error(client):
-    with patch('download.inspect') as mock_inspect:
+    with patch('services.download.inspect') as mock_inspect:
         mock_inspect.side_effect = SQLAlchemyError("Mock database error")
 
         response = client.get('/api/articles')
@@ -225,7 +225,7 @@ def test_search_articles_empty_query_without_having_fetched(client):
     assert response.json['message'] == "No articles found. Please fetch the articles first."
 
 def test_search_articles_db_error(client):
-    with patch('search.inspect') as mock_inspect:
+    with patch('services.search.inspect') as mock_inspect:
         mock_inspect.side_effect = SQLAlchemyError("Mock database error")
 
         response = client.get('/api/articles/search')
