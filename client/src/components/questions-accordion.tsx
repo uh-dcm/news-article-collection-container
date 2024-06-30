@@ -49,12 +49,21 @@ export default function QuestionsAccordion() {
               <li>Input the wanted RSS-feeds one-by-one</li>
               <li>
                 When the you have the all the feeds you wanted, confirm the
-                feeds by clicking 'Send selected RSS feeds'
+                feeds by clicking 'Send selected RSS feeds'.{' '}
+                <em>
+                  Please note that the list of feeds is <b>temporary</b> before
+                  you finalize the changes.{' '}
+                  <b>
+                    All unselected feeds will be cleared when finalizing the
+                    changes, and cannot be restored.
+                  </b>
+                </em>
               </li>
               <li>
-                (Optional): If you wish, you can select and delete RSS-feeds,
-                remember to finalize the changes by confirming, just as done
-                before.
+                <b>(Optional):</b> If you wish, you can delete specific
+                individual RSS-feeds after adding, remember to finalize the
+                changes, just as instructed above. Alternatively, just simply
+                leave them unselected when finalizing.
               </li>
               <li>Activate the RSS-fetching</li>
               <li>Disable the fetching when needed</li>
