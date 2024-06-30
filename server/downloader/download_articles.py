@@ -31,6 +31,10 @@ def transform_articles(format):
         return jsonify({"status": "error", "message": str(e)}), 400
 
 def download_articles(engine):
+    # handle possibility of multiple formats being requested at once
+    if len(request.args.getlist('format')) > 1:
+        return jsonify({"status": "error", "message": "Invalid format requested."}), 400
+
     # '/api/articles' defaults to json for backwards compatibility for now
     format = request.args.get('format', 'json')
 

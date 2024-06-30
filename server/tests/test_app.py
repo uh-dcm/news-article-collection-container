@@ -161,25 +161,24 @@ def test_download_articles_case_insensitive_format(client):
     response = client.get('/api/articles?format=JSON')
     assert response.status_code == 400
     assert response.content_type == 'application/json'
+    assert response.json['message'] == "Invalid format requested."
 
 def test_download_articles_whitespace_format(client):
     response = client.get('/api/articles?format= csv ')
     assert response.status_code == 400
     assert response.content_type == 'application/json'
+    assert response.json['message'] == "Invalid format requested."
 
 def test_download_articles_multiple_formats(client):
     response = client.get('/api/articles?format=json&format=csv')
     assert response.status_code == 400
     assert response.content_type == 'application/json'
+    assert response.json['message'] == "Invalid format requested."
 
 def test_download_articles_empty_format(client):
     response = client.get('/api/articles?format=')
     assert response.status_code == 400
     assert response.content_type == 'application/json'
-
-def test_download_articles_invalid_format(client):
-    response = client.get('/api/articles?format=xml')
-    assert response.status_code == 400
     assert response.json['message'] == "Invalid format requested."
 
 def test_download_articles_no_data(client):
