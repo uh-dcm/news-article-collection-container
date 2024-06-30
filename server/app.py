@@ -99,6 +99,8 @@ def get_feed_urls():
 def set_feed_urls():
     feeds = request.json
     feed_urls = feeds['feedUrls']
+    if feed_urls == []:
+        return jsonify({"status": "empty"}), 304
     with open(f'./{FETCHER_FOLDER}/data/feeds.txt', 'w') as f:
         f.write("\n".join(feed_urls))
     return jsonify({"status": "success"}), 200

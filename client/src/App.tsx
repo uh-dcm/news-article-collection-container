@@ -40,6 +40,13 @@ import {
 
 import { Separator } from '@/components/ui/separator';
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { PopoverClose } from '@radix-ui/react-popover';
+
 type ToastOptions = {
   loading: string;
   description: string | null;
@@ -57,6 +64,7 @@ export default function App() {
   const [isFetching, setIsFetching] = useState(false);
   const [searchData, setSearchData] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedUrls, setSelectedUrls] = useState<Feed[]>([]);
 
   const handleFilterInputChange = (event: {
     target: { value: React.SetStateAction<string> };
@@ -79,25 +87,28 @@ export default function App() {
       success: (msg: string) => msg,
       error: (error: string) => {
         console.error('Error submitting:', error);
-        toastOptions.description = 'Please try again.';
         return 'Failed to submit the feed URLs.';
       },
     } as ToastOptions satisfies ToastOptions;
 
     toast.promise(async () => {
       try {
-        console.log(feedUrlList);
-        const feedUrlArray = feedUrlList.map((feedObject) => feedObject.url);
+        const feedUrlArray = selectedUrls.map((feedObject) => feedObject.url);
 
-        const response = await sendAllFeedUrls(feedUrlArray);
+        await sendAllFeedUrls(feedUrlArray);
 
-        if (response.status == 200) {
-          toastOptions.description = null;
-          return 'Feed list set successfully!';
-        } else {
-          throw new Error();
-        }
+        toastOptions.description = null;
+
+        const feedUrls = await getAllFeedUrls();
+
+        const feedUrlObjArray = feedUrls.map((feedUrl: string) => ({
+          url: feedUrl.trim(),
+        }));
+
+        setFeedUrlList(feedUrlObjArray);
+        return 'Feed list set successfully!';
       } catch (error) {
+        toastOptions.description = 'No feeds selected';
         throw new Error();
       } finally {
         setIsUrlSetDisabled(false);
@@ -142,9 +153,12 @@ export default function App() {
 
     toast.promise(async () => {
       try {
-        const response = await axios.get(`${serverUrl}/api/articles?format=${format}`, {
-          responseType: 'blob',
-        });
+        const response = await axios.get(
+          `${serverUrl}/api/articles?format=${format}`,
+          {
+            responseType: 'blob',
+          }
+        );
 
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
@@ -177,6 +191,10 @@ export default function App() {
     setFeedUrlList((prevData) =>
       prevData.filter((item) => !selectedRows.includes(item))
     );
+  };
+
+  const setSelectedRows = (selectedRows: Feed[]) => {
+    setSelectedUrls(selectedRows);
   };
 
   useEffect(() => {
@@ -237,21 +255,45 @@ export default function App() {
                   columns={feedColumns}
                   data={feedUrlList}
                   onDeleteSelected={deleteSelectedRows}
-                  tableName={'List of RSS feeds'}
+                  onRowsSelected={setSelectedRows}
+                  tableName={'List of all RSS feeds'}
                 />
               </CardContent>
               <CardContent>
-                <Button
-                  variant="outline"
-                  onClick={handleSubmit}
-                  className="w-full p-6 text-base"
-                  disabled={isUrlSetDisabled}
-                >
-                  <div className="flex justify-center">
-                    <CheckIcon className="mr-3 size-6"></CheckIcon>
-                    Send selected RSS feeds
-                  </div>
-                </Button>
+                <Popover>
+                  <PopoverTrigger className="w-full">
+                    {' '}
+                    <Button
+                      variant="outline"
+                      className="w-full p-6 text-base"
+                      disabled={isUrlSetDisabled}
+                    >
+                      <div className="flex justify-center">
+                        <CheckIcon className="mr-3 size-6"></CheckIcon>
+                        Send selected RSS feeds
+                      </div>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full">
+                    <p>
+                      Finalizing changes will get rid of{' '}
+                      <b>all unselected feeds</b>.
+                    </p>
+                    <p className="my-2">
+                      Click below, if you are aware and wish to proceed.
+                    </p>
+                    <PopoverClose className="w-full">
+                      <Button
+                        variant="default"
+                        onClick={handleSubmit}
+                        className="w-full p-6 text-base"
+                        disabled={isUrlSetDisabled}
+                      >
+                        Finalize changes
+                      </Button>{' '}
+                    </PopoverClose>
+                  </PopoverContent>
+                </Popover>
               </CardContent>
             </Card>
             <Card className="col-span-2 row-span-2 mt-12">

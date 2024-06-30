@@ -26,6 +26,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onDeleteSelected?: (selectedRows: TData[]) => void;
+  onRowsSelected?: (selectedRows: TData[]) => void;
   tableName: string;
 }
 
@@ -33,6 +34,7 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   onDeleteSelected,
+  onRowsSelected,
   tableName,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -62,6 +64,15 @@ export function DataTable<TData, TValue>({
       onDeleteSelected(selectedRows);
     }
   };
+
+  React.useEffect(() => {
+    if (onRowsSelected) {
+      const selectedRows = table
+        .getSelectedRowModel()
+        .rows.map((row) => row.original);
+      onRowsSelected(selectedRows);
+    }
+  }, [onRowsSelected, table]);
 
   return (
     <div>
