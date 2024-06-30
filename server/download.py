@@ -8,7 +8,7 @@ from sqlalchemy import inspect
 from sqlalchemy.exc import SQLAlchemyError
 from config import FETCHER_FOLDER
 from log_config import logger
-from downloader.db_to_format_transformer import transform_db_to_format
+from transformer import transform_db_to_format
 
 LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
 
@@ -27,7 +27,7 @@ def transform_articles(format):
 
         return send_from_directory(f'./{FETCHER_FOLDER}/data', output_file_path, as_attachment=True)
     except Exception as e:
-        logger.error(f"Running process and export resulted in failure: {e}")
+        logger.error(f"Transforming articles resulted in failure: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
 def download_articles(engine):
@@ -54,8 +54,8 @@ def download_articles(engine):
 
         return transform_articles(format)
     except SQLAlchemyError as e:
-        logger.error(f"Database error: {e}")
-        return jsonify({"status": "error", "message": f"Database error: {str(e)}"}), 500
+        logger.error(f"Database error when downloading: {e}")
+        return jsonify({"status": "error", "message": f"Database error when downloading: {str(e)}"}), 500
     except Exception as e:
-        logger.error(f"Running process and export resulted in failure: {e}")
+        logger.error(f"Downloading articles resulted in failure: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400

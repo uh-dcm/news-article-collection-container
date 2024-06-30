@@ -198,28 +198,39 @@ def test_download_articles_subprocess_error(client, mock_subprocess):
     assert response.status_code == 400
 
 def test_download_articles_db_error(client):
-    with patch('downloader.download_articles.inspect') as mock_inspect:
+    with patch('download.inspect') as mock_inspect:
         mock_inspect.side_effect = SQLAlchemyError("Mock database error")
 
         response = client.get('/api/articles')
         assert response.status_code == 500
-        assert response.json['message'] == "Database error: Mock database error"
+        assert response.json['message'] == "Database error when downloading: Mock database error"
 
 def test_search_articles(client):
     response = client.get('/api/articles/search', query_string={'searchQuery': 'blabla'})
     assert response.status_code == 200
     assert isinstance(response.json, list)
 
-def test_search_articles_empty_query(client):
+def test_search_articles_empty_query_having_fetched(client):
     response = client.get('/api/articles/search', query_string={'searchQuery': ''})
     assert response.status_code == 200
     assert isinstance(response.json, list)
 
-def test_search_articles_error(client):
-    with patch('app.connection.execute', side_effect=Exception("Database error")):
-        response = client.get('/api/articles/search', query_string={'searchQuery': 'blabla'})
+def test_search_articles_empty_query_without_having_fetched(client):
+    conn = engine.connect()
+    conn.execute(text("DROP TABLE IF EXISTS articles"))
+    conn.close()
+
+    response = client.get('/api/articles/search')
+    assert response.status_code == 400
+    assert response.json['message'] == "No articles found. Please fetch the articles first."
+
+def test_search_articles_db_error(client):
+    with patch('search.inspect') as mock_inspect:
+        mock_inspect.side_effect = SQLAlchemyError("Mock database error")
+
+        response = client.get('/api/articles/search')
         assert response.status_code == 500
-        assert response.json['status'] == "error"
+        assert response.json['message'] == "Database error when searching: Mock database error"
 
 def test_get_error_logs(client):
     with patch('builtins.open', mock_open(read_data="Error 1\nError 2")):

@@ -13,7 +13,7 @@ from database_filler import fill_test_database
 
 # path needs to be before db_to_format_transformer import, at least in local tests
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from downloader.db_to_format_transformer import db_connect, transform_db_to_format  # pylint: disable=import-error
+from transformer import db_connect, transform_db_to_format  # pylint: disable=import-error
 
 @pytest.fixture(scope='module')
 def setup_database():
