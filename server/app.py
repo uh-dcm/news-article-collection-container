@@ -102,7 +102,31 @@ def set_feed_urls():
     feed_urls = feeds['feedUrls']
     if feed_urls == []:
         return jsonify({"status": "empty"}), 304
+    if feed_urls == ['reset']:
+        with open(f'./{FETCHER_FOLDER}/data/feeds.txt', 'w') as f:
+            f.write("\n".join([]))
+        return jsonify({"status": "success"}), 200
+ 
     with open(f'./{FETCHER_FOLDER}/data/feeds.txt', 'w') as f:
+        f.write("\n".join(feed_urls))
+    return jsonify({"status": "success"}), 200
+
+@app.route('/api/get_feed_urls/all', methods=['GET'])
+def get_all_feed_urls():
+    feeds = []
+    try:
+        if exists(f'./{FETCHER_FOLDER}/data/all_feeds.txt'):
+            with open(f'./{FETCHER_FOLDER}/data/all_feeds.txt') as f:
+                feeds = f.readlines()
+    except FileNotFoundError as e:
+        print(f"Error in parsing rss-feeds from feeds.txt: {e.strerror}")
+    return jsonify(feeds), 200
+
+@app.route('/api/set_feed_urls/all', methods=['POST'])
+def set_all_feed_urls():
+    feeds = request.json
+    feed_urls = feeds['feedUrls']
+    with open(f'./{FETCHER_FOLDER}/data/all_feeds.txt', 'w') as f:
         f.write("\n".join(feed_urls))
     return jsonify({"status": "success"}), 200
 

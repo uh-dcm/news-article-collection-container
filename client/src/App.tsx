@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { getAllFeedUrls, sendAllFeedUrls } from './services/feed_urls';
+import {
+  getAllFeedUrls,
+  getSelectedFeedUrls,
+  sendAllFeedUrls,
+  sendSelectedFeedUrls,
+} from './services/feed_urls';
 import {
   getFetchingStatus,
   keepFetching,
@@ -14,6 +19,7 @@ import {
   BarsArrowDownIcon,
   BarsArrowUpIcon,
   MagnifyingGlassIcon,
+  ArrowPathRoundedSquareIcon,
 } from '@heroicons/react/24/solid';
 
 import { Button } from '@/components/ui/button';
@@ -47,6 +53,15 @@ import {
 } from '@/components/ui/popover';
 import { PopoverClose } from '@radix-ui/react-popover';
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
 type ToastOptions = {
   loading: string;
   description: string | null;
@@ -65,6 +80,7 @@ export default function App() {
   const [searchData, setSearchData] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUrls, setSelectedUrls] = useState<Feed[]>([]);
+  const [sentSelectedUrls, setSentSelectedUrls] = useState<Feed[]>([]);
 
   const handleFilterInputChange = (event: {
     target: { value: React.SetStateAction<string> };
@@ -72,11 +88,14 @@ export default function App() {
     setSearchQuery(event.target.value);
   };
 
-  const handleFeedAdd = (url: Feed) => {
-    setFeedUrlList([...feedUrlList, url]);
+  const handleFeedAdd = (feed: Feed) => {
+    setFeedUrlList([...feedUrlList, feed]);
+    const currentFeeds = feedUrlList.map((feed) => feed.url);
+    const updatedFeeds = [...currentFeeds, feed.url];
+    sendAllFeedUrls(updatedFeeds);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (arg?: string) => {
     toast.dismiss();
     setIsUrlSetDisabled(true);
 
@@ -93,19 +112,21 @@ export default function App() {
 
     toast.promise(async () => {
       try {
-        const feedUrlArray = selectedUrls.map((feedObject) => feedObject.url);
-
-        await sendAllFeedUrls(feedUrlArray);
+        if (arg == 'reset') {
+          await sendSelectedFeedUrls(['reset']);
+        } else {
+          await sendSelectedFeedUrls(selectedUrls.map((feed) => feed.url));
+        }
 
         toastOptions.description = null;
 
-        const feedUrls = await getAllFeedUrls();
+        const feedUrls = await getSelectedFeedUrls();
 
         const feedUrlObjArray = feedUrls.map((feedUrl: string) => ({
           url: feedUrl.trim(),
         }));
 
-        setFeedUrlList(feedUrlObjArray);
+        setSentSelectedUrls(feedUrlObjArray);
         return 'Feed list set successfully!';
       } catch (error) {
         toastOptions.description = 'No feeds selected';
@@ -187,26 +208,39 @@ export default function App() {
     setSearchData(data);
   };
 
-  const deleteSelectedRows = (selectedRows: Feed[]) => {
-    setFeedUrlList((prevData) =>
-      prevData.filter((item) => !selectedRows.includes(item))
+  const deleteSelectedRows = async (selectedRows: Feed[]) => {
+    const rowsAfterDelete = feedUrlList.filter(
+      (item) => !selectedRows.includes(item)
     );
+    setFeedUrlList(rowsAfterDelete);
+
+    sendAllFeedUrls(rowsAfterDelete.map((feed) => feed.url));
   };
 
   const setSelectedRows = (selectedRows: Feed[]) => {
     setSelectedUrls(selectedRows);
   };
 
+  const resetSelectedFeeds = () => {
+    setSelectedUrls([]);
+    handleSubmit('reset');
+  };
+
   useEffect(() => {
     toast.dismiss();
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
+      const selectedUrls = await getSelectedFeedUrls();
 
       const feedUrlObjArray = feedUrls.map((feedUrl: string) => ({
         url: feedUrl.trim(),
       }));
-
+      const selectedUrlObjArray = selectedUrls.map((feedUrl: string) => ({
+        url: feedUrl.trim(),
+      }));
+      console.log(selectedUrlObjArray);
       setFeedUrlList(feedUrlObjArray);
+      setSentSelectedUrls(selectedUrlObjArray);
     };
     fetchFeedUrls();
 
@@ -258,6 +292,25 @@ export default function App() {
                   onRowsSelected={setSelectedRows}
                   tableName={'List of all RSS feeds'}
                 />
+                <h1 className="mb-4 text-base font-medium">
+                  URLs selected for fetching
+                </h1>
+                <div className="mb-4 rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>URL</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sentSelectedUrls.map((feed, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{feed.url}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
               <CardContent>
                 <Popover>
@@ -270,7 +323,7 @@ export default function App() {
                     >
                       <div className="flex justify-center">
                         <CheckIcon className="mr-3 size-6"></CheckIcon>
-                        Send selected RSS feeds
+                        Update selected RSS feeds
                       </div>
                     </Button>
                   </PopoverTrigger>
@@ -285,7 +338,7 @@ export default function App() {
                     <PopoverClose className="w-full">
                       <Button
                         variant="default"
-                        onClick={handleSubmit}
+                        onClick={() => handleSubmit()}
                         className="w-full p-6 text-base"
                         disabled={isUrlSetDisabled}
                       >
@@ -294,6 +347,15 @@ export default function App() {
                     </PopoverClose>
                   </PopoverContent>
                 </Popover>
+                <Button
+                  variant="outline"
+                  className="my-4 w-full p-6 text-base"
+                  disabled={isUrlSetDisabled}
+                  onClick={resetSelectedFeeds}
+                >
+                  <ArrowPathRoundedSquareIcon className="mr-3 size-6"></ArrowPathRoundedSquareIcon>
+                  Reset selected RSS feeds
+                </Button>
               </CardContent>
             </Card>
             <Card className="col-span-2 row-span-2 mt-12">
