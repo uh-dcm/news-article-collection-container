@@ -29,8 +29,8 @@ If you'd like to setup the environment using the graphical UI, you can do the fo
 Alternatively, you can use the CLI tool to setup the environment by doing the following:
 
 1. [Login to Rahti 2](https://docs.csc.fi/cloud/rahti2/usage/getting_started/) from [https://rahti.csc.fi](https://rahti.csc.fi).
-2. Go to `../manifests` and run `oc apply -f image-stream.yaml` .
-3. Run `oc describe is news-collection` to get the `sha`-hash identifier of the latest image.
-4. Update the `sha`-identifier to `spec.spec.containers[0]` in order to get the latest build from the image stream.
+2. Go to `../manifests` and run `oc apply -f image-stream.yaml`  (or fetch latest image from Docker hub using `oc import-image news-collection `).
+3. Run `oc describe is news-collection` to get the `sha`-hash identifier of the latest image
+4. Update the `sha`-identifier to `spec.spec.containers[0]` of `deployment-prod.yaml` in order to get the latest build from the image stream.
 5. Run `oc apply -f <cfg_file>.yaml` for each of the remaining config files in `../manifests`.
 6. The app should now be accessable in the URL defined by the `spec.host` field in `service-route-prod.yaml`.
