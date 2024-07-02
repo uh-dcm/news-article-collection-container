@@ -77,7 +77,7 @@ export default function RssInput({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="RSS feed URL here..." {...field} />
+                  <Input placeholder="RSS-feed address here..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
