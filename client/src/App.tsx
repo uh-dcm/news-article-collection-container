@@ -65,7 +65,13 @@ export default function App() {
   };
 
   const handleFeedAdd = (url: Feed) => {
-    setFeedUrlList([...feedUrlList, url]);
+    setFeedUrlList((prevData) => {
+      // CAUTION: this could be slow for large lists, but it's fine for now
+      if (!prevData.find((feed) => feed.url === url.url)) {
+        return [...prevData, url];
+      }
+      return prevData;
+    });
   };
 
   const handleSubmit = async () => {
@@ -142,9 +148,12 @@ export default function App() {
 
     toast.promise(async () => {
       try {
-        const response = await axios.get(`${serverUrl}/api/articles?format=${format}`, {
-          responseType: 'blob',
-        });
+        const response = await axios.get(
+          `${serverUrl}/api/articles?format=${format}`,
+          {
+            responseType: 'blob',
+          }
+        );
 
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
@@ -183,6 +192,11 @@ export default function App() {
     toast.dismiss();
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
+
+      if (typeof feedUrls === 'string') {
+        // prevent error if backend is down, CAUTION: this may not always work
+        return;
+      }
 
       const feedUrlObjArray = feedUrls.map((feedUrl: string) => ({
         url: feedUrl.trim(),
