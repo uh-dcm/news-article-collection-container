@@ -26,6 +26,7 @@ import QuestionsAccordion from './components/questions-accordion';
 import Footer from './components/footer';
 import RssInput from './components/rss-input';
 import Header from './components/header';
+import Logs from './components/logs';
 import { DataTable } from './components/ui/data-table';
 import { articleColumns, Article } from './components/ui/article-columns';
 import { feedColumns, Feed } from './components/ui/feed-columns';
@@ -378,6 +379,7 @@ export default function App() {
                 />
               </CardContent>
             </Card>
+            <Logs />
             <div className="col-start-2 col-end-5 mt-16">
               <QuestionsAccordion />
             </div>
