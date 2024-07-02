@@ -8,4 +8,10 @@ const sendSearchQuery = async (searchQuery: string) => {
     return response.data
 };
 
-export { sendSearchQuery };
+const sendStatisticsQuery = async () => {
+    const response = await axios.get(`${serverUrl}/api/articles/statistics`)
+    return response.data
+};
+
+
+export { sendSearchQuery, sendStatisticsQuery };

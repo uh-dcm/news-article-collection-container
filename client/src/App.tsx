@@ -4,8 +4,8 @@ import {
   getFetchingStatus,
   keepFetching,
   stopFetching,
-} from './services/fetching-news';
-import { sendSearchQuery } from './services/database_queries';
+} from './services/fetching-news';  
+import { sendSearchQuery, sendStatisticsQuery } from './services/database_queries';
 import axios from 'axios';
 import './css/index.css';
 import {
@@ -14,6 +14,7 @@ import {
   BarsArrowDownIcon,
   BarsArrowUpIcon,
   MagnifyingGlassIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/solid';
 
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,20 @@ import {
 
 import { Separator } from '@/components/ui/separator';
 
+import {
+  DomainData,
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+
+import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
+
 type ToastOptions = {
   loading: string;
   description: string | null;
@@ -58,11 +73,37 @@ export default function App() {
   const [isFetching, setIsFetching] = useState(false);
   const [searchData, setSearchData] = useState<Article[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statisticData, setStatisticsData] = useState<DomainData[]>([]);
 
   const handleFilterInputChange = (event: {
     target: { value: React.SetStateAction<string> };
   }) => {
     setSearchQuery(event.target.value);
+  };
+
+  const handleFetchStatistics = async () => {
+    const toastOptions = {
+      loading: 'Getting statistics..',
+      description: 'Fetched statistics succesfully!',
+      duration: 4000,
+      success: (msg: string) => msg,
+      error: (error: string) => {
+        console.error('Error getting statistics:', error);
+        toastOptions.description = 'No articles have been downloaded.';
+        return 'Failed to formulate statistics.';
+      },
+    } as ToastOptions satisfies ToastOptions;
+
+    toast.promise(async () => {
+      try {
+        const data = await sendStatisticsQuery();
+        setStatisticsData(data);
+        console.log(statisticData)
+        return("Fetched statistics succesfully!")
+        } catch (error) {
+          throw new Error();
+      }
+    }, toastOptions);
   };
 
   const handleFeedAdd = (url: Feed) => {
@@ -345,6 +386,59 @@ export default function App() {
                 </Button>
               </CardContent>
             </Card>
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Card className="col-span-3">
+                  <CardHeader className="mb-2">
+                    <CardTitle className="text-lg">Statistics</CardTitle>
+                    <CardDescription>View summary statistics of articles</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button
+                        variant="outline"
+                        onClick={handleFetchStatistics}
+                        disabled={isDisabled}
+                        className="w-full p-6 text-base"
+                      >
+                        <div className="flex justify-center">
+                          <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
+                          View statistics
+                        </div>
+                  </Button>
+                  </CardContent>
+                </Card>
+              </DrawerTrigger>
+              <DrawerContent>
+                <div className="mx-auto w-full max-w-sm">
+                  <DrawerHeader>
+                    <DrawerTitle> A total of {statisticData.length} domains </DrawerTitle>
+                    <DrawerDescription> Number of articles by domain:</DrawerDescription>
+                  </DrawerHeader>
+                  <div className="mt-3 h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart width={400} height={400}>
+                        <Pie
+                          dataKey="count"
+                          isAnimationActive={false}
+                          data={statisticData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          fill="#8884d8"
+                          label
+                        />
+                        <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  </div>
+                  <DrawerFooter>
+                    <DrawerClose asChild>
+                      <Button variant="outline">Close</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </div>
+              </DrawerContent>
+            </Drawer>
             <Card className="col-span-5">
               <CardHeader>
                 <CardTitle className="text-lg">Search articles</CardTitle>
@@ -377,7 +471,7 @@ export default function App() {
                   data={searchData}
                   tableName={'Query results'}
                 />
-              </CardContent>
+              </CardContent>  
             </Card>
             <Logs />
             <div className="col-start-2 col-end-5 mt-16">
