@@ -127,7 +127,7 @@ def get_error_log():
     try:
         with open(LOG_FILE_PATH, 'r') as log_file:
             log_records = log_file.read()
-        return jsonify(logs=log_records.splitlines()), 200
+        return jsonify(log_records.splitlines()), 200
     except Exception as e:
         return jsonify({"error": "Failed to fetch logs"}), 500
 
