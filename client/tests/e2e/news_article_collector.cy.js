@@ -24,8 +24,7 @@ describe('News Article Collector App', () => {
     cy.contains('Feed list updated successfully!').should('be.visible');
   });
 
-  // The rest can take over 2 minutes with the original collect.py and process.py.
-  // With the improved ones it takes roughly 15 seconds.
+  // Note: the rest can take over 2 minutes
 
   it('should start RSS fetching', () => {
     cy.contains('Activate RSS fetching').click({ force: true });
@@ -35,6 +34,9 @@ describe('News Article Collector App', () => {
 
   it('should download filled articles.json', () => {
     cy.get('button').contains('JSON').click({ force: true });
+
+    cy.contains('Downloading...', { timeout: 3000 }).should('exist');
+    cy.contains('Please note that the process might take some time.').should('exist');
 
     cy.readFile(`${downloadsFolder}/articles.json`, { timeout: 300000 })
       .should('exist')
@@ -47,6 +49,8 @@ describe('News Article Collector App', () => {
   it('should download filled articles.csv', () => {
     cy.wait(1000);
     cy.get('button').contains('CSV').click({ force: true });
+
+    cy.contains('Download successful!').should('be.visible', { timeout: 3000 });
 
     cy.readFile(`${downloadsFolder}/articles.csv`, 'utf-8')
       .should('exist')
