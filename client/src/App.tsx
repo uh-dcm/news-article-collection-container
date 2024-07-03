@@ -26,6 +26,7 @@ import QuestionsAccordion from './components/questions-accordion';
 import Footer from './components/footer';
 import RssInput from './components/rss-input';
 import Header from './components/header';
+import Logs from './components/logs';
 import { DataTable } from './components/ui/data-table';
 import { articleColumns, Article } from './components/ui/article-columns';
 import { feedColumns, Feed } from './components/ui/feed-columns';
@@ -65,7 +66,13 @@ export default function App() {
   };
 
   const handleFeedAdd = (url: Feed) => {
-    setFeedUrlList([...feedUrlList, url]);
+    setFeedUrlList((prevData) => {
+      // CAUTION: this could be slow for large lists, but it's fine for now
+      if (!prevData.find((feed) => feed.url === url.url)) {
+        return [...prevData, url];
+      }
+      return prevData;
+    });
   };
 
   const handleSubmit = async () => {
@@ -125,7 +132,7 @@ export default function App() {
     stopFetching();
   };
 
-  const handleArticleDownload = async () => {
+  const handleArticleDownload = async (format: 'json' | 'csv' | 'parquet') => {
     toast.dismiss();
     setIsDisabled(true);
 
@@ -136,20 +143,23 @@ export default function App() {
       success: (msg: string) => msg,
       error: (error: string) => {
         console.error('Error downloading:', error);
-        return 'Failed to download the file. Try waiting longer before downloading.';
+        return 'Failed to download the file. Have you fetched articles yet?';
       },
     } as ToastOptions satisfies ToastOptions;
 
     toast.promise(async () => {
       try {
-        const response = await axios.get(`${serverUrl}/api/articles`, {
-          responseType: 'blob',
-        });
+        const response = await axios.get(
+          `${serverUrl}/api/articles?format=${format}`,
+          {
+            responseType: 'blob',
+          }
+        );
 
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'articles.json');
+        link.setAttribute('download', `articles.${format}`);
         document.body.appendChild(link);
         link.click();
 
@@ -183,6 +193,11 @@ export default function App() {
     toast.dismiss();
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
+
+      if (typeof feedUrls === 'string') {
+        // prevent error if backend is down, CAUTION: this may not always work
+        return;
+      }
 
       const feedUrlObjArray = feedUrls.map((feedUrl: string) => ({
         url: feedUrl.trim(),
@@ -291,19 +306,41 @@ export default function App() {
               <CardHeader>
                 <CardTitle className="text-lg">Export</CardTitle>
                 <CardDescription>
-                  Download article data in JSON format
+                  Download article data in JSON, CSV or Parquet
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex justify-between">
                 <Button
                   variant="outline"
-                  onClick={handleArticleDownload}
+                  onClick={() => handleArticleDownload('json')}
                   disabled={isDisabled}
-                  className="col-span-2 w-full p-6 text-base"
+                  className="w-[30%] p-6 text-base"
                 >
                   <div className="flex justify-center">
-                    <ArrowDownTrayIcon className="mr-3 size-6"></ArrowDownTrayIcon>
-                    Download articles
+                    <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
+                    JSON
+                  </div>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleArticleDownload('csv')}
+                  disabled={isDisabled}
+                  className="w-[30%] p-6 text-base"
+                >
+                  <div className="flex justify-center">
+                    <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
+                    CSV
+                  </div>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleArticleDownload('parquet')}
+                  disabled={isDisabled}
+                  className="w-[30%] p-6 text-base"
+                >
+                  <div className="flex justify-center">
+                    <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
+                    Parquet
                   </div>
                 </Button>
               </CardContent>
@@ -342,6 +379,7 @@ export default function App() {
                 />
               </CardContent>
             </Card>
+            <Logs />
             <div className="col-start-2 col-end-5 mt-16">
               <QuestionsAccordion />
             </div>

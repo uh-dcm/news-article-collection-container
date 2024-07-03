@@ -22,9 +22,23 @@ export default function QuestionsAccordion() {
               className="opacity-50 hover:underline hover:opacity-100"
               href="https://en.wikipedia.org/wiki/JSON"
             >
-              JSON-file
+              JSON
+            </a>
+            ,{' '}
+            <a
+              className="opacity-50 hover:underline hover:opacity-100"
+              href="https://en.wikipedia.org/wiki/Comma-separated_values"
+            >
+              CSV
+            </a>
+            , or{' '}
+            <a
+              className="opacity-50 hover:underline hover:opacity-100"
+              href="https://en.wikipedia.org/wiki/Apache_Parquet"
+            >
+              Parquet
             </a>{' '}
-            from the information it gathered.
+            file from the information it gathered.
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">

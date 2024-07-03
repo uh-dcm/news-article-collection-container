@@ -1,7 +1,7 @@
 kind: BuildConfig
 apiVersion: build.openshift.io/v1
 metadata:
-  name: news-collection-build
+  name: news-collection-build-prod
 spec:
   output:
     to:
@@ -12,13 +12,8 @@ spec:
       generic:
         secretReference:
           name: news-container-generic-webhook-secret
-    strategy:
+  strategy:
       type: Docker
-      dockerStrategy:
-        dockerfilePath: Dockerfile
-        buildArgs:
-        - name: VITE_API_BASE_URL
-          value: https://news-collection-news-container.2.rahtiapp.fi/
   source:
       git:
         uri: "https://github.com/uh-dcm/news-article-collection-container"

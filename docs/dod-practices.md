@@ -14,12 +14,4 @@ Code and documentation language: English.
 
 Commit message style: approximating Conventional Commits.
 
-Branching practice: trunk-based, with possible short-lived feature branches. 
-
-Naming formats (Python):
-
-- filenames: snake_case
-- class: Pascal
-- global: CAPS
-- method: snake_case
-- variable: snake_case.
+Branching practice: trunk-based, with possible short-lived feature branches.

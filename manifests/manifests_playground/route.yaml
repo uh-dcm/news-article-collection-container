@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.openshift.io/vcs-ref: playground
+    app.openshift.io/vcs-uri: https://github.com/uh-dcm/news-article-collection-container
+    openshift.io/generated-by: OpenShiftWebConsole
+  creationTimestamp: "2024-06-17T13:41:44Z"
+  labels:
+    app: news-collection-playground
+    app.kubernetes.io/component: news-collection-playground
+    app.kubernetes.io/instance: news-collection-playground
+    app.kubernetes.io/name: news-collection-playground
+    app.kubernetes.io/part-of: news-collection-app
+  name: news-collection-playground
+  namespace: news-container
+  resourceVersion: "157056998"
+  uid: 8caace1a-54d5-4b3f-9688-b18263b29543
+spec:
+  clusterIP: 172.30.14.111
+  clusterIPs:
+    - 172.30.14.111
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: 5000-tcp-test
+      port: 5000
+      protocol: TCP
+      targetPort: 5000
+  selector:
+    app: news-collection-playground
+    deployment: news-collection-playground
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
