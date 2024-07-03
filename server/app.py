@@ -28,7 +28,7 @@ app.config.from_object(Config())
 scheduler = APScheduler()
 scheduler.init_app(app)
 
-LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
+LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
 # this is triggered by start_fetching
 # runs collect.py and process.py on the submitted feeds
