@@ -12,8 +12,8 @@ LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
 def export_db_to_csv(df):
     csv_file_path = f'./{FETCHER_FOLDER}/data/articles.csv'
-    # no escaping, and also not as important but no need for quotes for numeric
-    df.to_csv(csv_file_path, index=False, quoting=csv.QUOTE_NONE, escapechar='\\')
+    # backslash as escapechar, and quote everything but numeric
+    df.to_csv(csv_file_path, index=False, quoting=csv.QUOTE_NONNUMERIC, escapechar='\\', encoding='utf-8')
 
 def export_db_to_json(df):
     json_file_path = f'./{FETCHER_FOLDER}/data/articles.json'
