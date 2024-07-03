@@ -11,6 +11,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 
 interface RssInputProps {
   handleFeedAdd: (event: { url: string }) => void;
@@ -33,11 +34,14 @@ export default function RssInput({
       file: undefined,
     },
   });
+  const [isUrlValid, setIsUrlValid] = useState(true);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (values.url && isValidUrl(values.url)) {
       handleFeedAdd({ url: values.url });
       form.reset({ url: '' });
+    } else {
+      setIsUrlValid(false);
     }
 
     const fileInput = document.getElementById(
@@ -68,6 +72,12 @@ export default function RssInput({
     }
   }
 
+  const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const url = event.target.value;
+    setIsUrlValid(isValidUrl(url));
+    form.setValue('url', url);
+  };
+
   return (
     <div>
       <Label className="text-base">Enter RSS feed URL or Upload File:</Label>
@@ -79,28 +89,46 @@ export default function RssInput({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="RSS-feed address here..." {...field} />
+                  <Input
+                    placeholder="RSS-feed address here..."
+                    {...field}
+                    className={`${!isUrlValid ? 'border-red-500' : ''}`}
+                    onChange={handleUrlChange}
+                  />
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="file"
-            render={() => (
-              <FormItem>
-                <FormControl>
-                  <input type="file" id="rssFileInput" className="file-input" />
-                </FormControl>
-                <FormMessage />
+                {!isUrlValid && (
+                  <FormMessage className="text-red-500">
+                    Invalid URL
+                  </FormMessage>
+                )}
               </FormItem>
             )}
           />
           <Button disabled={isUrlSetDisabled} type="submit">
             Add to list
           </Button>
+
+          <div className="w-[13.5rem]">
+            <FormField
+              control={form.control}
+              name="file"
+              render={() => (
+                <FormItem>
+                  <FormControl>
+                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                      <Label htmlFor="rssFileInput">Text file</Label>
+                      <Input
+                        id="rssFileInput"
+                        type="file"
+                        className="cursor-pointer"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </form>
       </Form>
     </div>

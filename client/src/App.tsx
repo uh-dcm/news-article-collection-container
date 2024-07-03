@@ -54,6 +54,7 @@ import {
 } from "@/components/ui/drawer";
 
 import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
 
 type ToastOptions = {
   loading: string;
@@ -279,18 +280,48 @@ export default function App() {
     isFetching();
   }, []);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.15,
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 0, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+    },
+  };
+
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <div className="flex min-h-screen flex-col">
+      <motion.div
+        className="flex min-h-screen flex-col"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
         <Header />
-        <div className="mt-16 flex justify-center px-4 sm:px-6 lg:px-8">
-          <div className="w-full max-w-7xl">
-            <div className="mt-10">
+        <motion.div
+          className="mt-16 flex justify-center px-4 sm:px-6 lg:px-8"
+          variants={itemVariants}
+        >
+          <div className="w-full max-w-5xl">
+            <motion.div className="mt-10" variants={itemVariants}>
               <h1 className="mb-6 text-3xl font-semibold">Dashboard</h1>
               <Separator />
-            </div>
+            </motion.div>
 
-            <div className="mb-20 mt-10 grid gap-6 sm:grid-cols-1 lg:grid-cols-5">
+            <motion.div
+              className="mt-14 grid gap-6 sm:grid-cols-1 lg:grid-cols-5"
+              variants={containerVariants}
+            >
               <Card className="lg:col-span-3 lg:row-span-3">
                 <CardHeader>
                   <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
@@ -303,7 +334,6 @@ export default function App() {
                   />
                 </CardContent>
                 <CardContent>
-                  <Separator className="my-5" />
                   <DataTable
                     columns={feedColumns}
                     data={feedUrlList}
@@ -347,142 +377,160 @@ export default function App() {
                 </CardContent>
               </Card>
 
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle className="text-lg">Export</CardTitle>
-                  <CardDescription>
-                    Download article data in JSON, CSV or Parquet
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={() => handleArticleDownload('json')}
-                    disabled={isDisabled}
-                    className="w-full p-6 text-base sm:w-[30%]"
-                  >
-                    <div className="flex justify-center">
-                      <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                      JSON
-                    </div>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleArticleDownload('csv')}
-                    disabled={isDisabled}
-                    className="w-full p-6 text-base sm:w-[30%]"
-                  >
-                    <div className="flex justify-center">
-                      <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                      CSV
-                    </div>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleArticleDownload('parquet')}
-                    disabled={isDisabled}
-                    className="w-full p-6 text-base sm:w-[30%]"
-                  >
-                    <div className="flex justify-center">
-                      <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                      Parquet
-                    </div>
-                  </Button>
-                </CardContent>
-              </Card>
-              
-              <Card className="col-span-5">
-                <CardHeader className="mb-2">
-                  <CardTitle className="text-lg text-center">Statistics</CardTitle>
-                  <CardDescription className="text-center">View summary statistics of all articles</CardDescription>
-                </CardHeader>
-                <CardContent className="flex justify-between">
-                  <Drawer>
-                    <DrawerTrigger asChild>
-                      <Button
-                          variant="outline"
-                          onClick={handleFetchStatistics}
-                          disabled={isDisabled}
-                          className="w-full p-6 text-base sm:w-[100%]"
-                      >
+              <motion.div
+                variants={itemVariants}
+                className="lg:col-span-2 lg:row-span-1"
+              >
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Export</CardTitle>
+                    <CardDescription>
+                      Download article data in JSON, CSV or Parquet
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleArticleDownload('json')}
+                      disabled={isDisabled}
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
                       <div className="flex justify-center">
-                      <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
-                        View statistics
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        JSON
                       </div>
-                      </Button>
-                    </DrawerTrigger>
-                      <DrawerContent>
-                        <div className="mx-auto w-full max-w-sm">
-                          <DrawerHeader>
-                            <DrawerTitle> Articles contain {statisticData.length === 0 ? 0 : statisticData[0].length} domains and {statisticData.length === 0 ? 0 : statisticData[1].length} subdirectories </DrawerTitle>
-                              <DrawerDescription> Number of articles by domain and subdirectory:</DrawerDescription>
-                          </DrawerHeader>
-                          <div className="mt-3 h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <PieChart width={400} height={400}>
-                              <Pie data={statisticData[0]} dataKey="count" cx="50%" cy="50%" outerRadius={60} fill="#8884d8" /><Tooltip/>
-                              <Pie data={statisticData[1]} dataKey="count" cx="50%" cy="50%" innerRadius={70} outerRadius={90} fill="#82ca9d" label /><Tooltip/>
-                            </PieChart> 
-                            </ResponsiveContainer>
-                          </div>
-                        <DrawerFooter>
-                        <DrawerClose asChild>
-                          <Button variant="outline">Close</Button>
-                        </DrawerClose>
-                        </DrawerFooter>
-                        </div>
-                      </DrawerContent>
-                    </Drawer>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleArticleDownload('csv')}
+                      disabled={isDisabled}
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        CSV
+                      </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleArticleDownload('parquet')}
+                      disabled={isDisabled}
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        Parquet
+                      </div>
+                    </Button>
                   </CardContent>
-            </Card>
+                </Card>
+              </motion.div>
+              
+              <motion.div
+                variants={itemVariants}
+                className="lg:col-span-5 lg:row-span-1"
+              >
+                <Card className="lg:col-span-5">
+                  <CardHeader className="mb-2">
+                    <CardTitle className="text-lg text-center">Statistics</CardTitle>
+                    <CardDescription className="text-center">View summary statistics of all articles</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex justify-between">
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button
+                            variant="outline"
+                            onClick={handleFetchStatistics}
+                            disabled={isDisabled}
+                            className="w-full p-6 text-base sm:w-[100%]"
+                        >
+                        <div className="flex justify-center">
+                        <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
+                          View statistics
+                        </div>
+                        </Button>
+                      </DrawerTrigger>
+                        <DrawerContent>
+                          <div className="mx-auto w-full max-w-sm">
+                            <DrawerHeader>
+                              <DrawerTitle> Articles contain {statisticData.length === 0 ? 0 : statisticData[0].length} domains and {statisticData.length === 0 ? 0 : statisticData[1].length} subdirectories </DrawerTitle>
+                                <DrawerDescription> Number of articles by domain and subdirectory:</DrawerDescription>
+                            </DrawerHeader>
+                            <div className="mt-3 h-[300px]">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart width={400} height={400}>
+                                <Pie data={statisticData[0]} dataKey="count" cx="50%" cy="50%" outerRadius={60} fill="#8884d8" /><Tooltip/>
+                                <Pie data={statisticData[1]} dataKey="count" cx="50%" cy="50%" innerRadius={70} outerRadius={90} fill="#82ca9d" label /><Tooltip/>
+                              </PieChart> 
+                              </ResponsiveContainer>
+                            </div>
+                          <DrawerFooter>
+                          <DrawerClose asChild>
+                            <Button variant="outline">Close</Button>
+                          </DrawerClose>
+                          </DrawerFooter>
+                          </div>
+                        </DrawerContent>
+                      </Drawer>
+                    </CardContent>
+                </Card>
+              </motion.div>
 
-              <Card className="lg:col-span-5">
-                <CardHeader>
-                  <CardTitle className="text-lg">Search articles</CardTitle>
-                  <CardDescription>
-                    Filter articles based on matching text
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-                  <Input
-                    className="w-full p-6"
-                    onChange={handleFilterInputChange}
-                    placeholder="Insert search query..."
-                    value={searchQuery}
-                  />
-                  <Button
-                    className="p-6 text-base"
-                    variant="outline"
-                    onClick={handleSearchQuery}
-                  >
-                    <div className="flex justify-center">
-                      <MagnifyingGlassIcon className="mr-3 size-6" />
-                      Search
-                    </div>
-                  </Button>
-                </CardContent>
-                <CardContent>
-                  <DataTable
-                    columns={articleColumns}
-                    data={searchData}
-                    tableName={'Query results'}
-                  />
-                </CardContent>
-              </Card>
+              <motion.div variants={itemVariants} className="lg:col-span-5">
+                <Card className="lg:col-span-5">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Search articles</CardTitle>
+                    <CardDescription>
+                      Filter articles based on matching text
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+                    <Input
+                      className="w-full p-6"
+                      onChange={handleFilterInputChange}
+                      placeholder="Insert search query..."
+                      value={searchQuery}
+                    />
+                    <Button
+                      className="p-6 text-base"
+                      variant="outline"
+                      onClick={handleSearchQuery}
+                    >
+                      <div className="flex justify-center">
+                        <MagnifyingGlassIcon className="mr-3 size-6" />
+                        Search
+                      </div>
+                    </Button>
+                  </CardContent>
+                  <CardContent>
+                    <DataTable
+                      columns={articleColumns}
+                      data={searchData}
+                      tableName={'Query results'}
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
 
-              <div className="mb-20 lg:col-span-5">
+              <motion.div
+                variants={itemVariants}
+                className="mb-20 lg:col-span-5"
+              >
                 <Logs />
-              </div>
+              </motion.div>
 
-              <div className="lg:col-start-2 lg:col-end-5">
+              <motion.div
+                variants={itemVariants}
+                className="lg:col-start-2 lg:col-end-5"
+              >
                 <QuestionsAccordion />
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         <Footer />
-      </div>
+      </motion.div>
     </ThemeProvider>
   );
 }
