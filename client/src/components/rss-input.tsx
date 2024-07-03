@@ -104,22 +104,32 @@ export default function RssInput({
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="file"
-            render={() => (
-              <FormItem>
-                <FormControl>
-                  <input type="file" id="rssFileInput" className="file-input" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <Button disabled={isUrlSetDisabled} type="submit">
             Add to list
           </Button>
+
+          <div className="w-[13.5rem]">
+            <FormField
+              control={form.control}
+              name="file"
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              render={() => (
+                <FormItem>
+                  <FormControl>
+                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                      <Label htmlFor="rssFileInput">Text file</Label>
+                      <Input
+                        id="rssFileInput"
+                        type="file"
+                        className="cursor-pointer"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </form>
       </Form>
     </div>

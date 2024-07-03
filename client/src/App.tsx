@@ -243,7 +243,7 @@ export default function App() {
     visible: {
       opacity: 1,
       transition: {
-        delayChildren: 0.1,
+        delayChildren: 0.15,
         staggerChildren: 0.1,
       },
     },
@@ -292,7 +292,6 @@ export default function App() {
                   />
                 </CardContent>
                 <CardContent>
-                  <Separator className="my-5" />
                   <DataTable
                     columns={feedColumns}
                     data={feedUrlList}
