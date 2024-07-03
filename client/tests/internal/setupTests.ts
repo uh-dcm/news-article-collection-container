@@ -34,12 +34,9 @@ const handlers = [
     );
   }),
   http.get(`${serverUrl}/api/status`, () => {
-    return new HttpResponse(
-      JSON.stringify({ status: 'stopped' }),
-      {
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new HttpResponse(JSON.stringify({ status: 'stopped' }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   }),
   http.post(`${serverUrl}/api/start`, () => {
     return new HttpResponse(null, { status: 200 });
@@ -55,11 +52,16 @@ const handlers = [
       return HttpResponse.json([]);
     }
 
-    const filteredData = testData.filter(article => 
+    const filteredData = testData.filter((article) =>
       article.full_text.toLowerCase().includes(query.toLowerCase())
     );
 
     return HttpResponse.json(filteredData);
+  }),
+  http.post(`${serverUrl}/api/set_feed_urls`, async ({ request }) => {
+    const newFeed = await request.json();
+
+    return HttpResponse.json(newFeed, { status: 200 });
   }),
 ];
 
