@@ -14,7 +14,7 @@ spec:
         app.kubernetes.io/part-of: news-collection-app
     spec:
       containers:
-        - image: docker.io/ohtukontitus/news-collection@sha256:71e901f71c4ba2f5cdb8375266ed048b52cc2931d4892f9e2bb81079d91a8da7
+        - image: docker.io/ohtukontitus/news-collection@sha256:cd60047e6f71643c442281004a4d789340f037c374aad9d70cdb6753db9957f7
           imagePullPolicy: Always
           name: news-collection
           env:

@@ -9,7 +9,7 @@ export type DomainData = {
     name: string
     count: number
   };
- 
+  
 const Drawer = ({
   shouldScaleBackground = true,
   ...props

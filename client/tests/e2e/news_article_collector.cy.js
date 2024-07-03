@@ -14,21 +14,17 @@ describe('News Article Collector App', () => {
   // Replace the url if they change it to v2
 
   it('should add an RSS feed URL to the list', () => {
-    cy.get('input[placeholder="RSS-feed address here..."]').type('https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss');
+    cy.get('input[placeholder="RSS-feed address here..."]').type(
+      'https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss'
+    );
     cy.contains('Add to list').click();
-    cy.contains('https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss').should('be.visible');
+    cy.contains(
+      'https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss'
+    ).should('be.visible');
+    cy.contains('Feed list updated successfully!').should('be.visible');
   });
 
-  it('should submit RSS feed URLs', () => {
-    cy.get('input[placeholder="RSS-feed address here..."]').type('https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss');
-    cy.contains('Add to list').click();
-    cy.contains('https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss').should('be.visible');
-    cy.contains('Send selected RSS feeds').click();
-    cy.contains('Feed list set successfully!').should('be.visible');
-  });
-
-  // The rest can take over 2 minutes with the original collect.py and process.py.
-  // With the improved ones it takes roughly 15 seconds.
+  // Note: the rest can take over 2 minutes
 
   it('should start RSS fetching', () => {
     cy.contains('Activate RSS fetching').click({ force: true });
@@ -39,24 +35,40 @@ describe('News Article Collector App', () => {
   it('should download filled articles.json', () => {
     cy.get('button').contains('JSON').click({ force: true });
 
-    cy.readFile(`${downloadsFolder}/articles.json`, { timeout: 300000 }).should('exist').then((articles) => {
-      expect(articles).to.be.an('array');
-      expect(articles.length).to.be.greaterThan(0);
-    });
+    cy.contains('Downloading...', { timeout: 3000 }).should('exist');
+    cy.contains('Please note that the process might take some time.').should('exist');
+
+    cy.readFile(`${downloadsFolder}/articles.json`, { timeout: 300000 })
+      .should('exist')
+      .then((articles) => {
+        expect(articles).to.be.an('array');
+        expect(articles.length).to.be.greaterThan(0);
+      });
   });
 
   it('should download filled articles.csv', () => {
     cy.wait(1000);
     cy.get('button').contains('CSV').click({ force: true });
 
-    cy.readFile(`${downloadsFolder}/articles.csv`, 'utf-8').should('exist').then((content) => {
-      const rows = content.split('\n');
-      expect(rows.length).to.be.greaterThan(1);
+    cy.contains('Download successful!').should('be.visible', { timeout: 3000 });
 
-      // remove the double quotes
-      const headers = rows[0].replace(/"/g, '').split(',');
-      expect(headers).to.include.members(['id', 'url', 'html', 'full_text', 'time', 'download_time']);
-    });
+    cy.readFile(`${downloadsFolder}/articles.csv`, 'utf-8')
+      .should('exist')
+      .then((content) => {
+        const rows = content.split('\n');
+        expect(rows.length).to.be.greaterThan(1);
+
+        // remove the double quotes
+        const headers = rows[0].replace(/"/g, '').split(',');
+        expect(headers).to.include.members([
+          'id',
+          'url',
+          'html',
+          'full_text',
+          'time',
+          'download_time',
+        ]);
+      });
   });
 
   // parquet seems to require specific import reader

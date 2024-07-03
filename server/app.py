@@ -11,7 +11,7 @@ from sqlalchemy import create_engine, MetaData, inspect, text
 from config import DATABASE_URL, FETCHER_FOLDER
 from log_config import logger, LOG_FILE_PATH
 from services.download import download_articles
-from services.search import search_articles
+from services.search import search_articles, get_stats
 
 class Config:
     SCHEDULER_API_ENABLED = True
@@ -28,7 +28,7 @@ app.config.from_object(Config())
 scheduler = APScheduler()
 scheduler.init_app(app)
 
-LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
+LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
 # this is triggered by start_fetching
 # runs collect.py and process.py on the submitted feeds
@@ -112,36 +112,19 @@ def serve(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
-# downloads the articles from db, uses download_articles.py
+# downloads the articles from db, uses download.py
 @app.route('/api/articles', methods=['GET'])
 def download():
     return download_articles(engine)
 
-# search db for a query and return results, uses search_articles.py
+# search db for a query and return results, uses search.py
 @app.route('/api/articles/search', methods=['GET'])
 def search():
     return search_articles(engine)
 
 @app.route('/api/articles/statistics', methods=['GET'])
 def aggregate_by_domain():
-    inspector = inspect(engine)
-    if not inspector.has_table('articles'):
-        return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 400
-    try:
-        stmt = text("""
-                    SELECT 
-                        SUBSTRING( REPLACE( REPLACE( URL, 'https://', ''), 'http://', ''), 1,INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/")- 1) as domain,
-                        COUNT(*) as count
-                    FROM articles 
-                    GROUP BY domain
-                    """)
-        result = connection.execute(stmt)
-        rows = result.fetchall()
-        data = [{"name": domain, "count": count} for domain, count in rows]
-        return jsonify(data), 200
-    except Exception as e:
-        print("Error: ", e)
-        return jsonify({"status": "error", "message": str(e)}), 500
+    return get_stats(engine)
 
 @app.route('/api/error_logs', methods=['GET'])
 def get_error_log():
@@ -150,7 +133,7 @@ def get_error_log():
             log_records = log_file.read()
         return jsonify(logs=log_records.splitlines()), 200
     except Exception as e:
-        return jsonify({"error": "Failed to fetch logs"}), 500
+        return jsonify({"error": "Failed to fetch logs", "details": str(e)}), 500
 
 if __name__ == '__main__':
     scheduler.start()
