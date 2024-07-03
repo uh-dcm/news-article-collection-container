@@ -7,11 +7,11 @@ import subprocess
 from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
 from flask_apscheduler import APScheduler
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine, MetaData, inspect, text
 from config import DATABASE_URL, FETCHER_FOLDER
 from log_config import logger, LOG_FILE_PATH
 from services.download import download_articles
-from services.search import search_articles
+from services.search import search_articles, get_stats
 
 class Config:
     SCHEDULER_API_ENABLED = True
@@ -121,6 +121,10 @@ def download():
 @app.route('/api/articles/search', methods=['GET'])
 def search():
     return search_articles(engine)
+
+@app.route('/api/articles/statistics', methods=['GET'])
+def aggregate_by_domain():
+    return get_stats(engine)
 
 @app.route('/api/error_logs', methods=['GET'])
 def get_error_log():
