@@ -6,7 +6,7 @@ import { expect, test, vi } from 'vitest';
 test('renders RSS Input component and handles URL submission', async () => {
   const handleFeedAdd = vi.fn();
 
-  render(<RssInput handleFeedAdd={handleFeedAdd} />);
+  render(<RssInput handleFeedAdd={handleFeedAdd} isUrlSetDisabled={false} />);
 
   const input = screen.getByPlaceholderText('RSS-feed address here...');
   expect(input).toBeInTheDocument();

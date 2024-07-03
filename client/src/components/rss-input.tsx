@@ -14,6 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 interface RssInputProps {
   handleFeedAdd: (event: { url: string }) => void;
+  isUrlSetDisabled: boolean;
 }
 
 const formSchema = z.object({
@@ -23,6 +24,7 @@ const formSchema = z.object({
 
 export default function RssInput({
   handleFeedAdd,
+  isUrlSetDisabled,
 }: RssInputProps): JSX.Element {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -83,6 +85,7 @@ export default function RssInput({
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="file"
@@ -95,7 +98,9 @@ export default function RssInput({
               </FormItem>
             )}
           />
-          <Button type="submit">Add to list</Button>
+          <Button disabled={isUrlSetDisabled} type="submit">
+            Add to list
+          </Button>
         </form>
       </Form>
     </div>

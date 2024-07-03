@@ -10,7 +10,6 @@ import axios from 'axios';
 import './css/index.css';
 import {
   ArrowDownTrayIcon,
-  CheckIcon,
   BarsArrowDownIcon,
   BarsArrowUpIcon,
   MagnifyingGlassIcon,
@@ -65,17 +64,28 @@ export default function App() {
     setSearchQuery(event.target.value);
   };
 
-  const handleFeedAdd = (url: Feed) => {
+  const handleFeedAdd = (feed: Feed) => {
     setFeedUrlList((prevData) => {
       // CAUTION: this could be slow for large lists, but it's fine for now
-      if (!prevData.find((feed) => feed.url === url.url)) {
-        return [...prevData, url];
+      if (!prevData.find((f) => f.url === feed.url)) {
+        return [...prevData, feed];
       }
+
       return prevData;
     });
+
+    if (!feedUrlList.find((f) => f.url === feed.url)) {
+      const currentFeeds = feedUrlList.map((feed) => feed.url);
+      const updatedFeeds = [...currentFeeds, feed.url];
+      sendAllFeedUrls(updatedFeeds);
+      handleSubmit(updatedFeeds);
+    } else {
+      toast.dismiss();
+      toast.error('RSS Feed already exists');
+    }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (updatedFeeds: string[]) => {
     toast.dismiss();
     setIsUrlSetDisabled(true);
 
@@ -93,14 +103,11 @@ export default function App() {
 
     toast.promise(async () => {
       try {
-        console.log(feedUrlList);
-        const feedUrlArray = feedUrlList.map((feedObject) => feedObject.url);
-
-        const response = await sendAllFeedUrls(feedUrlArray);
+        const response = await sendAllFeedUrls(updatedFeeds);
 
         if (response.status == 200) {
           toastOptions.description = null;
-          return 'Feed list set successfully!';
+          return 'Feed list updated successfully!';
         } else {
           throw new Error();
         }
@@ -187,6 +194,11 @@ export default function App() {
     setFeedUrlList((prevData) =>
       prevData.filter((item) => !selectedRows.includes(item))
     );
+    const updatedFeeds = feedUrlList
+      .filter((item) => !selectedRows.includes(item))
+      .map((feed: { url: string }) => feed.url);
+    sendAllFeedUrls(updatedFeeds);
+    handleSubmit(updatedFeeds);
   };
 
   useEffect(() => {
@@ -238,13 +250,16 @@ export default function App() {
         </div>
         <div className="mb-20 flex justify-center">
           <div className="grid w-[1000px] grid-cols-5 grid-rows-3 gap-6">
-            <Card className="col-span-3 row-span-3 mt-12">
+            <Card className="col-span-3 row-span-3 mt-20">
               <CardHeader>
                 <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
-                <CardDescription>Add, Select or Delete feeds</CardDescription>
+                <CardDescription>Add or Delete feeds</CardDescription>
               </CardHeader>
               <CardContent>
-                <RssInput handleFeedAdd={handleFeedAdd} />
+                <RssInput
+                  handleFeedAdd={handleFeedAdd}
+                  isUrlSetDisabled={isUrlSetDisabled}
+                />
               </CardContent>
               <CardContent>
                 <Separator className="my-5" />
@@ -255,21 +270,8 @@ export default function App() {
                   tableName={'List of RSS feeds'}
                 />
               </CardContent>
-              <CardContent>
-                <Button
-                  variant="outline"
-                  onClick={handleSubmit}
-                  className="w-full p-6 text-base"
-                  disabled={isUrlSetDisabled}
-                >
-                  <div className="flex justify-center">
-                    <CheckIcon className="mr-3 size-6"></CheckIcon>
-                    Send selected RSS feeds
-                  </div>
-                </Button>
-              </CardContent>
             </Card>
-            <Card className="col-span-2 row-span-2 mt-12">
+            <Card className="col-span-2 row-span-2 mt-20">
               <CardHeader className="mb-2">
                 <CardTitle className="text-lg">Collector</CardTitle>
                 <CardDescription>Manage article fetching</CardDescription>
