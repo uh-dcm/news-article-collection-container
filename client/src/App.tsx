@@ -40,6 +40,8 @@ import {
 
 import { Separator } from '@/components/ui/separator';
 
+import { motion } from 'framer-motion';
+
 type ToastOptions = {
   loading: string;
   description: string | null;
@@ -236,18 +238,48 @@ export default function App() {
     isFetching();
   }, []);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.1,
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 0, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+    },
+  };
+
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <div className="flex min-h-screen flex-col">
+      <motion.div
+        className="flex min-h-screen flex-col"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
         <Header />
-        <div className="mt-16 flex justify-center px-4 sm:px-6 lg:px-8">
-          <div className="w-full max-w-7xl">
-            <div className="mt-10">
+        <motion.div
+          className="mt-16 flex justify-center px-4 sm:px-6 lg:px-8"
+          variants={itemVariants}
+        >
+          <div className="w-full max-w-5xl">
+            <motion.div className="mt-10" variants={itemVariants}>
               <h1 className="mb-6 text-3xl font-semibold">Dashboard</h1>
               <Separator />
-            </div>
+            </motion.div>
 
-            <div className="mb-20 mt-10 grid gap-6 sm:grid-cols-1 lg:grid-cols-5">
+            <motion.div
+              className="mt-14 grid gap-6 sm:grid-cols-1 lg:grid-cols-5"
+              variants={containerVariants}
+            >
               <Card className="lg:col-span-3 lg:row-span-3">
                 <CardHeader>
                   <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
@@ -304,97 +336,110 @@ export default function App() {
                 </CardContent>
               </Card>
 
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle className="text-lg">Export</CardTitle>
-                  <CardDescription>
-                    Download article data in JSON, CSV or Parquet
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={() => handleArticleDownload('json')}
-                    disabled={isDisabled}
-                    className="w-full p-6 text-base sm:w-[30%]"
-                  >
-                    <div className="flex justify-center">
-                      <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                      JSON
-                    </div>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleArticleDownload('csv')}
-                    disabled={isDisabled}
-                    className="w-full p-6 text-base sm:w-[30%]"
-                  >
-                    <div className="flex justify-center">
-                      <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                      CSV
-                    </div>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleArticleDownload('parquet')}
-                    disabled={isDisabled}
-                    className="w-full p-6 text-base sm:w-[30%]"
-                  >
-                    <div className="flex justify-center">
-                      <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                      Parquet
-                    </div>
-                  </Button>
-                </CardContent>
-              </Card>
+              <motion.div
+                variants={itemVariants}
+                className="lg:col-span-2 lg:row-span-1"
+              >
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Export</CardTitle>
+                    <CardDescription>
+                      Download article data in JSON, CSV or Parquet
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleArticleDownload('json')}
+                      disabled={isDisabled}
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        JSON
+                      </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleArticleDownload('csv')}
+                      disabled={isDisabled}
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        CSV
+                      </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleArticleDownload('parquet')}
+                      disabled={isDisabled}
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        Parquet
+                      </div>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
 
-              <Card className="lg:col-span-5">
-                <CardHeader>
-                  <CardTitle className="text-lg">Search articles</CardTitle>
-                  <CardDescription>
-                    Filter articles based on matching text
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-                  <Input
-                    className="w-full p-6"
-                    onChange={handleFilterInputChange}
-                    placeholder="Insert search query..."
-                    value={searchQuery}
-                  />
-                  <Button
-                    className="p-6 text-base"
-                    variant="outline"
-                    onClick={handleSearchQuery}
-                  >
-                    <div className="flex justify-center">
-                      <MagnifyingGlassIcon className="mr-3 size-6" />
-                      Search
-                    </div>
-                  </Button>
-                </CardContent>
-                <CardContent>
-                  <DataTable
-                    columns={articleColumns}
-                    data={searchData}
-                    tableName={'Query results'}
-                  />
-                </CardContent>
-              </Card>
+              <motion.div variants={itemVariants} className="lg:col-span-5">
+                <Card className="lg:col-span-5">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Search articles</CardTitle>
+                    <CardDescription>
+                      Filter articles based on matching text
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+                    <Input
+                      className="w-full p-6"
+                      onChange={handleFilterInputChange}
+                      placeholder="Insert search query..."
+                      value={searchQuery}
+                    />
+                    <Button
+                      className="p-6 text-base"
+                      variant="outline"
+                      onClick={handleSearchQuery}
+                    >
+                      <div className="flex justify-center">
+                        <MagnifyingGlassIcon className="mr-3 size-6" />
+                        Search
+                      </div>
+                    </Button>
+                  </CardContent>
+                  <CardContent>
+                    <DataTable
+                      columns={articleColumns}
+                      data={searchData}
+                      tableName={'Query results'}
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
 
-              <div className="mb-20 lg:col-span-5">
+              <motion.div
+                variants={itemVariants}
+                className="mb-20 lg:col-span-5"
+              >
                 <Logs />
-              </div>
+              </motion.div>
 
-              <div className="lg:col-start-2 lg:col-end-5">
+              <motion.div
+                variants={itemVariants}
+                className="lg:col-start-2 lg:col-end-5"
+              >
                 <QuestionsAccordion />
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         <Footer />
-      </div>
+      </motion.div>
     </ThemeProvider>
   );
 }
