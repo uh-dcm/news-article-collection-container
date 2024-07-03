@@ -9,7 +9,7 @@ import time
 from config import FETCHER_FOLDER
 from log_config import logger
 
-LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
+LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
 def search_articles(engine):
     # wait for collect.py and process.py to finish

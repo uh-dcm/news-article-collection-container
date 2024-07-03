@@ -11,7 +11,7 @@ from config import FETCHER_FOLDER
 from log_config import logger
 from services.transformer import transform_db_to_format
 
-LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
+LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
 def transform_articles(engine, format):
     output_file_path = None

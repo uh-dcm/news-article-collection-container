@@ -9,7 +9,7 @@ import time
 import pandas as pd
 from config import FETCHER_FOLDER
 
-LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
+LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
 # if escaping html isn't required, remove this and change expected test data
 def escape_html_content(df):
