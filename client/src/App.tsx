@@ -238,152 +238,157 @@ export default function App() {
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <div className="flex min-h-[100vh] flex-col">
+      <div className="flex min-h-screen flex-col">
         <Header />
-        <div className="flex justify-center">
-          <div className="mt-10 grid w-[1000px] grid-cols-5 grid-rows-1 gap-4">
-            <h1 className="col-span-5 mb-6 h-4 text-3xl font-semibold">
-              Dashboard
-            </h1>
-            <Separator className="col-span-5" />
-          </div>
-        </div>
-        <div className="mb-20 flex justify-center">
-          <div className="grid w-[1000px] grid-cols-5 grid-rows-3 gap-6">
-            <Card className="col-span-3 row-span-3 mt-20">
-              <CardHeader>
-                <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
-                <CardDescription>Add or Delete feeds</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RssInput
-                  handleFeedAdd={handleFeedAdd}
-                  isUrlSetDisabled={isUrlSetDisabled}
-                />
-              </CardContent>
-              <CardContent>
-                <Separator className="my-5" />
-                <DataTable
-                  columns={feedColumns}
-                  data={feedUrlList}
-                  onDeleteSelected={deleteSelectedRows}
-                  tableName={'List of RSS feeds'}
-                />
-              </CardContent>
-            </Card>
-            <Card className="col-span-2 row-span-2 mt-20">
-              <CardHeader className="mb-2">
-                <CardTitle className="text-lg">Collector</CardTitle>
-                <CardDescription>Manage article fetching</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Separator />
-                <Button
-                  variant="outline"
-                  className="mt-10 w-full p-6 text-base"
-                  onClick={handleFetchStart}
-                  disabled={isFetching}
-                >
-                  <div className="flex justify-center">
-                    <BarsArrowUpIcon className="mr-3 size-6"></BarsArrowUpIcon>
-                    Activate RSS fetching
-                  </div>
-                </Button>
-              </CardContent>
-              <CardContent>
-                <Button
-                  variant="outline"
-                  className="w-full p-6 text-base"
-                  onClick={handleFetchStop}
-                  disabled={!isFetching}
-                >
-                  <div className="flex justify-center">
-                    <BarsArrowDownIcon className="mr-3 size-6"></BarsArrowDownIcon>
-                    Disable RSS fetching
-                  </div>
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="col col-span-2">
-              <CardHeader>
-                <CardTitle className="text-lg">Export</CardTitle>
-                <CardDescription>
-                  Download article data in JSON, CSV or Parquet
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={() => handleArticleDownload('json')}
-                  disabled={isDisabled}
-                  className="w-[30%] p-6 text-base"
-                >
-                  <div className="flex justify-center">
-                    <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
-                    JSON
-                  </div>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleArticleDownload('csv')}
-                  disabled={isDisabled}
-                  className="w-[30%] p-6 text-base"
-                >
-                  <div className="flex justify-center">
-                    <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
-                    CSV
-                  </div>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleArticleDownload('parquet')}
-                  disabled={isDisabled}
-                  className="w-[30%] p-6 text-base"
-                >
-                  <div className="flex justify-center">
-                    <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
-                    Parquet
-                  </div>
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="col-span-5">
-              <CardHeader>
-                <CardTitle className="text-lg">Search articles</CardTitle>
-                <CardDescription>
-                  Filter articles based on matching text
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-4">
-                <Input
-                  className="w-full p-6"
-                  onChange={handleFilterInputChange}
-                  placeholder="Insert search query..."
-                  value={searchQuery}
-                ></Input>
+        <div className="mt-16 flex justify-center px-4 sm:px-6 lg:px-8">
+          <div className="w-full max-w-7xl">
+            <div className="mt-10">
+              <h1 className="mb-6 text-3xl font-semibold">Dashboard</h1>
+              <Separator />
+            </div>
 
-                <Button
-                  className="p-6 text-base"
-                  variant="outline"
-                  onClick={handleSearchQuery}
-                >
-                  <div className="flex justify-center">
-                    <MagnifyingGlassIcon className="mr-3 size-6"></MagnifyingGlassIcon>
-                    Search
-                  </div>
-                </Button>
-              </CardContent>
-              <CardContent>
-                <DataTable
-                  columns={articleColumns}
-                  data={searchData}
-                  tableName={'Query results'}
-                />
-              </CardContent>
-            </Card>
-            <Logs />
-            <div className="col-start-2 col-end-5 mt-16">
-              <QuestionsAccordion />
+            <div className="mb-20 mt-10 grid gap-6 sm:grid-cols-1 lg:grid-cols-5">
+              <Card className="lg:col-span-3 lg:row-span-3">
+                <CardHeader>
+                  <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
+                  <CardDescription>Add or Delete feeds</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RssInput
+                    handleFeedAdd={handleFeedAdd}
+                    isUrlSetDisabled={isUrlSetDisabled}
+                  />
+                </CardContent>
+                <CardContent>
+                  <Separator className="my-5" />
+                  <DataTable
+                    columns={feedColumns}
+                    data={feedUrlList}
+                    onDeleteSelected={deleteSelectedRows}
+                    tableName={'List of RSS feeds'}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card className="lg:col-span-2 lg:row-span-2">
+                <CardHeader className="mb-2">
+                  <CardTitle className="text-lg">Collector</CardTitle>
+                  <CardDescription>Manage article fetching</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Separator />
+                  <Button
+                    variant="outline"
+                    className="mt-10 w-full p-6 text-base"
+                    onClick={handleFetchStart}
+                    disabled={isFetching}
+                  >
+                    <div className="flex justify-center">
+                      <BarsArrowUpIcon className="mr-3 size-6" />
+                      Activate RSS fetching
+                    </div>
+                  </Button>
+                </CardContent>
+                <CardContent>
+                  <Button
+                    variant="outline"
+                    className="w-full p-6 text-base"
+                    onClick={handleFetchStop}
+                    disabled={!isFetching}
+                  >
+                    <div className="flex justify-center">
+                      <BarsArrowDownIcon className="mr-3 size-6" />
+                      Disable RSS fetching
+                    </div>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle className="text-lg">Export</CardTitle>
+                  <CardDescription>
+                    Download article data in JSON, CSV or Parquet
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={() => handleArticleDownload('json')}
+                    disabled={isDisabled}
+                    className="w-full p-6 text-base sm:w-[30%]"
+                  >
+                    <div className="flex justify-center">
+                      <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                      JSON
+                    </div>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleArticleDownload('csv')}
+                    disabled={isDisabled}
+                    className="w-full p-6 text-base sm:w-[30%]"
+                  >
+                    <div className="flex justify-center">
+                      <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                      CSV
+                    </div>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleArticleDownload('parquet')}
+                    disabled={isDisabled}
+                    className="w-full p-6 text-base sm:w-[30%]"
+                  >
+                    <div className="flex justify-center">
+                      <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                      Parquet
+                    </div>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="lg:col-span-5">
+                <CardHeader>
+                  <CardTitle className="text-lg">Search articles</CardTitle>
+                  <CardDescription>
+                    Filter articles based on matching text
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+                  <Input
+                    className="w-full p-6"
+                    onChange={handleFilterInputChange}
+                    placeholder="Insert search query..."
+                    value={searchQuery}
+                  />
+                  <Button
+                    className="p-6 text-base"
+                    variant="outline"
+                    onClick={handleSearchQuery}
+                  >
+                    <div className="flex justify-center">
+                      <MagnifyingGlassIcon className="mr-3 size-6" />
+                      Search
+                    </div>
+                  </Button>
+                </CardContent>
+                <CardContent>
+                  <DataTable
+                    columns={articleColumns}
+                    data={searchData}
+                    tableName={'Query results'}
+                  />
+                </CardContent>
+              </Card>
+
+              <div className="mb-20 lg:col-span-5">
+                <Logs />
+              </div>
+
+              <div className="lg:col-start-2 lg:col-end-5">
+                <QuestionsAccordion />
+              </div>
             </div>
           </div>
         </div>
