@@ -13,7 +13,7 @@ from database_filler import fill_test_database
 
 # path needs to be before app import, at least in local tests
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from app import app, engine, scheduler  # pylint: disable=import-error
+from app import app, engine, scheduler, LOCK_FILE, run_collect_and_process  # pylint: disable=import-error
 
 @pytest.fixture
 def client():
@@ -59,7 +59,7 @@ def mock_subprocess():
         return CompletedProcess()
     with patch('subprocess.run', side_effect=mock_run) as mock:
         yield mock
-    
+
 def test_serve_index(client):
     response = client.get('/')
     assert response.status_code == 200 or response.status_code == 404
@@ -76,18 +76,33 @@ def test_start_fetching(client, mock_subprocess):
     assert response.json['status'] == "started"
     mock_subprocess.assert_called()
 
-def test_stop_fetching(client):
-    client.post('/api/start')
-    response = client.post('/api/stop')
-    assert response.status_code == 200
-    assert response.json['status'] in ["stopped", "it was not running"]
-
 def test_start_fetching_already_running(client, mock_subprocess):
     client.post('/api/start')
     response = client.post('/api/start')
     assert response.status_code == 409
     assert response.json['status'] == "already running"
     mock_subprocess.assert_called()
+
+def test_run_collect_and_process_subprocess_error():
+    with patch('subprocess.run') as mock_subprocess_run:
+        mock_subprocess_run.side_effect = subprocess.CalledProcessError(
+            returncode=1,
+            cmd='python3 collect.py',
+            output='',
+            stderr='Mocked error'
+        )
+
+        run_collect_and_process()
+
+        assert mock_subprocess_run.call_count == 1
+
+    assert not os.path.exists(LOCK_FILE)
+
+def test_stop_fetching(client):
+    client.post('/api/start')
+    response = client.post('/api/stop')
+    assert response.status_code == 200
+    assert response.json['status'] in ["stopped", "it was not running"]
 
 def test_stop_fetching_not_running(client):
     response = client.post('/api/stop')

@@ -112,12 +112,12 @@ def serve(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
-# downloads the articles from db, uses download_articles.py
+# downloads the articles from db, uses download.py
 @app.route('/api/articles', methods=['GET'])
 def download():
     return download_articles(engine)
 
-# search db for a query and return results, uses search_articles.py
+# search db for a query and return results, uses search.py
 @app.route('/api/articles/search', methods=['GET'])
 def search():
     return search_articles(engine)
@@ -129,7 +129,7 @@ def get_error_log():
             log_records = log_file.read()
         return jsonify(logs=log_records.splitlines()), 200
     except Exception as e:
-        return jsonify({"error": "Failed to fetch logs"}), 500
+        return jsonify({"error": "Failed to fetch logs", "details": str(e)}), 500
 
 if __name__ == '__main__':
     scheduler.start()

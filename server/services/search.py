@@ -1,11 +1,11 @@
 """
 This searches db for specific queries, called by app.py.
 """
+import os
+import time
 from flask import jsonify, request
 from sqlalchemy import text, inspect
 from sqlalchemy.exc import SQLAlchemyError
-import os
-import time
 from config import FETCHER_FOLDER
 from log_config import logger
 
