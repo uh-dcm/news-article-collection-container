@@ -117,9 +117,6 @@ export default function App() {
   };
 
   const handleSubmit = async () => {
-    toast.dismiss();
-    setIsUrlSetDisabled(true);
-
     const toastOptions = {
       loading: 'Submitting...',
       description: 'Processing the feed URLs. Please wait...',
@@ -215,6 +212,7 @@ export default function App() {
         throw new Error('Failed to download the file.');
       } finally {
         setIsDisabled(false);
+        //setIsDataReady(true)
       }
     }, toastOptions);
   };
@@ -386,59 +384,59 @@ export default function App() {
                 </Button>
               </CardContent>
             </Card>
-            <Drawer>
-              <DrawerTrigger asChild>
-                <Card className="col-span-3">
-                  <CardHeader className="mb-2">
-                    <CardTitle className="text-lg">Statistics</CardTitle>
-                    <CardDescription>View summary statistics of articles</CardDescription>
-                  </CardHeader>
-                  <CardContent>
+            <Card className="col-span-3">
+              <CardHeader className="mb-2">
+                <CardTitle className="text-lg">Statistics</CardTitle>
+                <CardDescription>View summary statistics of articles</CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-between">
+                <Drawer>
+                  <DrawerTrigger asChild>
                     <Button
                         variant="outline"
                         onClick={handleFetchStatistics}
                         disabled={isDisabled}
                         className="w-full p-6 text-base"
-                      >
-                        <div className="flex justify-center">
-                          <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
-                          View statistics
+                    >
+                    <div className="flex justify-center">
+                    <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
+                      View statistics
+                    </div>
+                    </Button>
+                    </DrawerTrigger>
+                    <DrawerContent>
+                      <div className="mx-auto w-full max-w-sm">
+                        <DrawerHeader>
+                          <DrawerTitle> A total of {statisticData.length} domains </DrawerTitle>
+                            <DrawerDescription> Number of articles by domain:</DrawerDescription>
+                        </DrawerHeader>
+                        <div className="mt-3 h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                        <PieChart width={400} height={400}>
+                            <Pie
+                              dataKey="count"
+                              isAnimationActive={false}
+                              data={statisticData}
+                              cx="50%"
+                              cy="50%"
+                              outerRadius={80}
+                              fill="#8884d8"
+                              label
+                            />
+                            <Tooltip />
+                        </PieChart>
+                        </ResponsiveContainer>
                         </div>
-                  </Button>
-                  </CardContent>
-                </Card>
-              </DrawerTrigger>
-              <DrawerContent>
-                <div className="mx-auto w-full max-w-sm">
-                  <DrawerHeader>
-                    <DrawerTitle> A total of {statisticData.length} domains </DrawerTitle>
-                    <DrawerDescription> Number of articles by domain:</DrawerDescription>
-                  </DrawerHeader>
-                  <div className="mt-3 h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart width={400} height={400}>
-                        <Pie
-                          dataKey="count"
-                          isAnimationActive={false}
-                          data={statisticData}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={80}
-                          fill="#8884d8"
-                          label
-                        />
-                        <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  </div>
-                  <DrawerFooter>
-                    <DrawerClose asChild>
-                      <Button variant="outline">Close</Button>
-                    </DrawerClose>
-                  </DrawerFooter>
-                </div>
-              </DrawerContent>
-            </Drawer>
+                      <DrawerFooter>
+                      <DrawerClose asChild>
+                        <Button variant="outline">Close</Button>
+                      </DrawerClose>
+                      </DrawerFooter>
+                      </div>
+                    </DrawerContent>
+                  </Drawer>
+                </CardContent>
+            </Card>
             <Card className="col-span-5">
               <CardHeader>
                 <CardTitle className="text-lg">Search articles</CardTitle>
