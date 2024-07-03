@@ -112,7 +112,6 @@ export default function RssInput({
             <FormField
               control={form.control}
               name="file"
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
               render={() => (
                 <FormItem>
                   <FormControl>
