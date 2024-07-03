@@ -453,8 +453,8 @@ export default function App() {
                         <DrawerContent>
                           <div className="mx-auto w-full max-w-sm">
                             <DrawerHeader>
-                              <DrawerTitle> Articles contain {statisticData.length === 0 ? 0 : statisticData[0].length} domains and {statisticData.length === 0 ? 0 : statisticData[1].length} subdirectories </DrawerTitle>
-                                <DrawerDescription> Number of articles by domain and subdirectory:</DrawerDescription>
+                              <DrawerTitle> Articles contain {statisticData.length === 0 ? 0 : statisticData[0].length} domain(s) and {statisticData.length === 0 ? 0 : statisticData[1].length} subdirectories </DrawerTitle>
+                                <DrawerDescription> Number of articles by domain and subdirectory</DrawerDescription>
                             </DrawerHeader>
                             <div className="mt-3 h-[300px]">
                               <ResponsiveContainer width="100%" height="100%">
