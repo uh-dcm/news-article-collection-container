@@ -20,7 +20,7 @@ describe('News Article Collector App', () => {
   it('should add an RSS feed URL to the list', () => {
     cy.wait(1000);
 
-    cy.get('input[placeholder="RSS-feed address here..."]').type(
+    cy.get('input[placeholder="RSS feed address here..."]').type(
       'https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss'
     );
     cy.contains('Add to list', { timeout: 3000 }).click();

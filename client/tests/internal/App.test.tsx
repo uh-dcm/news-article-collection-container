@@ -42,7 +42,7 @@ describe('App component', () => {
   });
 
   test('submits RSS feed URLs', async () => {
-    const input = screen.getByPlaceholderText('RSS-feed address here...');
+    const input = screen.getByPlaceholderText('RSS feed address here...');
     fireEvent.change(input, { target: { value: 'https://blabla.com/feed' } });
 
     const addToListButton = screen.getByText(/Add to list/i);

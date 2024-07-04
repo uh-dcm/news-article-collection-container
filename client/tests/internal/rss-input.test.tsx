@@ -8,7 +8,7 @@ test('renders RSS Input component and handles URL submission', async () => {
 
   render(<RssInput handleFeedAdd={handleFeedAdd} isUrlSetDisabled={false} />);
 
-  const input = screen.getByPlaceholderText('RSS-feed address here...');
+  const input = screen.getByPlaceholderText('RSS feed address here...');
   expect(input).toBeInTheDocument();
 
   const submitButton = screen.getByText(/Add to list/i);
