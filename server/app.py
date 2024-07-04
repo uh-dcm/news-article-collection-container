@@ -83,7 +83,7 @@ def fetching_status():
     if scheduler.get_job('collect_and_process'):
         return jsonify({"status": "running"}), 200
     else:
-        return jsonify({"status": "stopped"}), 400
+        return jsonify({"status": "stopped"}), 204
 
 @app.route('/api/get_feed_urls', methods=['GET'])
 def get_feed_urls():
@@ -118,7 +118,7 @@ def download():
     return download_articles(engine)
 
 # search db for a query and return results, uses search.py
-@app.route('/api/articles/search', methods=['GET'])
+@app.route('/api/articles/search', methods=['POST'])
 def search():
     return search_articles(engine)
 

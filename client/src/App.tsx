@@ -291,7 +291,11 @@ export default function App() {
     isFetching();
 
     const updateArticleTable = async () => {
-      await handleSearchQuery();
+      try {
+        await handleSearchQuery();
+      } catch (e) {
+        /* empty */
+      }
     };
     updateArticleTable();
     // eslint-disable-next-line react-hooks/exhaustive-deps

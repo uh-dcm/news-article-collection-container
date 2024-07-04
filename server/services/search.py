@@ -20,7 +20,7 @@ def search_articles(engine):
         # check whether the table exists
         inspector = inspect(engine)
         if not inspector.has_table('articles'):
-            return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 400
+            return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 404
 
         search_query = request.args.get('searchQuery', '')
         # Datetime object used instead of string to achieve proper sorting in table

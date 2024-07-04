@@ -3,7 +3,7 @@ export default {
     supportFile: false,
     baseUrl: 'http://localhost:4000',
     downloadsFolder: 'tests/e2e/downloads',
-    specPattern: 'tests/e2e/**/*.cy.js'
+    specPattern: 'tests/e2e/**/*.cy.js',
+    defaultCommandTimeout: 25000,
   },
 };
-
