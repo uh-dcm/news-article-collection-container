@@ -21,12 +21,14 @@ import {
 } from '@/components/ui/table';
 import { Button } from './button';
 import { Label } from '@radix-ui/react-label';
+import { Skeleton } from './skeleton';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onDeleteSelected?: (selectedRows: TData[]) => void;
   tableName: string;
+  isLoading?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -34,6 +36,7 @@ export function DataTable<TData, TValue>({
   data,
   onDeleteSelected,
   tableName,
+  isLoading = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -61,6 +64,44 @@ export function DataTable<TData, TValue>({
         .rows.map((row) => row.original);
       onDeleteSelected(selectedRows);
     }
+  };
+
+  const renderTableContent = () => {
+    if (isLoading) {
+      return (
+        <>
+          {[...Array(8)].map((_, index) => (
+            <TableRow key={index}>
+              {columns.map((column, cellIndex) => (
+                <TableCell key={cellIndex}>
+                  <Skeleton className="h-6 w-full" />
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </>
+      );
+    }
+
+    if (table.getRowModel().rows?.length) {
+      return table.getRowModel().rows.map((row) => (
+        <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+          {row.getVisibleCells().map((cell) => (
+            <TableCell key={cell.id}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          ))}
+        </TableRow>
+      ));
+    }
+
+    return (
+      <TableRow>
+        <TableCell colSpan={columns.length} className="text-center">
+          No results.
+        </TableCell>
+      </TableRow>
+    );
   };
 
   return (
@@ -93,31 +134,7 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
+          <TableBody>{renderTableContent()}</TableBody>
         </Table>
       </div>
       {(table.getCanNextPage() || table.getCanPreviousPage()) && (
