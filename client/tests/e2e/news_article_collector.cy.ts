@@ -5,6 +5,10 @@ describe('News Article Collector App', () => {
     cy.visit('/');
   });
 
+  after(() => {
+    cy.task('clearDownloads');
+  });
+
   it('should load the app', () => {
     cy.wait(1000);
 
@@ -59,6 +63,8 @@ describe('News Article Collector App', () => {
     cy.contains('Please note that the process might take some time.', {
       timeout: 3000,
     }).should('exist');
+
+    cy.wait(1000);
 
     cy.readFile(`${downloadsFolder}/articles.json`, { timeout: 300000 })
       .should('exist')
