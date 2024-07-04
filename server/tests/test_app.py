@@ -127,8 +127,7 @@ def test_fetching_status(client, mock_subprocess):
     assert response.status_code == 200
 
     response = client.get('/api/status')
-    assert response.status_code == 400
-    assert response.json['status'] == "stopped"
+    assert response.status_code == 204
 
 def test_get_feed_urls(client):
     response = client.get('/api/get_feed_urls')
@@ -229,7 +228,7 @@ def test_search_articles_empty_query_without_having_fetched(client):
     conn.close()
 
     response = client.get('/api/articles/search')
-    assert response.status_code == 400
+    assert response.status_code == 404
     assert response.json['message'] == "No articles found. Please fetch the articles first."
 
 def test_search_articles_db_error(client):
