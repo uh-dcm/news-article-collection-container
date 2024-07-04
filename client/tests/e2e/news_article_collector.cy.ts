@@ -1,5 +1,5 @@
 describe('News Article Collector App', () => {
-  const downloadsFolder = Cypress.config('downloadsFolder');
+  const downloadsFolder: string = Cypress.config('downloadsFolder');
 
   beforeEach(() => {
     cy.visit('/');
@@ -40,9 +40,9 @@ describe('News Article Collector App', () => {
 
     cy.readFile(`${downloadsFolder}/articles.json`, { timeout: 300000 })
       .should('exist')
-      .then((articles) => {
+      .then((articles: unknown) => {
         expect(articles).to.be.an('array');
-        expect(articles.length).to.be.greaterThan(0);
+        expect((articles as any[]).length).to.be.greaterThan(0);
       });
   });
 
@@ -54,7 +54,7 @@ describe('News Article Collector App', () => {
 
     cy.readFile(`${downloadsFolder}/articles.csv`, 'utf-8')
       .should('exist')
-      .then((content) => {
+      .then((content: string) => {
         const rows = content.split('\n');
         expect(rows.length).to.be.greaterThan(1);
 
