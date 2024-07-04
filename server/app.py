@@ -83,7 +83,7 @@ def fetching_status():
     if scheduler.get_job('collect_and_process'):
         return jsonify({"status": "running"}), 200
     else:
-        return jsonify({"status": "stopped"}), 400
+        return jsonify({"status": "stopped"}), 204
 
 @app.route('/api/get_feed_urls', methods=['GET'])
 def get_feed_urls():

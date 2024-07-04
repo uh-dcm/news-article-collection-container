@@ -4,8 +4,11 @@ import {
   getFetchingStatus,
   keepFetching,
   stopFetching,
-} from './services/fetching-news';  
-import { sendSearchQuery, sendStatisticsQuery } from './services/database_queries';
+} from './services/fetching-news';
+import {
+  sendSearchQuery,
+  sendStatisticsQuery,
+} from './services/database_queries';
 import axios from 'axios';
 import './css/index.css';
 import {
@@ -13,7 +16,7 @@ import {
   BarsArrowDownIcon,
   BarsArrowUpIcon,
   MagnifyingGlassIcon,
-  ChartBarIcon
+  ChartBarIcon,
 } from '@heroicons/react/24/solid';
 
 import { Button } from '@/components/ui/button';
@@ -51,7 +54,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer";
+} from '@/components/ui/drawer';
 
 import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
@@ -72,6 +75,7 @@ export default function App() {
   const [isUrlSetDisabled, setIsUrlSetDisabled] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [searchData, setSearchData] = useState<Article[]>([]);
+  const [articlesLoading, setArticlesLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statisticData, setStatisticsData] = useState<DomainData[][]>([]);
 
@@ -83,7 +87,7 @@ export default function App() {
 
   const handleFetchStatistics = async () => {
     toast.dismiss();
-    console.log(statisticData)
+    console.log(statisticData);
 
     const toastOptions = {
       loading: 'Getting statistics..',
@@ -92,7 +96,8 @@ export default function App() {
       success: (msg: string) => msg,
       error: (error: string) => {
         console.error('Error getting statistics:', error);
-        toastOptions.description = 'Have you fetched any articles or is the downloading still in progress?';
+        toastOptions.description =
+          'Have you fetched any articles or is the downloading still in progress?';
         return 'Failed to get statistics';
       },
     } as ToastOptions satisfies ToastOptions;
@@ -101,9 +106,9 @@ export default function App() {
       try {
         const data = await sendStatisticsQuery();
         setStatisticsData(data);
-        return("Got statistics succesfully!")
-        } catch (error) {
-          throw new Error();
+        return 'Got statistics succesfully!';
+      } catch (error) {
+        throw new Error();
       }
     }, toastOptions);
   };
@@ -163,7 +168,7 @@ export default function App() {
     }, toastOptions);
   };
 
-  const handleFetchStart = () => {
+  const handleFetchStart = async () => {
     toast.dismiss();
     toast.info('RSS fetching in progress', {
       description: 'Gathering articles...',
@@ -173,7 +178,13 @@ export default function App() {
       },
     });
     setIsFetching(true);
-    keepFetching();
+    setArticlesLoading(true);
+
+    const response = await keepFetching();
+    if (response.status === 'started') {
+      handleSearchQuery();
+    }
+    setArticlesLoading(false);
   };
 
   const handleFetchStop = () => {
@@ -278,6 +289,16 @@ export default function App() {
       }
     };
     isFetching();
+
+    const updateArticleTable = async () => {
+      try {
+        await handleSearchQuery();
+      } catch (e) {
+        /* empty */
+      }
+    };
+    updateArticleTable();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const containerVariants = {
@@ -425,54 +446,90 @@ export default function App() {
                   </CardContent>
                 </Card>
               </motion.div>
-              
+
               <motion.div
                 variants={itemVariants}
                 className="lg:col-span-5 lg:row-span-1"
               >
                 <Card className="lg:col-span-5">
                   <CardHeader className="mb-2">
-                    <CardTitle className="text-lg text-center">Statistics</CardTitle>
-                    <CardDescription className="text-center">View summary statistics of all articles</CardDescription>
+                    <CardTitle className="text-center text-lg">
+                      Statistics
+                    </CardTitle>
+                    <CardDescription className="text-center">
+                      View summary statistics of all articles
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="flex justify-between">
                     <Drawer>
                       <DrawerTrigger asChild>
                         <Button
-                            variant="outline"
-                            onClick={handleFetchStatistics}
-                            disabled={isDisabled}
-                            className="w-full p-6 text-base sm:w-[100%]"
+                          variant="outline"
+                          onClick={handleFetchStatistics}
+                          disabled={isDisabled}
+                          className="w-full p-6 text-base sm:w-[100%]"
                         >
-                        <div className="flex justify-center">
-                        <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
-                          View statistics
-                        </div>
+                          <div className="flex justify-center">
+                            <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
+                            View statistics
+                          </div>
                         </Button>
                       </DrawerTrigger>
-                        <DrawerContent>
-                          <div className="mx-auto w-full max-w-sm">
-                            <DrawerHeader>
-                              <DrawerTitle> Articles contain {statisticData.length === 0 ? 0 : statisticData[0].length} domain(s) and {statisticData.length === 0 ? 0 : statisticData[1].length} subdirectories </DrawerTitle>
-                                <DrawerDescription> Number of articles by domain and subdirectory</DrawerDescription>
-                            </DrawerHeader>
-                            <div className="mt-3 h-[300px]">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <PieChart width={400} height={400}>
-                                <Pie data={statisticData[0]} dataKey="count" cx="50%" cy="50%" outerRadius={60} fill="#8884d8" /><Tooltip/>
-                                <Pie data={statisticData[1]} dataKey="count" cx="50%" cy="50%" innerRadius={70} outerRadius={90} fill="#82ca9d" label /><Tooltip/>
-                              </PieChart> 
-                              </ResponsiveContainer>
-                            </div>
-                          <DrawerFooter>
-                          <DrawerClose asChild>
-                            <Button variant="outline">Close</Button>
-                          </DrawerClose>
-                          </DrawerFooter>
+                      <DrawerContent>
+                        <div className="mx-auto w-full max-w-sm">
+                          <DrawerHeader>
+                            <DrawerTitle>
+                              {' '}
+                              Articles contain{' '}
+                              {statisticData.length === 0
+                                ? 0
+                                : statisticData[0].length}{' '}
+                              domain(s) and{' '}
+                              {statisticData.length === 0
+                                ? 0
+                                : statisticData[1].length}{' '}
+                              subdirectories{' '}
+                            </DrawerTitle>
+                            <DrawerDescription>
+                              {' '}
+                              Number of articles by domain and subdirectory
+                            </DrawerDescription>
+                          </DrawerHeader>
+                          <div className="mt-3 h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart width={400} height={400}>
+                                <Pie
+                                  data={statisticData[0]}
+                                  dataKey="count"
+                                  cx="50%"
+                                  cy="50%"
+                                  outerRadius={60}
+                                  fill="#8884d8"
+                                />
+                                <Tooltip />
+                                <Pie
+                                  data={statisticData[1]}
+                                  dataKey="count"
+                                  cx="50%"
+                                  cy="50%"
+                                  innerRadius={70}
+                                  outerRadius={90}
+                                  fill="#82ca9d"
+                                  label
+                                />
+                                <Tooltip />
+                              </PieChart>
+                            </ResponsiveContainer>
                           </div>
-                        </DrawerContent>
-                      </Drawer>
-                    </CardContent>
+                          <DrawerFooter>
+                            <DrawerClose asChild>
+                              <Button variant="outline">Close</Button>
+                            </DrawerClose>
+                          </DrawerFooter>
+                        </div>
+                      </DrawerContent>
+                    </Drawer>
+                  </CardContent>
                 </Card>
               </motion.div>
 
@@ -507,6 +564,7 @@ export default function App() {
                       columns={articleColumns}
                       data={searchData}
                       tableName={'Query results'}
+                      isLoading={articlesLoading}
                     />
                   </CardContent>
                 </Card>
@@ -521,7 +579,7 @@ export default function App() {
 
               <motion.div
                 variants={itemVariants}
-                className="lg:col-start-2 lg:col-end-5"
+                className="mb-40 lg:col-start-2 lg:col-end-5"
               >
                 <QuestionsAccordion />
               </motion.div>

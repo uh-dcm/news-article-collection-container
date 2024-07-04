@@ -3,9 +3,11 @@ import * as React from 'react';
 
 import {
   ColumnDef,
+  ColumnFiltersState,
   SortingState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
@@ -21,12 +23,15 @@ import {
 } from '@/components/ui/table';
 import { Button } from './button';
 import { Label } from '@radix-ui/react-label';
+import { Skeleton } from './skeleton';
+import { Input } from './input';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onDeleteSelected?: (selectedRows: TData[]) => void;
   tableName: string;
+  isLoading?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -34,8 +39,12 @@ export function DataTable<TData, TValue>({
   data,
   onDeleteSelected,
   tableName,
+  isLoading = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
 
   const table = useReactTable({
     data,
@@ -44,8 +53,11 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
+      columnFilters,
     },
     initialState: {
       pagination: {
@@ -63,6 +75,44 @@ export function DataTable<TData, TValue>({
     }
   };
 
+  const renderTableContent = () => {
+    if (isLoading) {
+      return (
+        <>
+          {[...Array(8)].map((_, index) => (
+            <TableRow key={index}>
+              {columns.map((_column, cellIndex) => (
+                <TableCell key={cellIndex}>
+                  <Skeleton className="h-6 w-full" />
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </>
+      );
+    }
+
+    if (table.getRowModel().rows?.length) {
+      return table.getRowModel().rows.map((row) => (
+        <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+          {row.getVisibleCells().map((cell) => (
+            <TableCell key={cell.id}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          ))}
+        </TableRow>
+      ));
+    }
+
+    return (
+      <TableRow>
+        <TableCell colSpan={columns.length} className="text-center">
+          No results.
+        </TableCell>
+      </TableRow>
+    );
+  };
+
   return (
     <div>
       <div className="mb-4 flex h-8 items-center justify-between">
@@ -74,6 +124,20 @@ export function DataTable<TData, TValue>({
           </Button>
         )}
       </div>
+      {table.getColumn('full_text') && (
+        <div className="flex items-center py-4">
+          <Input
+            placeholder="Filter full text ..."
+            value={
+              (table.getColumn('full_text')?.getFilterValue() as string) ?? ''
+            }
+            onChange={(event) =>
+              table.getColumn('full_text')?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
+      )}
 
       <div className="mb-4 rounded-md border">
         <Table>
@@ -93,31 +157,7 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
+          <TableBody>{renderTableContent()}</TableBody>
         </Table>
       </div>
       {(table.getCanNextPage() || table.getCanPreviousPage()) && (
