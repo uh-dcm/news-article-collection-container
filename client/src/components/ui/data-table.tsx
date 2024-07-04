@@ -3,9 +3,11 @@ import * as React from 'react';
 
 import {
   ColumnDef,
+  ColumnFiltersState,
   SortingState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
@@ -22,6 +24,7 @@ import {
 import { Button } from './button';
 import { Label } from '@radix-ui/react-label';
 import { Skeleton } from './skeleton';
+import { Input } from './input';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -39,6 +42,9 @@ export function DataTable<TData, TValue>({
   isLoading = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
 
   const table = useReactTable({
     data,
@@ -47,8 +53,11 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
+      columnFilters,
     },
     initialState: {
       pagination: {
@@ -115,6 +124,20 @@ export function DataTable<TData, TValue>({
           </Button>
         )}
       </div>
+      {table.getColumn('full_text') && (
+        <div className="flex items-center py-4">
+          <Input
+            placeholder="Filter full text ..."
+            value={
+              (table.getColumn('full_text')?.getFilterValue() as string) ?? ''
+            }
+            onChange={(event) =>
+              table.getColumn('full_text')?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
+      )}
 
       <div className="mb-4 rounded-md border">
         <Table>

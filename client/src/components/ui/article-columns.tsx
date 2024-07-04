@@ -71,11 +71,25 @@ export const articleColumns: ColumnDef<Article>[] = [
   },
   {
     accessorKey: 'url',
-    header: 'URL',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          URL
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const url: string = row.getValue('url');
       return (
-        <a className="hover:underline" href={url} target="_blank">
+        <a
+          className="cursor-pointer text-blue-500 hover:underline"
+          href={url}
+          target="_blank"
+        >
           {url}
         </a>
       );
