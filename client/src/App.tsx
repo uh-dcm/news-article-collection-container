@@ -55,7 +55,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
-import { Skeleton } from '@/components/ui/skeleton';
 
 import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
