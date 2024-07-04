@@ -11,7 +11,7 @@ describe('News Article Collector App', () => {
 
   // Yle permits data mining for scientific purposes.
   // https://yle.fi/aihe/s/10004373
-  // Replace the url if they change it to v2
+  // Replace the url if they change it to v2.
 
   it('should add an RSS feed URL to the list', () => {
     cy.get('input[placeholder="RSS-feed address here..."]').type(
@@ -24,7 +24,7 @@ describe('News Article Collector App', () => {
     cy.contains('Feed list updated successfully!').should('be.visible');
   });
 
-  // Note: the rest can take over 2 minutes
+  // Note: the rest can take over 2 minutes.
 
   it('should start RSS fetching', () => {
     cy.contains('Activate RSS fetching').click({ force: true });
@@ -42,7 +42,7 @@ describe('News Article Collector App', () => {
       .should('exist')
       .then((articles: unknown) => {
         expect(articles).to.be.an('array');
-        expect((articles as any[]).length).to.be.greaterThan(0);
+        expect((articles as unknown[]).length).to.be.greaterThan(0);
       });
   });
 
@@ -71,5 +71,5 @@ describe('News Article Collector App', () => {
       });
   });
 
-  // parquet seems to require specific import reader
+  // Parquet seems to require specific import reader.
 });
