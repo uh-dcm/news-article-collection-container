@@ -36,7 +36,9 @@ describe('News Article Collector App', () => {
     cy.get('button').contains('JSON').click({ force: true });
 
     cy.contains('Downloading...', { timeout: 3000 }).should('exist');
-    cy.contains('Please note that the process might take some time.').should('exist');
+    cy.contains('Please note that the process might take some time.').should(
+      'exist'
+    );
 
     cy.readFile(`${downloadsFolder}/articles.json`, { timeout: 300000 })
       .should('exist')
@@ -50,6 +52,7 @@ describe('News Article Collector App', () => {
     cy.wait(1000);
     cy.get('button').contains('CSV').click({ force: true });
 
+    cy.wait(3000);
     cy.contains('Download successful!').should('be.visible', { timeout: 3000 });
 
     cy.readFile(`${downloadsFolder}/articles.csv`, 'utf-8')
