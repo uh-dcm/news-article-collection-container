@@ -294,6 +294,7 @@ export default function App() {
       await handleSearchQuery();
     };
     updateArticleTable();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const containerVariants = {
