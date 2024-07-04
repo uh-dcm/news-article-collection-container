@@ -3,6 +3,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 import { Button } from './button';
+import { HighlightedText } from './highlighted-text';
 
 import {
   DropdownMenu,
@@ -12,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -98,27 +99,32 @@ export const articleColumns: ColumnDef<Article>[] = [
   {
     accessorKey: 'full_text',
     header: 'Full text',
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [showFullText, setShowFullText] = useState(false);
       const text: string = row.getValue('full_text');
-      const format = text.slice(0, 50) + '';
+      const searchTerm =
+        (table.getColumn('full_text')?.getFilterValue() as string) || '';
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const formattedText = useMemo(() => {
+        const truncatedText =
+          text.slice(0, 50) + (text.length > 50 ? '...' : '');
+        return showFullText ? text : truncatedText;
+      }, [text, showFullText]);
+
       const handleToggle = () => {
         setShowFullText(!showFullText);
       };
       return (
         <div>
-          <div>{!showFullText ? format : text}</div>
+          <div>
+            <HighlightedText text={formattedText} highlight={searchTerm} />
+          </div>
           <a onClick={handleToggle}>
-            {!showFullText ? (
-              <p className="cursor-pointer text-blue-500 hover:underline">
-                Show more...
-              </p>
-            ) : (
-              <p className="cursor-pointer text-blue-500 hover:underline">
-                Show less
-              </p>
-            )}
+            <p className="cursor-pointer text-blue-500 hover:underline">
+              {showFullText ? 'Show less' : 'Show more...'}
+            </p>
           </a>
         </div>
       );
