@@ -1,5 +1,5 @@
 describe('News Article Collector App', () => {
-  const downloadsFolder = Cypress.config('downloadsFolder');
+  const downloadsFolder: string = Cypress.config('downloadsFolder');
 
   beforeEach(() => {
     cy.visit('/');
@@ -11,7 +11,7 @@ describe('News Article Collector App', () => {
 
   // Yle permits data mining for scientific purposes.
   // https://yle.fi/aihe/s/10004373
-  // Replace the url if they change it to v2
+  // Replace the url if they change it to v2.
 
   it('should add an RSS feed URL to the list', () => {
     cy.get('input[placeholder="RSS-feed address here..."]').type(
@@ -24,7 +24,7 @@ describe('News Article Collector App', () => {
     cy.contains('Feed list updated successfully!').should('be.visible');
   });
 
-  // Note: the rest can take over 2 minutes
+  // Note: the rest can take over 2 minutes.
 
   it('should start RSS fetching', () => {
     cy.contains('Activate RSS fetching').click({ force: true });
@@ -40,9 +40,9 @@ describe('News Article Collector App', () => {
 
     cy.readFile(`${downloadsFolder}/articles.json`, { timeout: 300000 })
       .should('exist')
-      .then((articles) => {
+      .then((articles: unknown) => {
         expect(articles).to.be.an('array');
-        expect(articles.length).to.be.greaterThan(0);
+        expect((articles as unknown[]).length).to.be.greaterThan(0);
       });
   });
 
@@ -54,7 +54,7 @@ describe('News Article Collector App', () => {
 
     cy.readFile(`${downloadsFolder}/articles.csv`, 'utf-8')
       .should('exist')
-      .then((content) => {
+      .then((content: string) => {
         const rows = content.split('\n');
         expect(rows.length).to.be.greaterThan(1);
 
@@ -71,5 +71,5 @@ describe('News Article Collector App', () => {
       });
   });
 
-  // parquet seems to require specific import reader
+  // Parquet seems to require specific import reader.
 });
