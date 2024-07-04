@@ -92,3 +92,7 @@ def test_export_articles_to_parquet(setup_database, setup_and_teardown):
     file_path = 'test-rss-fetcher/data/articles.parquet'
     assert os.path.exists(file_path), "The articles.parquet file was not created."
     verify_parquet_data(file_path, expected_data)
+
+def test_transform_invalid_format(setup_database, setup_and_teardown):
+    with pytest.raises(ValueError):
+        export_db_to_format(engine, 'invalid_format')
