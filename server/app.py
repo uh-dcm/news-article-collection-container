@@ -118,7 +118,7 @@ def download():
     return download_articles(engine)
 
 # search db for a query and return results, uses search.py
-@app.route('/api/articles/search', methods=['POST'])
+@app.route('/api/articles/search', methods=['GET'])
 def search():
     return search_articles(engine)
 
