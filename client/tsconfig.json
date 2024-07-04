@@ -25,8 +25,9 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "types": ["cypress", "node"]
   },
-  "include": ["src", "tests"],
+  "include": ["src", "tests/**/*.ts", "tests/**/*.tsx", "cypress.config.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
