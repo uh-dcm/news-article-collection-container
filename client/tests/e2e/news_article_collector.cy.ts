@@ -5,6 +5,10 @@ describe('News Article Collector App', () => {
     cy.visit('/');
   });
 
+  after(() => {
+    cy.task('clearDownloads');
+  });
+
   it('should load the app', () => {
     cy.wait(1000);
 
@@ -20,7 +24,7 @@ describe('News Article Collector App', () => {
   it('should add an RSS feed URL to the list', () => {
     cy.wait(1000);
 
-    cy.get('input[placeholder="RSS-feed address here..."]').type(
+    cy.get('input[placeholder="RSS feed address here..."]').type(
       'https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss'
     );
     cy.contains('Add to list', { timeout: 3000 }).click();
@@ -59,6 +63,8 @@ describe('News Article Collector App', () => {
     cy.contains('Please note that the process might take some time.', {
       timeout: 3000,
     }).should('exist');
+
+    cy.wait(1000);
 
     cy.readFile(`${downloadsFolder}/articles.json`, { timeout: 300000 })
       .should('exist')

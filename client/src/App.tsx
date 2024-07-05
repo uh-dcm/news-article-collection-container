@@ -64,6 +64,7 @@ import { PieChart,
   ResponsiveContainer,
 } from 'recharts';
 import { motion } from 'framer-motion';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 
 type ToastOptions = {
   loading: string;
@@ -353,7 +354,15 @@ export default function App() {
               <Card className="lg:col-span-3 lg:row-span-3">
                 <CardHeader>
                   <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
-                  <CardDescription>Add or Delete feeds</CardDescription>
+                  <CardDescription>
+                    <span
+                      data-tooltip-id="input-tooltip"
+                      data-tooltip-content="Addresses that often end in .rss, .xml or /feed/."
+                      className="cursor-pointer"
+                    >
+                      Add or delete feeds
+                    </span>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <RssInput
@@ -373,8 +382,16 @@ export default function App() {
 
               <Card className="lg:col-span-2 lg:row-span-2">
                 <CardHeader className="mb-2">
-                  <CardTitle className="text-lg">Collector</CardTitle>
-                  <CardDescription>Manage article fetching</CardDescription>
+                  <CardTitle className="text-lg">Fetcher</CardTitle>
+                  <CardDescription>
+                    <span
+                      data-tooltip-id="app-tooltip"
+                      data-tooltip-content="Collects new article data from feeds every 5 minutes."
+                      className="cursor-pointer"
+                    >
+                      Manage article fetching
+                    </span>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Separator />
@@ -413,7 +430,13 @@ export default function App() {
                   <CardHeader>
                     <CardTitle className="text-lg">Export</CardTitle>
                     <CardDescription>
-                      Download article data in JSON, CSV or Parquet
+                      <span
+                        data-tooltip-id="app-tooltip"
+                        data-tooltip-content="Already collected data from database."
+                        className="cursor-pointer"
+                      >
+                        Download article data in JSON, CSV or Parquet
+                      </span>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
@@ -633,6 +656,12 @@ export default function App() {
 
         <Footer />
       </motion.div>
+      <ReactTooltip
+        id="app-tooltip"
+        place="right"
+        variant="dark"
+        style={{ fontSize: '10px' }}
+      />
     </ThemeProvider>
   );
 }

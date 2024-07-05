@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 
 interface RssInputProps {
   handleFeedAdd: (event: { url: string }) => void;
@@ -80,7 +81,7 @@ export default function RssInput({
 
   return (
     <div>
-      <Label className="text-base">Enter RSS feed URL or Upload File:</Label>
+      <Label className="text-base">Enter RSS feed URL:</Label>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -90,7 +91,7 @@ export default function RssInput({
               <FormItem>
                 <FormControl>
                   <Input
-                    placeholder="RSS-feed address here..."
+                    placeholder="RSS feed address here..."
                     {...field}
                     className={`${!isUrlValid ? 'border-red-500' : ''}`}
                     onChange={handleUrlChange}
@@ -116,7 +117,15 @@ export default function RssInput({
                 <FormItem>
                   <FormControl>
                     <div className="grid w-full max-w-sm items-center gap-1.5">
-                      <Label htmlFor="rssFileInput">Text file</Label>
+                      <Label htmlFor="rssFileInput">
+                        <span
+                          data-tooltip-id="input-tooltip"
+                          data-tooltip-content="Upload a text file containing RSS feed URLs, one per line."
+                          className="cursor-pointer"
+                        >
+                          Text file
+                        </span>
+                      </Label>
                       <Input
                         id="rssFileInput"
                         type="file"
@@ -131,6 +140,12 @@ export default function RssInput({
           </div>
         </form>
       </Form>
+      <ReactTooltip
+        id="input-tooltip"
+        place="right"
+        variant="dark"
+        style={{ fontSize: '10px' }}
+      />
     </div>
   );
 }

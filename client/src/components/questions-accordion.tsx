@@ -15,9 +15,11 @@ export default function QuestionsAccordion() {
         <AccordionItem value="item-1">
           <AccordionTrigger>How does the collector work?</AccordionTrigger>
           <AccordionContent>
-            The collector gathers all the articles from the RSS-feed addresses
-            you have provided and confirmed. When you decide to download the
-            content, the program parses all the articles and it then forms a{' '}
+            The news feed article collector gathers contents from all of the
+            articles in the RSS feed addresses in the feed list. It processes
+            any added feed in the list automatically every 5 minutes as long
+            as the fetcher has been activated. You can view statistics of the
+            article data and also export the data as a{' '}
             <a
               className="opacity-50 hover:underline hover:opacity-100"
               href="https://en.wikipedia.org/wiki/JSON"
@@ -38,7 +40,7 @@ export default function QuestionsAccordion() {
             >
               Parquet
             </a>{' '}
-            file from the information it gathered.
+            file.
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
@@ -46,21 +48,28 @@ export default function QuestionsAccordion() {
           <AccordionContent>
             The process is quite simple:
             <ul className="mt-2 list-inside list-decimal space-y-2">
-              <li>Input the wanted RSS-feeds one-by-one</li>
               <li>
-                When the you have the all the feeds you wanted, confirm the
-                feeds by clicking 'Send selected RSS feeds'
+                Input the RSS feeds you wish to collect to the list,
+                either one-by-one or in a text file with every feed
+                on a separate line.
               </li>
               <li>
-                (Optional): If you wish, you can select and delete RSS-feeds,
-                remember to finalize the changes by confirming, just as done
-                before.
+                (Optional): If you wish, you can select and delete RSS feeds
+                from the list.
               </li>
-              <li>Activate the RSS-fetching</li>
-              <li>Disable the fetching when needed</li>
               <li>
-                Download the gathered articles or preview them by querying with
-                search
+                Activate the RSS fetching, which will automatically check
+                and process any new URLs in the feeds every 5 minutes.
+              </li>
+              <li>
+                (Optional): If you wish to stop the fetching, you can disable
+                it without affecting the feed list.
+              </li>
+              <li>
+                After the fetching is done, you can view statistics of the
+                articles you have collected, and perform searches on their
+                contents. You can also download the gathered article data
+                in three possible formats: JSON, CSV and Parquet.
               </li>
             </ul>
           </AccordionContent>

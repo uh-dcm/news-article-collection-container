@@ -12,10 +12,6 @@ from log_config import logger
 LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
 def search_articles(engine):
-    # wait for collect.py and process.py to finish
-    while os.path.exists(LOCK_FILE):
-        time.sleep(1)
-
     try:
         # check whether the table exists
         inspector = inspect(engine)
