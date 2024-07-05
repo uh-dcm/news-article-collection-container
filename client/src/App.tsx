@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAllFeedUrls, sendAllFeedUrls } from './services/feed_urls';
+
 import {
   getFetchingStatus,
   keepFetching,
@@ -30,6 +31,7 @@ import Footer from './components/footer';
 import RssInput from './components/rss-input';
 import Header from './components/header';
 import Logs from './components/logs';
+import TimeSeries from './components/timeseries';
 import { DataTable } from './components/ui/data-table';
 import { articleColumns, Article } from './components/ui/article-columns';
 import { feedColumns, Feed } from './components/ui/feed-columns';
@@ -56,7 +58,11 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 
-import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, 
+  Pie, 
+  Tooltip, 
+  ResponsiveContainer,
+} from 'recharts';
 import { motion } from 'framer-motion';
 
 type ToastOptions = {
@@ -87,7 +93,6 @@ export default function App() {
 
   const handleFetchStatistics = async () => {
     toast.dismiss();
-    console.log(statisticData);
 
     const toastOptions = {
       loading: 'Getting statistics..',
@@ -105,7 +110,9 @@ export default function App() {
     toast.promise(async () => {
       try {
         const data = await sendStatisticsQuery();
-        setStatisticsData(data);
+        setStatisticsData(data)
+        console.log(statisticData);
+        
         return 'Got statistics succesfully!';
       } catch (error) {
         throw new Error();
@@ -467,11 +474,11 @@ export default function App() {
                           variant="outline"
                           onClick={handleFetchStatistics}
                           disabled={isDisabled}
-                          className="w-full p-6 text-base sm:w-[100%]"
+                          className="w-full p-6 text-base sm:w-[45%]"
                         >
                           <div className="flex justify-center">
                             <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
-                            View statistics
+                            Domain distribution
                           </div>
                         </Button>
                       </DrawerTrigger>
@@ -480,7 +487,7 @@ export default function App() {
                           <DrawerHeader>
                             <DrawerTitle>
                               {' '}
-                              Articles contain{' '}
+                              Articles collected from{' '}
                               {statisticData.length === 0
                                 ? 0
                                 : statisticData[0].length}{' '}
@@ -521,6 +528,43 @@ export default function App() {
                               </PieChart>
                             </ResponsiveContainer>
                           </div>
+                          <DrawerFooter>
+                            <DrawerClose asChild>
+                              <Button variant="outline">Close</Button>
+                            </DrawerClose>
+                          </DrawerFooter>
+                        </div>
+                      </DrawerContent>
+                    </Drawer>
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button
+                          variant="outline"
+                          onClick={handleFetchStatistics}
+                          disabled={isDisabled}
+                          className="w-full p-6 text-base sm:w-[45%]"
+                        >
+                          <div className="flex justify-center">
+                            <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
+                            Time series
+                          </div>
+                        </Button>
+                      </DrawerTrigger>
+                      <DrawerContent>
+                        <div className="mx-auto w-full max-w-sm">
+                          <DrawerHeader>
+                            <DrawerTitle>
+                              {' '}
+                              Time series for collected articles
+                            </DrawerTitle>
+                            <DrawerDescription>
+                              {' '}
+                              Number of articles posted per day
+                            </DrawerDescription>
+                          </DrawerHeader>
+
+                          <TimeSeries data={statisticData[2]}></TimeSeries>
+
                           <DrawerFooter>
                             <DrawerClose asChild>
                               <Button variant="outline">Close</Button>
