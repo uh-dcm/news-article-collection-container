@@ -110,7 +110,7 @@ export default function App() {
     toast.promise(async () => {
       try {
         const data = await sendStatisticsQuery();
-        setStatisticsData(data)
+        setStatisticsData(data);
         console.log(statisticData);
         
         return 'Got statistics succesfully!';
