@@ -38,17 +38,14 @@ export default function RssInput({
   const [isUrlValid, setIsUrlValid] = useState(true);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (values.url && isValidUrl(values.url)) {
-      handleFeedAdd({ url: values.url });
-      form.reset({ url: '' });
-    } else {
-      setIsUrlValid(false);
-    }
-
     const fileInput = document.getElementById(
       'rssFileInput'
     ) as HTMLInputElement;
+
+    let hadFileInput = false;
+
     if (fileInput && fileInput.files && fileInput.files[0]) {
+      hadFileInput = true;
       const file = fileInput.files[0];
       const reader = new FileReader();
       reader.onload = function (e) {
@@ -62,6 +59,15 @@ export default function RssInput({
       reader.readAsText(file);
     }
     form.reset({ file: undefined }); // reset file input
+
+    if (values.url && isValidUrl(values.url)) {
+      handleFeedAdd({ url: values.url });
+      form.reset({ url: '' });
+    } else {
+      if (!hadFileInput) {
+        setIsUrlValid(false);
+      }
+    }
   }
 
   function isValidUrl(urlString: string) {

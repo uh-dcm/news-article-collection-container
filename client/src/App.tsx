@@ -58,11 +58,7 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 
-import { PieChart, 
-  Pie, 
-  Tooltip, 
-  ResponsiveContainer,
-} from 'recharts';
+import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 
@@ -113,7 +109,7 @@ export default function App() {
         const data = await sendStatisticsQuery();
         setStatisticsData(data);
         console.log(statisticData);
-        
+
         return 'Got statistics succesfully!';
       } catch (error) {
         throw new Error();
@@ -125,21 +121,15 @@ export default function App() {
     setFeedUrlList((prevData) => {
       // CAUTION: this could be slow for large lists, but it's fine for now
       if (!prevData.find((f) => f.url === feed.url)) {
+        sendAllFeedUrls([...prevData, feed].map((f) => f.url));
+        handleSubmit([...prevData, feed].map((f) => f.url));
         return [...prevData, feed];
       }
 
-      return prevData;
-    });
-
-    if (!feedUrlList.find((f) => f.url === feed.url)) {
-      const currentFeeds = feedUrlList.map((feed) => feed.url);
-      const updatedFeeds = [...currentFeeds, feed.url];
-      sendAllFeedUrls(updatedFeeds);
-      handleSubmit(updatedFeeds);
-    } else {
       toast.dismiss();
       toast.error('RSS Feed already exists');
-    }
+      return prevData;
+    });
   };
 
   const handleSubmit = async (updatedFeeds: string[]) => {
