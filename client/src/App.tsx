@@ -333,12 +333,12 @@ export default function App() {
         >
           <div className="w-full max-w-5xl">
             <motion.div className="mt-10" variants={itemVariants}>
-              <h1 className="mb-6 text-3xl font-semibold">Dashboard</h1>
+              <h1 className="mb-4 text-3xl font-semibold">Dashboard</h1>
               <Separator />
             </motion.div>
 
             <motion.div
-              className="mt-14 grid gap-6 sm:grid-cols-1 lg:grid-cols-5"
+              className="mt-12 grid gap-6 sm:grid-cols-1 lg:grid-cols-5"
               variants={containerVariants}
             >
               <Card className="lg:col-span-3 lg:row-span-3">

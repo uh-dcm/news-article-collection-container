@@ -8,7 +8,7 @@ export default function Header() {
         <div className="flex items-center">
           <img
             className="mx-2"
-            width="40"
+            width="30"
             src="https://avatars.githubusercontent.com/u/80965139?s=200&v=4"
             alt="Logo"
           />
