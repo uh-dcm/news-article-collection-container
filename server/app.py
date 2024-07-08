@@ -2,9 +2,13 @@
 This is the main backend app for the project.
 """
 import os
-from flask import Flask, send_from_directory, jsonify
+from flask import Flask, send_from_directory, jsonify, request
 from flask_cors import CORS
 from sqlalchemy import create_engine
+
+# authentication
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from scheduler_config import init_scheduler, Config
 from config import DATABASE_URL, FETCHER_FOLDER
@@ -23,8 +27,23 @@ connection = engine.connect()
 app = Flask(__name__, static_folder='static')
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config.from_object(Config())
+app.config['JWT_SECRET_KEY'] = "your_secret_key_here_change_this"
+jwt = JWTManager(app)
 
 init_scheduler(app)
+
+from functools import wraps
+
+def jwt_required_conditional(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if os.getenv('FLASK_ENV') == 'testing':
+            return fn(*args, **kwargs)
+        else:
+            return jwt_required()(fn)(*args, **kwargs)
+        
+    return wrapper
+
 
 LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
@@ -39,7 +58,54 @@ def serve(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
+@app.route('/api/register', methods=['POST'])
+def register():
+    """
+    Register a new user.
+    """
+    password = request.json.get('password', None)
+
+    if not password:
+        return jsonify({"msg": "Missing username or password"}), 400
+
+    hashed_password = generate_password_hash(password)
+    
+    # use a basic file for now
+    if os.path.exists(f'./{FETCHER_FOLDER}/data/password.txt'):
+        return jsonify({"msg": "User already exists"}), 409
+    
+    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w') as f:
+        f.write(hashed_password)
+
+    print("Password", password, "hashed to", hashed_password)
+
+    return jsonify({"msg": "User created"}), 200
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    """
+    Login a user.
+    """
+    password = request.json.get('password', None)
+
+    if not password:
+        return jsonify({"msg": "Missing username or password"}), 400
+
+    if not os.path.exists(f'./{FETCHER_FOLDER}/data/password.txt'):
+        return jsonify({"msg": "User does not exist"}), 404
+
+    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'r') as f:
+        hashed_password = f.read()
+
+    if not check_password_hash(hashed_password, password):
+        return jsonify({"msg": "Invalid username or password"}), 401
+
+    access_token = create_access_token(identity='admin')
+    return jsonify(access_token=access_token), 200
+
+
 @app.route('/api/get_feed_urls', methods=['GET'])
+@jwt_required_conditional
 def get_feed_urls_route():
     """
     Returns saved feeds from feeds.txt. Uses feed_manager.py.
@@ -47,6 +113,7 @@ def get_feed_urls_route():
     return get_feed_urls()
 
 @app.route('/api/set_feed_urls', methods=['POST'])
+@jwt_required_conditional
 def set_feed_urls_route():
     """
     Saves added feeds to feeds.txt. Uses feed_manager.py.
@@ -54,6 +121,7 @@ def set_feed_urls_route():
     return set_feed_urls()
 
 @app.route('/api/start', methods=['POST'])
+@jwt_required_conditional
 def start_fetch_route():
     """
     Schedules and starts the fetching job. Uses content_fetcher.py.
@@ -62,6 +130,7 @@ def start_fetch_route():
     return start_fetch()
 
 @app.route('/api/stop', methods=['POST'])
+@jwt_required_conditional
 def stop_fetch_route():
     """
     Stops the fetching job. Uses content_fetcher.py.
@@ -69,6 +138,7 @@ def stop_fetch_route():
     return stop_fetch()
 
 @app.route('/api/status', methods=['GET'])
+@jwt_required_conditional
 def get_fetch_status_route():
     """
     Checks status of the fetching job. Uses content_fetcher.py.
@@ -76,6 +146,7 @@ def get_fetch_status_route():
     return get_fetch_status()
 
 @app.route('/api/articles/search', methods=['GET'])
+@jwt_required_conditional
 def get_search_results_route():
     """
     Search db for a query and return results. Uses query_processor.py.
@@ -83,6 +154,7 @@ def get_search_results_route():
     return get_search_results(engine)
 
 @app.route('/api/articles/statistics', methods=['GET'])
+@jwt_required_conditional
 def get_stats_route():
     """
     Returns stats about db articles. Uses stats_analyzer.py.
@@ -90,6 +162,7 @@ def get_stats_route():
     return get_stats(engine)
 
 @app.route('/api/articles/export', methods=['GET'])
+@jwt_required_conditional
 def get_export_route():
     """
     Exports the articles from db. Uses export_manager.py.
@@ -97,6 +170,7 @@ def get_export_route():
     return get_export(engine)
 
 @app.route('/api/error_logs', methods=['GET'])
+@jwt_required_conditional
 def get_error_log_route():
     """
     Returns a log report of errors. Uses log_config.py.
