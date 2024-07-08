@@ -5,8 +5,10 @@ import logging
 import os
 from logging.handlers import RotatingFileHandler
 
-os.makedirs(f"./rss-fetcher/data/logs/", exist_ok=True)
-LOG_FILE_PATH = './rss-fetcher/data/logs/errors.log'
+from config import FETCHER_FOLDER
+
+os.makedirs(f"./{FETCHER_FOLDER}/data/logs/", exist_ok=True)
+LOG_FILE_PATH = f'./{FETCHER_FOLDER}/data/logs/errors.log'
 
 # Create and configure a logger
 logger = logging.getLogger(__name__)

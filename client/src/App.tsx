@@ -210,7 +210,7 @@ export default function App() {
     toast.promise(async () => {
       try {
         const response = await axios.get(
-          `${serverUrl}/api/articles?format=${format}`,
+          `${serverUrl}/api/articles/export?format=${format}`,
           {
             responseType: 'blob',
           }
