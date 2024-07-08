@@ -155,14 +155,14 @@ def get_fetch_status_route():
 @jwt_required_conditional
 def download():
     dlmode = 0 # download all articles from the db
-    return download_articles(engine. dlmode)
+    return download_articles(engine, dlmode)
 
 # downloads the articles from searchedarticles-file, uses download.py
 @app.route('/api/filteredarticles', methods=['GET'])
 @jwt_required_conditional
-def download():
+def filteredDownload_articles():
     dlmode = 1 # download the articles from the current searchedarticles-file
-    return download_articles(engine. dlmode)
+    return download_articles(engine, dlmode)
 
 # search db for a query and return results, uses search.py
 @app.route('/api/articles/search', methods=['GET'])

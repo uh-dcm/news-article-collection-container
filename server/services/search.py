@@ -14,12 +14,12 @@ LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
 def search_articles(engine):
     try:
-        # check whether the table exists
+        # check whether the article table exists
         inspector = inspect(engine)
         if not inspector.has_table('articles'):
             return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 404
 
-        search_query = request.args.get('searchQuery', '')
+        search_query = request.args.get('searchQuery','')
         # Datetime object used instead of string to achieve proper sorting in table
         stmt = text("""
             SELECT DATETIME(time) as time, url, full_text 
@@ -31,12 +31,21 @@ def search_articles(engine):
         stmt = stmt.bindparams(word=f'%{search_query}%')
         result = engine.connect().execute(stmt)
         rows = result.fetchall()
-        
         data = [{"time": time, "url": url, "full_text": full_text} for time, url, full_text in rows]
-        df = pd.read_table(data)
-        #df = pd.read_table(rows) # alternative method to save search
 
-        # save searched data temporarily to searchedarticles.json for a possible download 
+        #df = pd.read_table(data)
+        df = pd.read_table(rows) # alternative method to save search (for testing)
+
+        # Specify the path for the temporary search result file
+        json_file_path = f'./{FETCHER_FOLDER}/data'
+        # Specify the file name
+        file = 'searchedarticles.json'
+    
+        # Creating the search result file at specified location
+        with open(os.path.join(json_file_path, file), 'w') as file:
+            pass
+
+        # save searched rows temporarily to searchedarticles.json for a possible download 
         json_file_path = f'./{FETCHER_FOLDER}/data/searchedarticles.json'
         # dump used because timestamps needed as strings and url not to be escaped
         with open(json_file_path, 'w', encoding='utf-8') as file:

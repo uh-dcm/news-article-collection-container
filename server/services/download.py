@@ -8,7 +8,7 @@ from sqlalchemy import inspect
 from sqlalchemy.exc import SQLAlchemyError
 from config import FETCHER_FOLDER
 from log_config import logger
-from services.export import export_db_to_format
+from services.export import export_db_to_format, export_searched_articles_to_format
 
 LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
@@ -26,6 +26,27 @@ def export_articles(engine, format):
             return jsonify({"status": "error", "message": "Invalid format requested."}), 400
 
         # send exported file to the client
+        return send_from_directory(f'./{FETCHER_FOLDER}/data', output_file_path, as_attachment=True)
+
+
+    except Exception as e:
+        logger.error(f"Exporting articles resulted in failure: {e}")
+        return jsonify({"status": "error", "message": f"Exporting articles resulted in failure: {str(e)}"}), 400
+
+def export_searhed_articles(engine, format):
+    output_file_path = None
+    try:
+        export_searhed_articles_to_format(format)
+        if format == 'json':
+            output_file_path = "searchedarticles.json"
+        elif format == 'csv':
+            output_file_path = "searchedarticles.csv"
+        elif format == 'parquet':
+            output_file_path = "searchedarticles.parquet"
+        else:
+            return jsonify({"status": "error", "message": "Invalid format requested."}), 400
+
+        # send exported searched articles file to the client
         return send_from_directory(f'./{FETCHER_FOLDER}/data', output_file_path, as_attachment=True)
 
 
@@ -58,7 +79,7 @@ def download_articles(engine,dlmode):
         if dlmode == 1: # search based download = 1
 
             # Export searhed articles in searchedarticles-file into different formats (json, csv, parquet)
-            return export_searched_articles_to_format(format)
+            return export_searched_articles(format)
 
         # Export all articles in db into different formats (json, csv, parquet)
         return export_articles(engine, format) 

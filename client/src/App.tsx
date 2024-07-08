@@ -304,7 +304,7 @@ export default function App() {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `articles.${format}`);
+        link.setAttribute('download', `filteredarticles.${format}`);
         document.body.appendChild(link);
         link.click();
 
@@ -700,12 +700,13 @@ export default function App() {
                 </Card>
               </motion.div>
 
+
               <motion.div variants={itemVariants} className="lg:col-span-5">
                 <Card className="lg:col-span-5">
                   <CardHeader>
-                    <CardTitle className="text-lg">Search articles. You can also download the result as a JSON, CSV or PARQUET file.</CardTitle>
+                    <CardTitle className="text-lg">Search articles.</CardTitle>
                     <CardDescription>
-                      Filter articles based on matching text
+                      Filter articles based on matching text.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
@@ -725,25 +726,44 @@ export default function App() {
                         Search
                       </div>
                     </Button>
+                  </CardContent>
+              <motion.div
+                variants={itemVariants}
+                className="lg:col-span-2 lg:row-span-1"
+              >
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Export</CardTitle>
+                    <CardDescription>
+                      <span
+                        data-tooltip-id="app-tooltip"
+                        data-tooltip-content="Already collected data from database."
+                        className="cursor-pointer"
+                      >
+                        Export searched articles. You can download them as a JSON, CSV or PARQUET file.
+                      </span>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
                     <Button
                       variant="outline"
                       onClick={() => handleFilteredArticleDownload('json')}
                       disabled={isDisabled}
-                      className="w-[30%] p-6 text-base"
-                      >
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
                       <div className="flex justify-center">
-                      <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
-                      JSON
-                    </div>
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        JSON
+                      </div>
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => handleFilteredArticleDownload('csv')}
                       disabled={isDisabled}
-                      className="w-[30%] p-6 text-base"
-                      >
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
                       <div className="flex justify-center">
-                        <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
                         CSV
                       </div>
                     </Button>
@@ -751,15 +771,18 @@ export default function App() {
                       variant="outline"
                       onClick={() => handleFilteredArticleDownload('parquet')}
                       disabled={isDisabled}
-                      className="w-[30%] p-6 text-base"
-                      >
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
                       <div className="flex justify-center">
-                        <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
                         Parquet
                       </div>
                     </Button>
-
                   </CardContent>
+                </Card>
+              </motion.div>
+
+ 
                   <CardContent>
                     <DataTable
                       columns={articleColumns}

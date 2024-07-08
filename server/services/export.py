@@ -10,6 +10,14 @@ from config import FETCHER_FOLDER
 
 LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
+def delete_file(filename):
+    try:
+        os.remove(filename)
+        print("File " + filename + " deleted successfully.")
+    except IOError:
+        print("Error: could not delete file " + filename)
+
+
 def export_db_to_csv(df):
     csv_file_path = f'./{FETCHER_FOLDER}/data/articles.csv'
     # backslash as escapechar, and quote everything but numeric
@@ -52,6 +60,8 @@ def export_searched_articles_to_format(format):
     json_file_path = f'./{FETCHER_FOLDER}/data/searchedarticles.json'
     with open(json_file_path, 'r') as file:
         df = pd.read_table(file)
+        # delete the temporary searched articles file
+        delete_file(json_file_path)
 
     if format == 'csv':
         export_searched_to_csv(df)
