@@ -277,6 +277,52 @@ export default function App() {
     }, toastOptions);
   };
 
+  const handleFilteredArticleDownload = async (format: 'json' | 'csv' | 'parquet') => {
+    toast.dismiss();
+    setIsDisabled(true);
+
+    const toastOptions = {
+      loading: 'Downloading the searched articles file...',
+      description: 'Please note that the process might take some time.',
+      duration: 4000,
+      success: (msg: string) => msg,
+      error: (error: string) => {
+        console.error('Error downloading:', error);
+        return 'Failed to download the searched-file.';
+      },
+    } as ToastOptions satisfies ToastOptions;
+
+    toast.promise(async () => {
+      try {
+        const response = await axios.get(
+          `${serverUrl}/api/articles?format=${format}`,
+          {
+            responseType: 'blob',
+          }
+        );
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `articles.${format}`);
+        document.body.appendChild(link);
+        link.click();
+
+        link.parentNode!.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        toastOptions.description = null;
+
+        return 'Download successful!';
+      } catch (error) {
+        console.error('Download failed', error);
+        throw new Error('Failed to download the file.');
+      } finally {
+        setIsDisabled(false);
+      }
+    }, toastOptions);
+  };
+
   const handleSearchQuery = async () => {
     const data = await sendSearchQuery(searchQuery);
     setSearchData(data);
@@ -657,7 +703,7 @@ export default function App() {
               <motion.div variants={itemVariants} className="lg:col-span-5">
                 <Card className="lg:col-span-5">
                   <CardHeader>
-                    <CardTitle className="text-lg">Search articles</CardTitle>
+                    <CardTitle className="text-lg">Search articles. You can also download the result as a JSON, CSV or PARQUET file.</CardTitle>
                     <CardDescription>
                       Filter articles based on matching text
                     </CardDescription>
@@ -679,6 +725,40 @@ export default function App() {
                         Search
                       </div>
                     </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleFilteredArticleDownload('json')}
+                      disabled={isDisabled}
+                      className="w-[30%] p-6 text-base"
+                      >
+                      <div className="flex justify-center">
+                      <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
+                      JSON
+                    </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleFilteredArticleDownload('csv')}
+                      disabled={isDisabled}
+                      className="w-[30%] p-6 text-base"
+                      >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
+                        CSV
+                      </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleFilteredArticleDownload('parquet')}
+                      disabled={isDisabled}
+                      className="w-[30%] p-6 text-base"
+                      >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
+                        Parquet
+                      </div>
+                    </Button>
+
                   </CardContent>
                   <CardContent>
                     <DataTable
