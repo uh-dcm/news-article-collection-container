@@ -36,12 +36,13 @@ def search_articles(engine):
         df = pd.read_table(data)
         #df = pd.read_table(rows) # alternative method to save search
 
-        # save data temporarily to articles.json for a possible download 
+        # save searched data temporarily to searchedarticles.json for a possible download 
         json_file_path = f'./{FETCHER_FOLDER}/data/searchedarticles.json'
         # dump used because timestamps needed as strings and url not to be escaped
         with open(json_file_path, 'w', encoding='utf-8') as file:
             json.dump(df.to_dict(orient='records'), file, indent=4, ensure_ascii=False, default=str)
-
+            
+        # return searched articles in json-format to be shown in client UI-table to the user
         return jsonify(data), 200
 
     except SQLAlchemyError as e:

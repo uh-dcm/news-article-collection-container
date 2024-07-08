@@ -25,12 +25,15 @@ def export_articles(engine, format):
         else:
             return jsonify({"status": "error", "message": "Invalid format requested."}), 400
 
+        # send exported file to the client
         return send_from_directory(f'./{FETCHER_FOLDER}/data', output_file_path, as_attachment=True)
+
+
     except Exception as e:
         logger.error(f"Exporting articles resulted in failure: {e}")
         return jsonify({"status": "error", "message": f"Exporting articles resulted in failure: {str(e)}"}), 400
 
-def download_articles(engine):
+def download_articles(engine,dlmode):
     # this multiple format request check is just extra security, likely never used
     if len(request.args.getlist('format')) > 1:
         return jsonify({"status": "error", "message": "Invalid format requested."}), 400
@@ -52,7 +55,14 @@ def download_articles(engine):
         if format not in ['json', 'csv', 'parquet']:
             return jsonify({"status": "error", "message": "Invalid format requested."}), 400
 
-        return export_articles(engine, format)
+        if dlmode == 1: # search based download = 1
+
+            # Export searhed articles in searchedarticles-file into different formats (json, csv, parquet)
+            return export_searched_articles_to_format(format)
+
+        # Export all articles in db into different formats (json, csv, parquet)
+        return export_articles(engine, format) 
+
     except SQLAlchemyError as e:
         logger.error(f"Database error when downloading: {e}")
         return jsonify({"status": "error", "message": f"Database error when downloading: {str(e)}"}), 500

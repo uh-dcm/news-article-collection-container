@@ -43,7 +43,7 @@ def export_db_to_format(engine, format):
         raise ValueError("Unsupported format")
 
 
-def export_searched_articles_to_format(engine, format):
+def export_searched_articles_to_format(format):
     # wait for collect.py and process.py to finish
     # double verification in case of possible rare events
     while os.path.exists(LOCK_FILE):
@@ -54,25 +54,25 @@ def export_searched_articles_to_format(engine, format):
         df = pd.read_table(file)
 
     if format == 'csv':
-        export_search_to_csv(df)
+        export_searched_to_csv(df)
     elif format == 'json':
-        export_search_to_json(df)
+        export_searched_to_json(df)
     elif format == 'parquet':
-        export_search_to_parquet(df)
+        export_searched_to_parquet(df)
     else:
         raise ValueError("Unsupported format")
 
-def export_search_to_csv(df):
+def export_searched_to_csv(df):
     csv_file_path = f'./{FETCHER_FOLDER}/data/searchedarticles.csv'
     # backslash as escapechar, and quote everything but numeric
     df.to_csv(csv_file_path, index=False, quoting=csv.QUOTE_NONNUMERIC, escapechar='\\', encoding='utf-8')
 
-def export_search_to_json(df):
+def export_searched_to_json(df):
     json_file_path = f'./{FETCHER_FOLDER}/data/searchedarticles.json'
     # dump used because timestamps needed as strings and url not to be escaped
     with open(json_file_path, 'w', encoding='utf-8') as file:
         json.dump(df.to_dict(orient='records'), file, indent=4, ensure_ascii=False, default=str)
 
-def export_search_to_parquet(df):
+def export_searched_to_parquet(df):
     parquet_file_path = f'./{FETCHER_FOLDER}/data/searchedarticles.parquet'
     df.to_parquet(parquet_file_path, index=False)
