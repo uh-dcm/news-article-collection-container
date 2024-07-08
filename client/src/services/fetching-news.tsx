@@ -1,9 +1,10 @@
 import axios from 'axios';
-import { serverUrl } from '../App';
+import { serverUrl } from '../config';
+import authClient from './authclient';
 
 const keepFetching = async () => {
   try {
-    const response = await axios.post(`${serverUrl}/api/start`);
+    const response = await authClient.post(`${serverUrl}/api/start`);
     return response.data;
   } catch (e) {
     return e;
@@ -12,7 +13,7 @@ const keepFetching = async () => {
 
 const stopFetching = async () => {
   try {
-    const response = await axios.post(`${serverUrl}/api/stop`);
+    const response = await authClient.post(`${serverUrl}/api/stop`);
     return response.data;
   } catch (e) {
     return e;
@@ -21,7 +22,7 @@ const stopFetching = async () => {
 
 const getFetchingStatus = async () => {
   try {
-    const response = await axios.get(`${serverUrl}/api/status`);
+    const response = await authClient.get(`${serverUrl}/api/status`);
     return response.data;
   } catch (e) {
     return e;

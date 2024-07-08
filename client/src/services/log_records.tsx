@@ -1,8 +1,9 @@
 import axios from 'axios';
-import { serverUrl } from '../App';
+import { serverUrl } from '../config';
+import authClient from './authclient';
 
 const getLogRecords = async () => {
-  const response = await axios.get(`${serverUrl}/api/error_logs`);
+  const response = await authClient.get(`${serverUrl}/api/error_logs`);
   return response.data.logs;
 };
 

@@ -10,7 +10,9 @@ import {
   sendSearchQuery,
   sendStatisticsQuery,
 } from './services/database_queries';
-import axios from 'axios';
+
+import authClient from './services/authclient';
+
 import './css/index.css';
 import {
   ArrowDownTrayIcon,
@@ -70,7 +72,7 @@ type ToastOptions = {
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const serverUrl = import.meta.env.VITE_WEBPAGE_URL;
+import { serverUrl } from './config.tsx';
 
 export default function App() {
   const [feedUrlList, setFeedUrlList] = useState<Feed[]>([]);
@@ -209,7 +211,7 @@ export default function App() {
 
     toast.promise(async () => {
       try {
-        const response = await axios.get(
+        const response = await authClient.get(
           `${serverUrl}/api/articles/export?format=${format}`,
           {
             responseType: 'blob',
@@ -317,6 +319,9 @@ export default function App() {
       opacity: 1,
     },
   };
+
+  // TODO: add register / login functionality
+  // for now, only login with fixed pass shall be used
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
