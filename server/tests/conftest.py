@@ -6,10 +6,33 @@ import sys
 import shutil
 import pytest
 
+# since conftest is run first, the following setups are to be run before app import
+
+@pytest.fixture(scope='session', autouse=True)
+def reset_flask_env():
+    """
+    Resets to original FLASK_ENV after tests.
+    """
+    original_flask_env = os.environ.get('FLASK_ENV')
+
+    yield
+
+    if original_flask_env is None:
+        os.environ.pop('FLASK_ENV', None)
+    else:
+        os.environ['FLASK_ENV'] = original_flask_env
+
+def setup_testing_environment():
+    """
+    Sets FLASK_ENV to testing.
+    """
+    os.environ['FLASK_ENV'] = 'testing'
+
+setup_testing_environment()
+
 def check_flask_env():
     """
-    Guarantee that tests won't run in the regular environment, before imports too.
-    Check needs to happen in the tests folder in case it's run separately.
+    Extra verification of the environment. If this fails, end tests.
     """
     if os.getenv('FLASK_ENV') != 'testing':
         pytest.exit("FLASK_ENV is not set to 'testing'. Exiting test suite.")
@@ -19,6 +42,7 @@ check_flask_env()
 # this makes Pytest understand the working directory for the test imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+# general, main part of configurations for tests begins here
 from app import app, engine as app_engine
 from scheduler_config import scheduler
 from tests.database_filler import fill_test_database
