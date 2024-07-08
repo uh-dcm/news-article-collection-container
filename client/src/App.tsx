@@ -37,6 +37,7 @@ import TimeSeries from './components/timeseries';
 import { DataTable } from './components/ui/data-table';
 import { articleColumns, Article } from './components/ui/article-columns';
 import { feedColumns, Feed } from './components/ui/feed-columns';
+import InfoIcon from './components/ui/info-icon';
 
 import {
   Card,
@@ -349,15 +350,7 @@ export default function App() {
               <Card className="lg:col-span-3 lg:row-span-3">
                 <CardHeader>
                   <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
-                  <CardDescription>
-                    <span
-                      data-tooltip-id="react-tooltip"
-                      data-tooltip-content="Addresses that often end in .rss, .xml or /feed/."
-                      className="cursor-pointer"
-                    >
-                      Add or delete feeds
-                    </span>
-                  </CardDescription>
+                  <CardDescription>Add or delete feeds</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <RssInput
@@ -379,13 +372,11 @@ export default function App() {
                 <CardHeader className="mb-2">
                   <CardTitle className="text-lg">Fetcher</CardTitle>
                   <CardDescription>
-                    <span
-                      data-tooltip-id="react-tooltip"
-                      data-tooltip-content="Collects new article data from feeds every 5 minutes."
-                      className="cursor-pointer"
-                    >
-                      Manage article fetching
-                    </span>
+                    Manage article fetching
+                    <InfoIcon
+                      tooltipContent="Collects new article data from feeds every 5 minutes."
+                      ariaLabel="Fetcher info"
+                    />
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -425,13 +416,11 @@ export default function App() {
                   <CardHeader>
                     <CardTitle className="text-lg">Export</CardTitle>
                     <CardDescription>
-                      <span
-                        data-tooltip-id="react-tooltip"
-                        data-tooltip-content="Already collected data from database."
-                        className="cursor-pointer"
-                      >
-                        Download article data in JSON, CSV or Parquet
-                      </span>
+                      Download article data in JSON, CSV or Parquet
+                      <InfoIcon
+                        tooltipContent="Already collected data from database."
+                        ariaLabel="Download info"
+                      />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
