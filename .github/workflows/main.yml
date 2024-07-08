@@ -63,8 +63,7 @@ jobs:
 
       - name: Run Python tests
         run: |
-          cd server
-          python -m pytest tests/
+          pytest
 
       - name: Docker Compose
         run: docker compose up --build -d

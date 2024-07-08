@@ -104,4 +104,13 @@ describe('News Article Collector App', () => {
   });
 
   // Parquet seems to require specific import reader.
+
+  it('should autofill search results with fetched articles', () => {
+    cy.wait(1000);
+
+    cy.document().then((doc) => {
+      const yleCount = (doc.body.innerText.match(/yle/gi) || []).length;
+      expect(yleCount).to.be.greaterThan(5);
+    });
+  });
 });
