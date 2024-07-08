@@ -54,4 +54,6 @@ RUN pip install --no-cache-dir -r server/rss-fetcher/requirements.txt
 
 EXPOSE 5000
 
-CMD sh -c "cd server && python app.py"
+WORKDIR /app/server
+
+CMD ["python3", "-m", "app"]
