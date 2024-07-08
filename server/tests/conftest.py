@@ -6,6 +6,16 @@ import sys
 import shutil
 import pytest
 
+def check_flask_env():
+    """
+    Guarantee that tests won't run in the regular environment, before imports too.
+    Check needs to happen in the tests folder in case it's run separately.
+    """
+    if os.getenv('FLASK_ENV') != 'testing':
+        pytest.exit("FLASK_ENV is not set to 'testing'. Exiting test suite.")
+
+check_flask_env()
+
 # this makes Pytest understand the working directory for the test imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -16,6 +26,12 @@ from tests.database_filler import fill_test_database
 @pytest.fixture(scope='module')
 def engine():
     return app_engine
+
+@pytest.fixture(scope='function')
+def client():
+    app.config['TESTING'] = True
+    with app.test_client() as client:  # pylint: disable=redefined-outer-name
+        yield client
 
 @pytest.fixture(scope='function')
 def setup_and_teardown(engine):  # pylint: disable=redefined-outer-name
@@ -47,9 +63,3 @@ def setup_and_teardown(engine):  # pylint: disable=redefined-outer-name
         scheduler.shutdown()
 
     shutil.rmtree('test-rss-fetcher')
-
-@pytest.fixture(scope='function')
-def client():
-    app.config['TESTING'] = True
-    with app.test_client() as client:  # pylint: disable=redefined-outer-name
-        yield client

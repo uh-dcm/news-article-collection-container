@@ -1,11 +1,7 @@
 """
 Tests basic app.py route responses and functions.
 """
-import os
 from unittest.mock import patch, mock_open
-
-def test_flask_env():
-    assert os.getenv('FLASK_ENV') == 'testing'
 
 def test_serve_index(client):
     response = client.get('/')
