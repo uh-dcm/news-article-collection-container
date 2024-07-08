@@ -12,7 +12,6 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
 
 interface RssInputProps {
   handleFeedAdd: (event: { url: string }) => void;
@@ -125,7 +124,7 @@ export default function RssInput({
                     <div className="grid w-full max-w-sm items-center gap-1.5">
                       <Label htmlFor="rssFileInput">
                         <span
-                          data-tooltip-id="input-tooltip"
+                          data-tooltip-id="react-tooltip"
                           data-tooltip-content="Upload a text file containing RSS feed URLs, one per line."
                           className="cursor-pointer"
                         >
@@ -146,12 +145,6 @@ export default function RssInput({
           </div>
         </form>
       </Form>
-      <ReactTooltip
-        id="input-tooltip"
-        place="right"
-        variant="dark"
-        style={{ fontSize: '10px' }}
-      />
     </div>
   );
 }

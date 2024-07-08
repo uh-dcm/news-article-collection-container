@@ -346,7 +346,7 @@ export default function App() {
                   <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
                   <CardDescription>
                     <span
-                      data-tooltip-id="input-tooltip"
+                      data-tooltip-id="react-tooltip"
                       data-tooltip-content="Addresses that often end in .rss, .xml or /feed/."
                       className="cursor-pointer"
                     >
@@ -375,7 +375,7 @@ export default function App() {
                   <CardTitle className="text-lg">Fetcher</CardTitle>
                   <CardDescription>
                     <span
-                      data-tooltip-id="app-tooltip"
+                      data-tooltip-id="react-tooltip"
                       data-tooltip-content="Collects new article data from feeds every 5 minutes."
                       className="cursor-pointer"
                     >
@@ -421,7 +421,7 @@ export default function App() {
                     <CardTitle className="text-lg">Export</CardTitle>
                     <CardDescription>
                       <span
-                        data-tooltip-id="app-tooltip"
+                        data-tooltip-id="react-tooltip"
                         data-tooltip-content="Already collected data from database."
                         className="cursor-pointer"
                       >
@@ -647,7 +647,7 @@ export default function App() {
         <Footer />
       </motion.div>
       <ReactTooltip
-        id="app-tooltip"
+        id="react-tooltip"
         place="right"
         variant="dark"
         style={{ fontSize: '10px' }}
