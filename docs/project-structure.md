@@ -153,10 +153,8 @@ General project structure in Markdown. Date: July 8, 2024. Intermittently update
             └── export_manager.py
             └── format_converter.py
         └── log_config.py
-        └── pytest.ini
         └── requirements.txt
         └── scheduler_config.py
-        └── test_environment.py
         └── 📁tests
             └── conftest.py
             └── database_filler.py
