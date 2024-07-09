@@ -11,9 +11,20 @@ import { expect, test, vi, describe, beforeEach } from 'vitest';
 import { toast } from 'sonner';
 
 describe('App component', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     render(<App />);
+
+    await waitFor(() => {
+      const registerView = screen.queryByTestId('register-view');
+      const loginView = screen.queryByTestId('login-view');
+
+      // Ensure the Register view is not present
+      expect(registerView).not.toBeInTheDocument();
+
+      // Ensure the Login view is not present
+      expect(loginView).not.toBeInTheDocument();
+    });
   });
 
   test('renders app component', async () => {

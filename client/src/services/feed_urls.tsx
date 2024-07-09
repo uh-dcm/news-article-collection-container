@@ -1,5 +1,3 @@
-import axios from 'axios';
-import { serverUrl } from '../config';
 import authClient from './authclient';
 
 const getAllFeedUrls = async () => {
@@ -9,7 +7,7 @@ const getAllFeedUrls = async () => {
 };
 
 const sendAllFeedUrls = async (feedUrls: string[]) => {
-  const response = await authClient.post(`${serverUrl}/api/set_feed_urls`, {
+  const response = await authClient.post(`/api/set_feed_urls`, {
     feedUrls,
   });
   return response;

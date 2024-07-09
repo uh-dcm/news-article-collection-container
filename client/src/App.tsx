@@ -65,6 +65,8 @@ import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 
+import { checkUserExists } from './services/authfunctions';
+
 type ToastOptions = {
   loading: string;
   description: string | null;
@@ -74,6 +76,11 @@ type ToastOptions = {
 
 // eslint-disable-next-line react-refresh/only-export-components
 import { serverUrl } from './config.tsx';
+import {
+  registerUser,
+  getIsValidToken,
+  loginUser,
+} from './services/authfunctions';
 
 export default function App() {
   const [feedUrlList, setFeedUrlList] = useState<Feed[]>([]);
@@ -84,6 +91,31 @@ export default function App() {
   const [articlesLoading, setArticlesLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statisticData, setStatisticsData] = useState<DomainData[][]>([]);
+  const [userExists, setUserExists] = useState(false);
+  const [validToken, setValidToken] = useState(false);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const response = await checkUserExists();
+      setUserExists(response.exists);
+    };
+    checkUser();
+  }, []);
+
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+          const response = await getIsValidToken();
+          setValidToken(response);
+        }
+      } catch (error) {
+        console.log('Error in checkToken: ', error);
+      }
+    };
+    checkToken();
+  }, []);
 
   const handleFilterInputChange = (event: {
     target: { value: React.SetStateAction<string> };
@@ -273,7 +305,7 @@ export default function App() {
 
       setFeedUrlList(feedUrlObjArray);
     };
-    fetchFeedUrls();
+    if (validToken) fetchFeedUrls();
 
     const isFetching = async () => {
       const response = await getFetchingStatus();
@@ -289,7 +321,7 @@ export default function App() {
         setIsFetching(true);
       }
     };
-    isFetching();
+    if (validToken) isFetching();
 
     const updateArticleTable = async () => {
       try {
@@ -298,9 +330,9 @@ export default function App() {
         /* empty */
       }
     };
-    updateArticleTable();
+    if (validToken) updateArticleTable();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [validToken]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -323,6 +355,61 @@ export default function App() {
 
   // TODO: add register / login functionality
   // for now, only login with fixed pass shall be used
+
+  if (!userExists) {
+    // register view
+    return (
+      <div
+        className="flex h-screen flex-col items-center justify-center"
+        data-testid="register-view"
+      >
+        <h1 className="text-3xl font-semibold">RSS Feed Reader</h1>
+        <p className="mt-4 text-lg">Please register to use the app.</p>
+        <Button
+          variant="outline"
+          className="mt-4"
+          onClick={async () => {
+            const response = await registerUser('testpassword');
+            if (response) {
+              setUserExists(true);
+            } else {
+              toast.error('Failed to register');
+            }
+          }}
+        >
+          Register
+        </Button>
+      </div>
+    );
+  }
+
+  if (!validToken) {
+    // login with password
+    return (
+      <div
+        className="flex h-screen flex-col items-center justify-center"
+        data-testid="login-view"
+      >
+        <h1 className="text-3xl font-semibold">RSS Feed Reader</h1>
+        <p className="mt-4 text-lg">Please log in to use the app.</p>
+        <Button
+          variant="outline"
+          className="mt-4"
+          onClick={async () => {
+            const response = await loginUser('testpassword');
+            if (response.access_token) {
+              localStorage.setItem('accessToken', response.access_token);
+              setValidToken(true);
+            } else {
+              toast.error('Failed to login');
+            }
+          }}
+        >
+          Log in
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">

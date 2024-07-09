@@ -63,6 +63,12 @@ def register():
     """
     Register a new user.
     """
+
+    if os.getenv('FLASK_ENV') == 'testing':
+        with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w') as f:
+            f.write(generate_password_hash("testpassword"))
+        return jsonify({"msg": "User created"}), 200
+
     password = request.json.get('password', None)
 
     if not password:
@@ -76,8 +82,6 @@ def register():
     
     with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w') as f:
         f.write(hashed_password)
-
-    print("Password", password, "hashed to", hashed_password)
 
     return jsonify({"msg": "User created"}), 200
 
@@ -181,6 +185,33 @@ def get_error_log_route():
         return jsonify(logs=log_records.splitlines()), 200
     except Exception as e:
         return jsonify({"error": "Failed to fetch logs", "details": str(e)}), 500
+
+@app.route('/api/get_user_exists', methods=['GET'])
+def get_user_exists():
+    """
+    Check if user exists.
+    """
+    return jsonify({"exists": os.path.exists(f'./{FETCHER_FOLDER}/data/password.txt')}), 200
+
+@app.route('/api/create_test_user', methods=['POST'])
+def create_test_user():
+    """
+    Create a test user.
+    """
+    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w') as f:
+        f.write(generate_password_hash("test"))
+
+    access_token = create_access_token(identity='admin')
+
+    return jsonify({"msg": "User created", "accessToken": access_token}), 200
+
+@app.route('/api/get_is_valid_token', methods=['GET'])
+@jwt_required_conditional
+def get_is_valid_token():
+    """
+    Check if token is valid.
+    """
+    return jsonify({"valid": True}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
