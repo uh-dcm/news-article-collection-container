@@ -1,12 +1,10 @@
 flask
 flask-cors
 pandas
-sqlalchemy
 apscheduler
 flask_apscheduler
 pytest
 pyarrow
-flask_jwt_extended
 newspaper4k
 sqlalchemy
 feedparser
