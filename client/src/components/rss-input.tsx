@@ -1,6 +1,7 @@
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import InfoIcon from '@/components/ui/info-icon';
 import {
   Form,
   FormControl,
@@ -86,7 +87,14 @@ export default function RssInput({
 
   return (
     <div>
-      <Label className="text-base">Enter RSS feed URL:</Label>
+      <Label className="text-base">
+        Enter RSS feed URL:
+        <InfoIcon
+          tooltipContent="Addresses that often end in .rss, .xml or /feed/."
+          ariaLabel="RSS feed URL info"
+          verticalOffset="-0.2em"
+        />
+        </Label>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -123,13 +131,11 @@ export default function RssInput({
                   <FormControl>
                     <div className="grid w-full max-w-sm items-center gap-1.5">
                       <Label htmlFor="rssFileInput">
-                        <span
-                          data-tooltip-id="react-tooltip"
-                          data-tooltip-content="Upload a text file containing RSS feed URLs, one per line."
-                          className="cursor-pointer"
-                        >
-                          Text file
-                        </span>
+                        Text file
+                        <InfoIcon
+                          tooltipContent="Upload a text file containing RSS feed URLs, one per line."
+                          ariaLabel="RSS feed file info"
+                        />
                       </Label>
                       <Input
                         id="rssFileInput"

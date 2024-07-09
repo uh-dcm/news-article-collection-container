@@ -59,7 +59,7 @@ def get_stats(engine):
         subdir_data = [{"name": domain, "count": count} for domain, count in subdir_rows]
         return jsonify(domain_data, subdir_data, dates), 200
     except SQLAlchemyError as e:
-        logger.error("Database error when qetting statistics: %s", e)
+        logger.error("Database error when getting statistics: %s", e)
         return jsonify({"status": "error", "message": f"Database error when getting statistics: {str(e)}"}), 500
     except Exception as e:
         logger.error("Error when getting statistics: %s", e)
