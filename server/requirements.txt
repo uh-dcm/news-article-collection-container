@@ -10,3 +10,4 @@ sqlalchemy
 feedparser
 requests
 lxml_html_clean
+flask_jwt_extended
