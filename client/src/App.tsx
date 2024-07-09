@@ -295,7 +295,7 @@ export default function App() {
     toast.promise(async () => {
       try {
         const response = await axios.get(
-          `${serverUrl}/api/filteredarticles?format=${format}`,
+          `${serverUrl}/api/articles/filtered?format=${format}`, 
           {
             responseType: 'blob',
           }
@@ -304,7 +304,7 @@ export default function App() {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `filteredarticles.${format}`);
+        link.setAttribute('download', `articles/filtered.${format}`);
         document.body.appendChild(link);
         link.click();
 
@@ -733,14 +733,13 @@ export default function App() {
               >
                 <Card className="lg:col-span-2">
                   <CardHeader>
-                    <CardTitle className="text-lg">Export</CardTitle>
+                    <CardTitle className="text-lg">Search Export and Download</CardTitle>
                     <CardDescription>
                       <span
                         data-tooltip-id="app-tooltip"
                         data-tooltip-content="Already collected data from database."
                         className="cursor-pointer"
                       >
-                        Export searched articles. You can download them as a JSON, CSV or PARQUET file.
                       </span>
                     </CardDescription>
                   </CardHeader>

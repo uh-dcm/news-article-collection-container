@@ -2,6 +2,7 @@
 This searches db for specific queries, called by app.py.
 """
 import os
+import json
 import time
 import pandas as pd
 from flask import jsonify, request
@@ -32,23 +33,26 @@ def search_articles(engine):
         result = engine.connect().execute(stmt)
         rows = result.fetchall()
         data = [{"time": time, "url": url, "full_text": full_text} for time, url, full_text in rows]
+        # Create a DataFrame from the data
+        df = pd.DataFrame(data)
+        """
+        # Save the DataFrame to a JSON file
+        json_file_path = os.path.join(FETCHER_FOLDER, 'data', 'searchedarticles.json')
+        df.to_json(json_file_path, orient="records")
 
-        #df = pd.read_table(data)
-        df = pd.read_table(rows) # alternative method to save search (for testing)
+        # An alternative solution for saving the searchedarticles.json:
+        """ 
 
         # Specify the path for the temporary search result file
         json_file_path = f'./{FETCHER_FOLDER}/data'
-        # Specify the file name
         file = 'searchedarticles.json'
-    
         # Creating the search result file at specified location
         with open(os.path.join(json_file_path, file), 'w') as file:
-            pass
-
-        # save searched rows temporarily to searchedarticles.json for a possible download 
-        json_file_path = f'./{FETCHER_FOLDER}/data/searchedarticles.json'
-        # dump used because timestamps needed as strings and url not to be escaped
-        with open(json_file_path, 'w', encoding='utf-8') as file:
+            #pass
+            # save searched data temporarily to searchedarticles.json for a possible download 
+            #json_file_path = f'./{FETCHER_FOLDER}/data/searchedarticles.json'
+            # dump used because timestamps needed as strings and url not to be escaped
+            #with open(json_file_path, 'w', encoding='utf-8') as file:
             json.dump(df.to_dict(orient='records'), file, indent=4, ensure_ascii=False, default=str)
             
         # return searched articles in json-format to be shown in client UI-table to the user

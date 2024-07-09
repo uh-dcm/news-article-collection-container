@@ -158,9 +158,9 @@ def download():
     return download_articles(engine, dlmode)
 
 # downloads the articles from searchedarticles-file, uses download.py
-@app.route('/api/filteredarticles', methods=['GET'])
+@app.route('/api/articles/filtered', methods=['GET'])
 @jwt_required_conditional
-def filteredDownload_articles():
+def filteredDownload():
     dlmode = 1 # download the articles from the current searchedarticles-file
     return download_articles(engine, dlmode)
 

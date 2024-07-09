@@ -8,7 +8,8 @@ from sqlalchemy import inspect
 from sqlalchemy.exc import SQLAlchemyError
 from config import FETCHER_FOLDER
 from log_config import logger
-from services.export import export_db_to_format, export_searched_articles_to_format
+from services.export import export_db_to_format
+from services.export import export_searched_articles_to_format
 
 LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
@@ -28,15 +29,14 @@ def export_articles(engine, format):
         # send exported file to the client
         return send_from_directory(f'./{FETCHER_FOLDER}/data', output_file_path, as_attachment=True)
 
-
     except Exception as e:
         logger.error(f"Exporting articles resulted in failure: {e}")
         return jsonify({"status": "error", "message": f"Exporting articles resulted in failure: {str(e)}"}), 400
 
-def export_searhed_articles(engine, format):
+def export_searched_articles(format):
     output_file_path = None
     try:
-        export_searhed_articles_to_format(format)
+        export_searched_articles_to_format(format)
         if format == 'json':
             output_file_path = "searchedarticles.json"
         elif format == 'csv':
@@ -54,7 +54,7 @@ def export_searhed_articles(engine, format):
         logger.error(f"Exporting articles resulted in failure: {e}")
         return jsonify({"status": "error", "message": f"Exporting articles resulted in failure: {str(e)}"}), 400
 
-def download_articles(engine,dlmode):
+def download_articles(engine,dlmod):
     # this multiple format request check is just extra security, likely never used
     if len(request.args.getlist('format')) > 1:
         return jsonify({"status": "error", "message": "Invalid format requested."}), 400
@@ -76,7 +76,7 @@ def download_articles(engine,dlmode):
         if format not in ['json', 'csv', 'parquet']:
             return jsonify({"status": "error", "message": "Invalid format requested."}), 400
 
-        if dlmode == 1: # search based download = 1
+        if dlmod == 1: # search based download: dlmod = 1
 
             # Export searhed articles in searchedarticles-file into different formats (json, csv, parquet)
             return export_searched_articles(format)
