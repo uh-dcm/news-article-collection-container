@@ -1,9 +1,13 @@
 import datetime
+from pathlib import Path
 
 from sqlalchemy import *
 
-#engine = create_engine('sqlite:///data.db', echo = True)
-engine = create_engine('sqlite:///data/data.db', echo = False)
+BASE_DIR = Path(__file__).resolve().parent
+database_path = BASE_DIR / 'data' / 'data.db'
+DATABASE_URL = f"sqlite:///{database_path}"
+
+engine = create_engine(DATABASE_URL, echo=False)
 meta = MetaData()
 connection = engine.connect()
 

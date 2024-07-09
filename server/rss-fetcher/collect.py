@@ -1,8 +1,12 @@
 import requests
 import feedparser
+from pathlib import Path
 from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
 
 import database
+
+BASE_DIR = Path(__file__).resolve().parent
+feeds_file_path = BASE_DIR / 'data' / 'feeds.txt'
 
 def clean_url( url ):
     parsed = urlparse(url)
@@ -18,7 +22,7 @@ def clean_url( url ):
     ])
     return newurl
 
-for feed_url in open("data/feeds.txt"):
+for feed_url in open(feeds_file_path):
 
     feed_url = feed_url.strip()
     feed = feedparser.parse( feed_url )
