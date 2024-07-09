@@ -74,7 +74,6 @@ type ToastOptions = {
   error: (error: string) => string;
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 import { serverUrl } from './config.tsx';
 import {
   registerUser,
