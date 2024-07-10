@@ -19,7 +19,8 @@ import {
   BarsArrowDownIcon,
   BarsArrowUpIcon,
   MagnifyingGlassIcon,
-  ChartBarIcon,
+  ChartBarSquareIcon,
+  ChartPieIcon
 } from '@heroicons/react/24/solid';
 
 import { Button } from '@/components/ui/button';
@@ -574,7 +575,7 @@ export default function App() {
                           className="w-full p-6 text-base sm:w-[45%]"
                         >
                           <div className="flex justify-center">
-                            <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
+                            <ChartPieIcon className="mr-1.5 size-6"></ChartPieIcon>
                             Domain distribution
                           </div>
                         </Button>
@@ -623,7 +624,7 @@ export default function App() {
                           className="w-full p-6 text-base sm:w-[45%]"
                         >
                           <div className="flex justify-center">
-                            <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
+                            <ChartBarSquareIcon className="mr-1.5 size-6"></ChartBarSquareIcon>
                             Time series
                           </div>
                         </Button>
@@ -640,9 +641,7 @@ export default function App() {
                               Number of articles collected per day
                             </DrawerDescription>
                           </DrawerHeader>
-                          <div>
-                            <p><TimeSeries data={statisticData[2]}></TimeSeries></p>
-                          </div>
+                            <TimeSeries data={statisticData[2]}></TimeSeries>
                           <DrawerFooter>
                             <DrawerClose asChild>
                               <Button variant="outline">Close</Button>
