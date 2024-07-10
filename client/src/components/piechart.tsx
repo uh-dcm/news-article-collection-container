@@ -16,7 +16,7 @@ export const PieChart = ({data, fnc}: {data: DomainData[], fnc: (arg: string) =>
       width: 380,
       type: 'donut',
       events: {
-        //@ts-expect-error
+        //@ts-expect-error: Should expect types
         dataPointSelection: (event, chartContext, config) => {   
             fnc(config.w.config.labels[config.dataPointIndex])}
         },
