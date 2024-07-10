@@ -6,3 +6,4 @@ apscheduler
 flask_apscheduler
 pytest
 pyarrow
+flask_jwt_extended
