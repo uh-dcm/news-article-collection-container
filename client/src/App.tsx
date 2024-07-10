@@ -8,7 +8,7 @@ import {
 } from './services/fetching-news';
 import {
   sendSearchQuery,
-  sendStatisticsQuery,
+  sendStatisticsQuery
 } from './services/database_queries';
 
 import authClient from './services/authclient';
@@ -34,6 +34,7 @@ import RssInput from './components/rss-input';
 import Header from './components/header';
 import Logs from './components/logs';
 import TimeSeries from './components/timeseries';
+import { PieChart, SubPieChart } from './components/piechart';
 import { DataTable } from './components/ui/data-table';
 import { articleColumns, Article } from './components/ui/article-columns';
 import { feedColumns, Feed } from './components/ui/feed-columns';
@@ -61,7 +62,6 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 
-import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 
@@ -89,6 +89,7 @@ export default function App() {
   const [articlesLoading, setArticlesLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statisticData, setStatisticsData] = useState<DomainData[][]>([]);
+  const [subDirectoryData, setSubDirectoryData] = useState<DomainData[]>([]);
   const [userExists, setUserExists] = useState(false);
   const [validToken, setValidToken] = useState(false);
 
@@ -114,6 +115,10 @@ export default function App() {
     };
     checkToken();
   }, []);
+
+  const formSubDirectoryData = async (url: string) => {
+    await setSubDirectoryData(statisticData[1].filter(x => x.name.startsWith(url)))
+  };
 
   const handleFilterInputChange = (event: {
     target: { value: React.SetStateAction<string> };
@@ -575,11 +580,14 @@ export default function App() {
                         </Button>
                       </DrawerTrigger>
                       <DrawerContent>
-                        <div className="mx-auto w-full max-w-sm">
+                        <div className="mx-auto w-full max-w-full">
                           <DrawerHeader>
                             <DrawerTitle>
                               {' '}
-                              Articles collected from{' '}
+                              {statisticData.length === 0
+                                ? 0
+                                : statisticData[0].map(x => x.count).reduce((s, c) => s + c, 0)}{' '}
+                              articles collected from{' '}
                               {statisticData.length === 0
                                 ? 0
                                 : statisticData[0].length}{' '}
@@ -591,34 +599,12 @@ export default function App() {
                             </DrawerTitle>
                             <DrawerDescription>
                               {' '}
-                              Number of articles by domain and subdirectory
+                              Click on a domain to view the subdirectory distribution
                             </DrawerDescription>
                           </DrawerHeader>
-                          <div className="mt-3 h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <PieChart width={400} height={400}>
-                                <Pie
-                                  data={statisticData[0]}
-                                  dataKey="count"
-                                  cx="50%"
-                                  cy="50%"
-                                  outerRadius={60}
-                                  fill="#8884d8"
-                                />
-                                <Tooltip />
-                                <Pie
-                                  data={statisticData[1]}
-                                  dataKey="count"
-                                  cx="50%"
-                                  cy="50%"
-                                  innerRadius={70}
-                                  outerRadius={90}
-                                  fill="#82ca9d"
-                                  label
-                                />
-                                <Tooltip />
-                              </PieChart>
-                            </ResponsiveContainer>
+                          <div className="grid grid-cols-1 grid-cols-2 gap-4">
+                              <PieChart data={statisticData[0]} fnc={formSubDirectoryData}></PieChart>
+                              <SubPieChart data={subDirectoryData}></SubPieChart>
                           </div>
                           <DrawerFooter>
                             <DrawerClose asChild>
@@ -651,12 +637,12 @@ export default function App() {
                             </DrawerTitle>
                             <DrawerDescription>
                               {' '}
-                              Number of articles posted per day
+                              Number of articles collected per day
                             </DrawerDescription>
                           </DrawerHeader>
-
-                          <TimeSeries data={statisticData[2]}></TimeSeries>
-
+                          <div>
+                            <p><TimeSeries data={statisticData[2]}></TimeSeries></p>
+                          </div>
                           <DrawerFooter>
                             <DrawerClose asChild>
                               <Button variant="outline">Close</Button>
