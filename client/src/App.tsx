@@ -74,7 +74,6 @@ type ToastOptions = {
   error: (error: string) => string;
 };
 
-import { serverUrl } from './config.tsx';
 import {
   registerUser,
   getIsValidToken,
@@ -244,7 +243,7 @@ export default function App() {
     toast.promise(async () => {
       try {
         const response = await authClient.get(
-          `${serverUrl}/api/articles/export?format=${format}`,
+          `/api/articles/export?format=${format}`,
           {
             responseType: 'blob',
           }
