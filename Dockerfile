@@ -38,7 +38,7 @@ COPY server server
 # Clone another repository into a subdirectory of /server
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* \
     && rm -rf server/rss-fetcher && mkdir server/rss-fetcher && \
-    git clone https://github.com/uh-dcm/news-article-collection server/rss-fetcher
+    git clone https://github.com/ayriainen/news-article-collection server/rss-fetcher
 
 # Copy frontend build to static folder
 RUN cp -r client/build server/static
