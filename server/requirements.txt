@@ -1,6 +1,7 @@
 flask
 flask-cors
 pandas
+sqlalchemy
 apscheduler
 flask_apscheduler
 pytest

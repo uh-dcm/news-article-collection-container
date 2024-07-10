@@ -186,6 +186,18 @@ def get_error_log_route():
     except Exception as e:
         return jsonify({"error": "Failed to fetch logs", "details": str(e)}), 500
 
+@app.route('/api/clear_error_logs', methods=['POST'])
+def clear_error_logs_route():
+    """
+    Clears the error logs.
+    """
+    try:
+        with open(LOG_FILE_PATH, 'w', encoding='utf-8') as log_file:
+            log_file.write('')
+        return jsonify({"message": "Logs cleared successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": "Failed to clear logs", "details": str(e)}), 500
+
 @app.route('/api/get_user_exists', methods=['GET'])
 def get_user_exists():
     """

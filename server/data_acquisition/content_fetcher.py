@@ -63,12 +63,8 @@ def run_collect_and_process():
         with open(LOCK_FILE, 'w', encoding='utf-8') as f:
             f.write('processing')
 
-        result = subprocess.run(['python3', 'collect.py'], cwd=f'./{FETCHER_FOLDER}', capture_output=True, check=True, text=True)
-        if result.stdout:
-            logger.info(result.stdout.strip())
-        result = subprocess.run(['python3', 'process.py'], cwd=f'./{FETCHER_FOLDER}', capture_output=True, check=True, text=True)
-        if result.stdout:
-            logger.info(result.stdout.strip())
+        run_subprocess('collect.py', FETCHER_FOLDER)
+        run_subprocess('process.py', FETCHER_FOLDER)
 
     except subprocess.CalledProcessError as e:
         print("Error: ", e.stderr)
@@ -77,3 +73,13 @@ def run_collect_and_process():
     finally:
         if os.path.exists(LOCK_FILE):
             os.remove(LOCK_FILE)
+
+def run_subprocess(script_name, fetcher_folder):
+    """
+    The actual, once repeated subprocess run with logging for run_collect_and_process().
+    """
+    result = subprocess.run(['python3', script_name], cwd=f'./{fetcher_folder}', capture_output=True, check=True, text=True)
+    if result.stdout:
+        logger.info("%s output:\n%s", script_name, result.stdout.strip(), extra={'script_name': script_name})
+    if result.stderr:
+        logger.error("%s error:\n%s", script_name, result.stderr.strip(), extra={'script_name': script_name})

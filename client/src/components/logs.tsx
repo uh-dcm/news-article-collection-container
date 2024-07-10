@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { getLogRecords } from '../services/log_records';
+import { getLogRecords, clearLogRecords } from '../services/log_records';
+import * as AlertDialog from '@radix-ui/react-alert-dialog';
 
 export default function Logs() {
   const [logRecords, setLogRecords] = useState<string[]>([]);
@@ -15,30 +16,91 @@ export default function Logs() {
     setShowLogs(!showLogs);
   };
 
+  const handleClearLogs = async () => {
+    try {
+      await clearLogRecords();
+      setLogRecords([]);
+    } catch (error) {
+      console.error('Failed to clear logs:', error);
+    }
+  };
+
+  const handleDownloadLogs = () => {
+    const blob = new Blob([logRecords.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'error_logs.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
-    <Card className="col-span-5">
-      <CardContent className="w-[20%] p-6 text-base">
-        <Button
-          className="w-full p-6 text-base"
-          onClick={handleToggleLogs}
-          variant="outline"
-        >
-          {showLogs ? 'Hide logs' : 'Show logs'}
-        </Button>
-      </CardContent>
+    <div className="w-full max-w-2xl mx-auto">
+      <Button
+        className="w-full text-sm font-medium text-gray-600 hover:text-gray-800"
+        onClick={handleToggleLogs}
+        variant="ghost"
+      >
+        {showLogs ? 'Hide Error Logs' : 'Show Error Logs'}
+      </Button>
       {showLogs && (
-        <CardContent>
-          {logRecords.length > 0 ? (
-            logRecords.map((record, index) => (
-              <div key={index} className="mb-2 border-b border-gray-200 p-2">
-                {record}
+        <Card className="mt-2 shadow-sm">
+          <CardContent className="p-2">
+            <div className="max-h-60 overflow-y-auto text-xs">
+              {logRecords.length > 0 ? (
+                logRecords.map((record, index) => (
+                  <div key={index} className="mb-1 border-b border-gray-100 pb-1">
+                    <pre className="whitespace-pre-wrap break-words font-mono">{record}</pre>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-gray-500">No error logs.</p>
+              )}
+            </div>
+            {logRecords.length > 0 && (
+              <div className="mt-1 flex justify-end space-x-1">
+                <Button
+                  onClick={handleDownloadLogs}
+                  size="xs"
+                  variant="outline"
+                >
+                  Download Logs
+                </Button>
+                <AlertDialog.Root>
+                  <AlertDialog.Trigger asChild>
+                    <Button
+                      size="xs"
+                      variant="outline"
+                    >
+                      Clear Logs
+                    </Button>
+                  </AlertDialog.Trigger>
+                  <AlertDialog.Portal>
+                    <AlertDialog.Overlay className="bg-black/50 fixed inset-0" />
+                    <AlertDialog.Content className="fixed top-1/2 left-1/2 max-h-[85vh] w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-white p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none">
+                      <AlertDialog.Title className="text-lg font-medium">Are you sure?</AlertDialog.Title>
+                      <AlertDialog.Description className="mt-2 mb-5 text-sm">
+                        This action cannot be undone. This will delete all the error logs.
+                      </AlertDialog.Description>
+                      <div className="flex justify-end gap-[15px]">
+                        <AlertDialog.Cancel asChild>
+                          <Button variant="outline">Cancel</Button>
+                        </AlertDialog.Cancel>
+                        <AlertDialog.Action asChild>
+                          <Button variant="destructive" onClick={handleClearLogs}>Clear Logs</Button>
+                        </AlertDialog.Action>
+                      </div>
+                    </AlertDialog.Content>
+                  </AlertDialog.Portal>
+                </AlertDialog.Root>
               </div>
-            ))
-          ) : (
-            <p>No logs available.</p>
-          )}
-        </CardContent>
+            )}
+          </CardContent>
+        </Card>
       )}
-    </Card>
+    </div>
   );
 }
