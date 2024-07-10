@@ -6,9 +6,4 @@ apscheduler
 flask_apscheduler
 pytest
 pyarrow
-newspaper4k
-sqlalchemy
-feedparser
-requests
-lxml_html_clean
 flask_jwt_extended
