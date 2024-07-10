@@ -27,7 +27,7 @@ connection = engine.connect()
 app = Flask(__name__, static_folder='static')
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config.from_object(Config())
-app.config['JWT_SECRET_KEY'] = "your_secret_key_here_change_this"
+app.config['JWT_SECRET_KEY'] = "your_secret_key_here_change_this" # TODO: change this
 jwt = JWTManager(app)
 
 init_scheduler(app)
@@ -37,6 +37,7 @@ from functools import wraps
 def jwt_required_conditional(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
+        # allow requests without token in testing (only for pytest) environment
         if os.getenv('FLASK_ENV') == 'testing':
             return fn(*args, **kwargs)
         else:
@@ -204,18 +205,6 @@ def get_user_exists():
     Check if user exists.
     """
     return jsonify({"exists": os.path.exists(f'./{FETCHER_FOLDER}/data/password.txt')}), 200
-
-@app.route('/api/create_test_user', methods=['POST'])
-def create_test_user():
-    """
-    Create a test user.
-    """
-    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w') as f:
-        f.write(generate_password_hash("test"))
-
-    access_token = create_access_token(identity='admin')
-
-    return jsonify({"msg": "User created", "accessToken": access_token}), 200
 
 @app.route('/api/get_is_valid_token', methods=['GET'])
 @jwt_required_conditional
