@@ -28,9 +28,13 @@ def get_search_results(engine):
             ORDER BY time DESC
         """)
         stmt = stmt.bindparams(word=f'%{search_query}%')
-        result = engine.connect().execute(stmt)
-        rows = result.fetchall()
+
+        with engine.connect() as connection:
+            result = connection.execute(stmt)
+            rows = result.fetchall()
+
         data = [{"time": time, "url": url, "full_text": full_text} for time, url, full_text in rows]
+
         return jsonify(data), 200
     except SQLAlchemyError as e:
         logger.error("Database error when searching: %s", e)

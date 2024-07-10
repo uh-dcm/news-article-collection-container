@@ -25,8 +25,9 @@ def get_stats(engine):
                             FROM articles 
                             GROUP BY domain
                             """)
-        result = engine.connect().execute(domain_query)
-        domain_rows = result.fetchall()
+        with engine.connect() as connection:
+            result = connection.execute(domain_query)
+            domain_rows = result.fetchall()
 
         # Queries URLs of the form www.url.com/subdirectory/
         subdir_query = text("""
@@ -41,8 +42,9 @@ def get_stats(engine):
                             FROM articles
                             GROUP BY domain
                                 """)
-        result = engine.connect().execute(subdir_query)
-        subdir_rows = result.fetchall()
+        with engine.connect() as connection:
+            result = connection.execute(subdir_query)
+            subdir_rows = result.fetchall()
 
         # Queries dates and counts for articles
         dates_query = text("""
@@ -51,8 +53,9 @@ def get_stats(engine):
                             GROUP BY strftime('%d-%m-%Y', time)
                             ORDER BY time ASC;
                             """)
-        result = engine.connect().execute(dates_query)
-        dates_row = result.fetchall()
+        with engine.connect() as connection:
+            result = connection.execute(dates_query)
+            dates_row = result.fetchall()
 
         dates = [{"name": time, "count": count} for time, count in dates_row]
         domain_data = [{"name": domain, "count": count} for domain, count in domain_rows]
