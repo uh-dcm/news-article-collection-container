@@ -1,26 +1,22 @@
 """
-This searches db for specific queries, called by app.py.
+This searches db for specific queries. Called by app.py.
 """
 from flask import jsonify, request
 from sqlalchemy import text, inspect
 from sqlalchemy.exc import SQLAlchemyError
-import os
-import time
-from config import FETCHER_FOLDER
+
 from log_config import logger
 
-LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
-
-def search_articles(engine):
-    # wait for collect.py and process.py to finish
-    while os.path.exists(LOCK_FILE):
-        time.sleep(1)
-
+def get_search_results(engine):
+    """
+    Searches db articles for a custom user query.
+    Called by app.get_search_results_route().
+    """
     try:
         # check whether the table exists
         inspector = inspect(engine)
         if not inspector.has_table('articles'):
-            return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 400
+            return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 404
 
         search_query = request.args.get('searchQuery', '')
         # Datetime object used instead of string to achieve proper sorting in table
@@ -37,8 +33,8 @@ def search_articles(engine):
         data = [{"time": time, "url": url, "full_text": full_text} for time, url, full_text in rows]
         return jsonify(data), 200
     except SQLAlchemyError as e:
-        logger.error(f"Database error when searching: {e}")
+        logger.error("Database error when searching: %s", e)
         return jsonify({"status": "error", "message": f"Database error when searching: {str(e)}"}), 500
     except Exception as e:
-        logger.error(f"Error when searching articles: {str(e)}")
+        logger.error("Error when searching: %s", e)
         return jsonify({"status": "error", "message": str(e)}), 500

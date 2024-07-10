@@ -34,3 +34,10 @@ Alternatively, you can use the CLI tool to setup the environment by doing the fo
 4. Update the `sha`-identifier to `spec.spec.containers[0]` of `deployment-prod.yaml` in order to get the latest build from the image stream.
 5. Run `oc apply -f <cfg_file>.yaml` for each of the remaining config files in `../manifests`.
 6. The app should now be accessable in the URL defined by the `spec.host` field in `service-route-prod.yaml`.
+
+Sometimes, e.g., when fetching a new image from ImageStream, an already claimed PVC might get stuck in a deadlock. This happens
+between an earlier pod that it was attached to and a new pod trying to claim it. To resolve this, run the following `oc` commands which that should resolve it by restarting the pod:
+```
+oc scale deployment news-collection-prod --replicas=0
+oc scale deployment news-collection-prod --replicas=1
+```

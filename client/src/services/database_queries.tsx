@@ -1,11 +1,15 @@
-import axios from 'axios';
-import { serverUrl } from '../App';
+import authClient from './authclient';
 
 const sendSearchQuery = async (searchQuery: string) => {
-    const response = await axios.get(`${serverUrl}/api/articles/search`, {
-        params: { searchQuery: searchQuery } 
-    });
-    return response.data
+  const response = await authClient.get(`/api/articles/search`, {
+    params: { searchQuery: searchQuery },
+  });
+  return response.data;
 };
 
-export { sendSearchQuery };
+const sendStatisticsQuery = async () => {
+  const response = await authClient.get(`/api/articles/statistics`);
+  return response.data;
+};
+
+export { sendSearchQuery, sendStatisticsQuery };

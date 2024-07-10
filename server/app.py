@@ -1,136 +1,218 @@
 """
 This is the main backend app for the project.
 """
-from os.path import exists
 import os
-import subprocess
-from flask import Flask, jsonify, send_from_directory, request
+from flask import Flask, send_from_directory, jsonify, request
 from flask_cors import CORS
-from flask_apscheduler import APScheduler
-from sqlalchemy import create_engine, MetaData
-from config import DATABASE_URL, FETCHER_FOLDER
-from log_config import logger, LOG_FILE_PATH
-from services.download import download_articles
-from services.search import search_articles
+from sqlalchemy import create_engine
 
-class Config:
-    SCHEDULER_API_ENABLED = True
+# authentication
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from scheduler_config import init_scheduler, Config
+from config import DATABASE_URL, FETCHER_FOLDER
+from log_config import LOG_FILE_PATH
+
+from data_acquisition.feed_manager import get_feed_urls, set_feed_urls
+from data_acquisition.content_fetcher import start_fetch, stop_fetch, get_fetch_status
+from data_analysis.query_processor import get_search_results
+from data_analysis.stats_analyzer import get_stats
+from data_export.export_manager import get_export
 
 os.makedirs(f"./{FETCHER_FOLDER}/data/", exist_ok=True)
 engine = create_engine(DATABASE_URL, echo=False)
-meta = MetaData()
 connection = engine.connect()
 
 app = Flask(__name__, static_folder='static')
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config.from_object(Config())
+app.config['JWT_SECRET_KEY'] = "your_secret_key_here_change_this" # TODO: change this
+jwt = JWTManager(app)
 
-scheduler = APScheduler()
-scheduler.init_app(app)
+init_scheduler(app)
 
-LOCK_FILE = f'./{FETCHER_FOLDER}/processing.lock'
+from functools import wraps
 
-# this is triggered by start_fetching
-# runs collect.py and process.py on the submitted feeds
-# hogs database for itself with the lock
-def run_collect_and_process():
-    if os.path.exists(LOCK_FILE):
-        print("Processing is already active.")
-        return
+def jwt_required_conditional(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        # allow requests without token in testing (only for pytest) environment
+        if os.getenv('FLASK_ENV') == 'testing':
+            return fn(*args, **kwargs)
+        else:
+            return jwt_required()(fn)(*args, **kwargs)
+        
+    return wrapper
 
-    try:
-        with open(LOCK_FILE, 'w') as f:
-            f.write('processing')
 
-        result = subprocess.run(['python3', 'collect.py'], cwd=f'./{FETCHER_FOLDER}', capture_output=True, check=True, text=True)
-        if result.stdout:
-            logger.info(result.stdout.strip())
-        result = subprocess.run(['python3', 'process.py'], cwd=f'./{FETCHER_FOLDER}', capture_output=True, check=True, text=True)
-        if result.stdout:
-            logger.info(result.stdout.strip())
-
-    except subprocess.CalledProcessError as e:
-        print("Error: ", e.stderr)
-    finally:
-        if os.path.exists(LOCK_FILE):
-            os.remove(LOCK_FILE)
-
-@app.route('/api/start', methods=['POST'])
-def start_fetching():
-    if not scheduler.get_job('collect_and_process'):
-        scheduler.add_job(
-            id='collect_and_process',
-            func=run_collect_and_process,
-            trigger='interval',
-            minutes=5,
-            misfire_grace_time=300
-        )
-        run_collect_and_process()
-        return jsonify({"status": "started"}), 201
-    else:
-        return jsonify({"status": "already running"}), 409
-
-@app.route('/api/stop', methods=['POST'])
-def stop_fetching():
-    if scheduler.get_job('collect_and_process'):
-        scheduler.remove_job('collect_and_process')
-        return jsonify({"status": "stopped"}), 200
-    else:
-        return jsonify({"status": "it was not running"}), 409
-
-@app.route('/api/status', methods=['GET'])
-def fetching_status():
-    if scheduler.get_job('collect_and_process'):
-        return jsonify({"status": "running"}), 200
-    else:
-        return jsonify({"status": "stopped"}), 400
-
-@app.route('/api/get_feed_urls', methods=['GET'])
-def get_feed_urls():
-    feeds = []
-    try:
-        if exists(f'./{FETCHER_FOLDER}/data/feeds.txt'):
-            with open(f'./{FETCHER_FOLDER}/data/feeds.txt') as f:
-                feeds = f.readlines()
-    except FileNotFoundError as e:
-        print(f"Error in parsing rss-feeds from feeds.txt: {e.strerror}")
-    return jsonify(feeds), 200
-
-@app.route('/api/set_feed_urls', methods=['POST'])
-def set_feed_urls():
-    feeds = request.json
-    feed_urls = feeds['feedUrls']
-    with open(f'./{FETCHER_FOLDER}/data/feeds.txt', 'w') as f:
-        f.write("\n".join(feed_urls))
-    return jsonify({"status": "success"}), 200
+LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
-    if path != "" and path != "api" and exists("static/" + path):
+    """
+    Default view.
+    """
+    if path != "" and path != "api" and os.path.exists("static/" + path):
         return send_from_directory(app.static_folder, path)
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
-# downloads the articles from db, uses download_articles.py
-@app.route('/api/articles', methods=['GET'])
-def download():
-    return download_articles(engine)
+@app.route('/api/register', methods=['POST'])
+def register():
+    """
+    Register a new user.
+    """
 
-# search db for a query and return results, uses search_articles.py
+    if os.getenv('FLASK_ENV') == 'testing':
+        with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w') as f:
+            f.write(generate_password_hash("testpassword"))
+        return jsonify({"msg": "User created"}), 200
+
+    password = request.json.get('password', None)
+
+    if not password:
+        return jsonify({"msg": "Missing username or password"}), 400
+
+    hashed_password = generate_password_hash(password)
+    
+    # use a basic file for now
+    if os.path.exists(f'./{FETCHER_FOLDER}/data/password.txt'):
+        return jsonify({"msg": "User already exists"}), 409
+    
+    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w') as f:
+        f.write(hashed_password)
+
+    return jsonify({"msg": "User created"}), 200
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    """
+    Login a user.
+    """
+    password = request.json.get('password', None)
+
+    if not password:
+        return jsonify({"msg": "Missing username or password"}), 400
+
+    if not os.path.exists(f'./{FETCHER_FOLDER}/data/password.txt'):
+        return jsonify({"msg": "User does not exist"}), 404
+
+    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'r') as f:
+        hashed_password = f.read()
+
+    if not check_password_hash(hashed_password, password):
+        return jsonify({"msg": "Invalid username or password"}), 401
+
+    access_token = create_access_token(identity='admin')
+    return jsonify(access_token=access_token), 200
+
+
+@app.route('/api/get_feed_urls', methods=['GET'])
+@jwt_required_conditional
+def get_feed_urls_route():
+    """
+    Returns saved feeds from feeds.txt. Uses feed_manager.py.
+    """
+    return get_feed_urls()
+
+@app.route('/api/set_feed_urls', methods=['POST'])
+@jwt_required_conditional
+def set_feed_urls_route():
+    """
+    Saves added feeds to feeds.txt. Uses feed_manager.py.
+    """
+    return set_feed_urls()
+
+@app.route('/api/start', methods=['POST'])
+@jwt_required_conditional
+def start_fetch_route():
+    """
+    Schedules and starts the fetching job. Uses content_fetcher.py.
+    Runs collect.py and process.py on the submitted feeds.
+    """
+    return start_fetch()
+
+@app.route('/api/stop', methods=['POST'])
+@jwt_required_conditional
+def stop_fetch_route():
+    """
+    Stops the fetching job. Uses content_fetcher.py.
+    """
+    return stop_fetch()
+
+@app.route('/api/status', methods=['GET'])
+@jwt_required_conditional
+def get_fetch_status_route():
+    """
+    Checks status of the fetching job. Uses content_fetcher.py.
+    """
+    return get_fetch_status()
+
 @app.route('/api/articles/search', methods=['GET'])
-def search():
-    return search_articles(engine)
+@jwt_required_conditional
+def get_search_results_route():
+    """
+    Search db for a query and return results. Uses query_processor.py.
+    """
+    return get_search_results(engine)
+
+@app.route('/api/articles/statistics', methods=['GET'])
+@jwt_required_conditional
+def get_stats_route():
+    """
+    Returns stats about db articles. Uses stats_analyzer.py.
+    """
+    return get_stats(engine)
+
+@app.route('/api/articles/export', methods=['GET'])
+@jwt_required_conditional
+def get_export_route():
+    """
+    Exports the articles from db. Uses export_manager.py.
+    """
+    return get_export(engine)
 
 @app.route('/api/error_logs', methods=['GET'])
-def get_error_log():
+@jwt_required_conditional
+def get_error_log_route():
+    """
+    Returns a log report of errors. Uses log_config.py.
+    """
     try:
-        with open(LOG_FILE_PATH, 'r') as log_file:
+        with open(LOG_FILE_PATH, 'r', encoding='utf-8') as log_file:
             log_records = log_file.read()
         return jsonify(logs=log_records.splitlines()), 200
     except Exception as e:
-        return jsonify({"error": "Failed to fetch logs"}), 500
+        return jsonify({"error": "Failed to fetch logs", "details": str(e)}), 500
+
+@app.route('/api/clear_error_logs', methods=['POST'])
+def clear_error_logs_route():
+    """
+    Clears the error logs.
+    """
+    try:
+        with open(LOG_FILE_PATH, 'w', encoding='utf-8') as log_file:
+            log_file.write('')
+        return jsonify({"message": "Logs cleared successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": "Failed to clear logs", "details": str(e)}), 500
+
+@app.route('/api/get_user_exists', methods=['GET'])
+def get_user_exists():
+    """
+    Check if user exists.
+    """
+    return jsonify({"exists": os.path.exists(f'./{FETCHER_FOLDER}/data/password.txt')}), 200
+
+@app.route('/api/get_is_valid_token', methods=['GET'])
+@jwt_required_conditional
+def get_is_valid_token():
+    """
+    Check if token is valid.
+    """
+    return jsonify({"valid": True}), 200
 
 if __name__ == '__main__':
-    scheduler.start()
     app.run(host='0.0.0.0', port=5000)

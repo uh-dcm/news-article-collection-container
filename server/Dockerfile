@@ -6,7 +6,7 @@ ARG CACHEBUST=1
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* \
     && rm -rf rss-fetcher && mkdir rss-fetcher && \
-    git clone https://github.com/uh-dcm/news-article-collection rss-fetcher
+    git clone https://github.com/ayriainen/news-article-collection rss-fetcher
 
 COPY . .
 

@@ -9,11 +9,11 @@ test('renders QuestionsAccordion component and toggles content', () => {
   const heading = screen.getByText(/How does the collector work?/i);
   expect(heading).toBeInTheDocument();
 
-  let content = screen.queryByText(/The collector gathers all the articles/i);
+  let content = screen.queryByText(/The news feed article collector gathers contents/i);
   expect(content).not.toBeInTheDocument();
 
   fireEvent.click(heading);
 
-  content = screen.getByText(/The collector gathers all the articles/i);
+  content = screen.getByText(/The news feed article collector gathers contents/i);
   expect(content).toBeInTheDocument();
 });

@@ -6,6 +6,8 @@ This is a repository for further development of the news article collection tool
 
 This is being worked on as part of the University of Helsinki [Ohjelmistotuotantoprojekti TKT20007](https://github.com/HY-TKTL/TKT20007-Ohjelmistotuotantoprojekti) course for the summer of 2024.
 
+[General project structure in Markdown](https://github.com/uh-dcm/news-article-collection-container/blob/main/docs/project-structure.md)
+
 ## Development documentation
 
 - [Definition of Done & Practices](https://github.com/uh-dcm/news-article-collection-container/blob/main/docs/dod-practices.md)
@@ -13,6 +15,7 @@ This is being worked on as part of the University of Helsinki [Ohjelmistotuotant
 - [Sprint 1 Task Board](https://github.com/orgs/uh-dcm/projects/6/views/1)
 - [Sprint 2 Task Board](https://github.com/orgs/uh-dcm/projects/9/views/1)
 - [Sprint 3 Task Board](https://github.com/orgs/uh-dcm/projects/10/views/1)
+- [Sprint 4 Task Board](https://github.com/orgs/uh-dcm/projects/11/views/1)
 
 ## Starting the app
 

@@ -1,7 +1,7 @@
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { beforeAll, afterAll, afterEach, vi } from 'vitest';
-import { serverUrl } from '@/App';
+import { serverUrl } from '../../src/config';
 
 /* Disable undefined function in Jest */
 global.matchMedia =
@@ -34,12 +34,9 @@ const handlers = [
     );
   }),
   http.get(`${serverUrl}/api/status`, () => {
-    return new HttpResponse(
-      JSON.stringify({ status: 'stopped' }),
-      {
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new HttpResponse(JSON.stringify({ status: 'stopped' }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   }),
   http.post(`${serverUrl}/api/start`, () => {
     return new HttpResponse(null, { status: 200 });
@@ -55,23 +52,66 @@ const handlers = [
       return HttpResponse.json([]);
     }
 
-    const filteredData = testData.filter(article => 
+    const filteredData = testData.filter((article) =>
       article.full_text.toLowerCase().includes(query.toLowerCase())
     );
 
     return HttpResponse.json(filteredData);
   }),
+  http.post(`${serverUrl}/api/set_feed_urls`, async ({ request }) => {
+    const newFeed = await request.json();
+
+    return HttpResponse.json(newFeed, { status: 200 });
+  }),
+  // CAUTION: mocks are not perfect and always validate everything, although that should be fine for now
+  http.get(`${serverUrl}/api/get_user_exists`, () => {
+    return new HttpResponse(JSON.stringify({ exists: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }),
+
+  http.post(`${serverUrl}/api/register`, () => {
+    return new HttpResponse(
+      JSON.stringify({ message: 'User registered successfully' }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
+  }),
+
+  http.get(`${serverUrl}/api/get_is_valid_token`, () => {
+    return new HttpResponse(JSON.stringify({ valid: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }),
+
+  http.post(`${serverUrl}/api/login`, () => {
+    return new HttpResponse(
+      JSON.stringify({ access_token: 'mock-access-token' }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
+  }),
+
+  http.post(`${serverUrl}/api/remove_user`, () => {
+    return new HttpResponse(
+      JSON.stringify({ message: 'User removed successfully' }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
+  }),
 ];
 
 const server = setupServer(...handlers);
 
-beforeAll(() => {
+beforeAll(async () => {
   server.listen({
     onUnhandledRequest: 'warn',
   });
+  // create a new user and login
+  localStorage.setItem('accessToken', 'mock-access-token');
 });
 
 afterEach(() => {
+  // CAUTION: does not clear the localStorage
   server.resetHandlers();
 });
 

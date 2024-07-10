@@ -1,19 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { getAllFeedUrls, sendAllFeedUrls } from './services/feed_urls';
+
 import {
   getFetchingStatus,
   keepFetching,
   stopFetching,
 } from './services/fetching-news';
-import { sendSearchQuery } from './services/database_queries';
-import axios from 'axios';
+import {
+  sendSearchQuery,
+  sendStatisticsQuery,
+} from './services/database_queries';
+
+import authClient from './services/authclient';
+
 import './css/index.css';
 import {
   ArrowDownTrayIcon,
-  CheckIcon,
   BarsArrowDownIcon,
   BarsArrowUpIcon,
   MagnifyingGlassIcon,
+  ChartBarIcon,
 } from '@heroicons/react/24/solid';
 
 import { Button } from '@/components/ui/button';
@@ -27,9 +33,11 @@ import Footer from './components/footer';
 import RssInput from './components/rss-input';
 import Header from './components/header';
 import Logs from './components/logs';
+import TimeSeries from './components/timeseries';
 import { DataTable } from './components/ui/data-table';
 import { articleColumns, Article } from './components/ui/article-columns';
 import { feedColumns, Feed } from './components/ui/feed-columns';
+import InfoIcon from './components/ui/info-icon';
 
 import {
   Card,
@@ -41,6 +49,24 @@ import {
 
 import { Separator } from '@/components/ui/separator';
 
+import {
+  DomainData,
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer';
+
+import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
+
+import { checkUserExists } from './services/authfunctions';
+
 type ToastOptions = {
   loading: string;
   description: string | null;
@@ -48,8 +74,11 @@ type ToastOptions = {
   error: (error: string) => string;
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const serverUrl = import.meta.env.VITE_WEBPAGE_URL;
+import {
+  registerUser,
+  getIsValidToken,
+  loginUser,
+} from './services/authfunctions';
 
 export default function App() {
   const [feedUrlList, setFeedUrlList] = useState<Feed[]>([]);
@@ -57,7 +86,34 @@ export default function App() {
   const [isUrlSetDisabled, setIsUrlSetDisabled] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [searchData, setSearchData] = useState<Article[]>([]);
+  const [articlesLoading, setArticlesLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statisticData, setStatisticsData] = useState<DomainData[][]>([]);
+  const [userExists, setUserExists] = useState(false);
+  const [validToken, setValidToken] = useState(false);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const response = await checkUserExists();
+      setUserExists(response.exists);
+    };
+    checkUser();
+  }, []);
+
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+          const response = await getIsValidToken();
+          setValidToken(response);
+        }
+      } catch (error) {
+        console.log('Error in checkToken: ', error);
+      }
+    };
+    checkToken();
+  }, []);
 
   const handleFilterInputChange = (event: {
     target: { value: React.SetStateAction<string> };
@@ -65,17 +121,51 @@ export default function App() {
     setSearchQuery(event.target.value);
   };
 
-  const handleFeedAdd = (url: Feed) => {
+  const handleFetchStatistics = async () => {
+    toast.dismiss();
+
+    const toastOptions = {
+      loading: 'Getting statistics..',
+      description: 'Note that the statistics might not be updated yet',
+      duration: 4000,
+      success: (msg: string) => msg,
+      error: (error: string) => {
+        console.error('Error getting statistics:', error);
+        toastOptions.description =
+          'Have you fetched any articles or is the downloading still in progress?';
+        return 'Failed to get statistics';
+      },
+    } as ToastOptions satisfies ToastOptions;
+
+    toast.promise(async () => {
+      try {
+        const data = await sendStatisticsQuery();
+        setStatisticsData(data);
+        console.log(statisticData);
+
+        return 'Got statistics succesfully!';
+      } catch (error) {
+        throw new Error();
+      }
+    }, toastOptions);
+  };
+
+  const handleFeedAdd = (feed: Feed) => {
     setFeedUrlList((prevData) => {
       // CAUTION: this could be slow for large lists, but it's fine for now
-      if (!prevData.find((feed) => feed.url === url.url)) {
-        return [...prevData, url];
+      if (!prevData.find((f) => f.url === feed.url)) {
+        sendAllFeedUrls([...prevData, feed].map((f) => f.url));
+        handleSubmit([...prevData, feed].map((f) => f.url));
+        return [...prevData, feed];
       }
+
+      toast.dismiss();
+      toast.error('RSS Feed already exists');
       return prevData;
     });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (updatedFeeds: string[]) => {
     toast.dismiss();
     setIsUrlSetDisabled(true);
 
@@ -93,14 +183,11 @@ export default function App() {
 
     toast.promise(async () => {
       try {
-        console.log(feedUrlList);
-        const feedUrlArray = feedUrlList.map((feedObject) => feedObject.url);
-
-        const response = await sendAllFeedUrls(feedUrlArray);
+        const response = await sendAllFeedUrls(updatedFeeds);
 
         if (response.status == 200) {
           toastOptions.description = null;
-          return 'Feed list set successfully!';
+          return 'Feed list updated successfully!';
         } else {
           throw new Error();
         }
@@ -112,7 +199,7 @@ export default function App() {
     }, toastOptions);
   };
 
-  const handleFetchStart = () => {
+  const handleFetchStart = async () => {
     toast.dismiss();
     toast.info('RSS fetching in progress', {
       description: 'Gathering articles...',
@@ -122,7 +209,13 @@ export default function App() {
       },
     });
     setIsFetching(true);
-    keepFetching();
+    setArticlesLoading(true);
+
+    const response = await keepFetching();
+    if (response.status === 'started') {
+      handleSearchQuery();
+    }
+    setArticlesLoading(false);
   };
 
   const handleFetchStop = () => {
@@ -149,8 +242,8 @@ export default function App() {
 
     toast.promise(async () => {
       try {
-        const response = await axios.get(
-          `${serverUrl}/api/articles?format=${format}`,
+        const response = await authClient.get(
+          `/api/articles/export?format=${format}`,
           {
             responseType: 'blob',
           }
@@ -187,6 +280,11 @@ export default function App() {
     setFeedUrlList((prevData) =>
       prevData.filter((item) => !selectedRows.includes(item))
     );
+    const updatedFeeds = feedUrlList
+      .filter((item) => !selectedRows.includes(item))
+      .map((feed: { url: string }) => feed.url);
+    sendAllFeedUrls(updatedFeeds);
+    handleSubmit(updatedFeeds);
   };
 
   useEffect(() => {
@@ -205,7 +303,7 @@ export default function App() {
 
       setFeedUrlList(feedUrlObjArray);
     };
-    fetchFeedUrls();
+    if (validToken) fetchFeedUrls();
 
     const isFetching = async () => {
       const response = await getFetchingStatus();
@@ -221,173 +319,418 @@ export default function App() {
         setIsFetching(true);
       }
     };
-    isFetching();
-  }, []);
+    if (validToken) isFetching();
+
+    const updateArticleTable = async () => {
+      try {
+        await handleSearchQuery();
+      } catch (e) {
+        /* empty */
+      }
+    };
+    if (validToken) updateArticleTable();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validToken]);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.15,
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 0, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+    },
+  };
+
+  // TODO: add register / login functionality
+  // for now, only login with fixed pass shall be used
+
+  if (!userExists) {
+    // register view
+    return (
+      <div
+        className="flex h-screen flex-col items-center justify-center"
+        data-testid="register-view"
+      >
+        <h1 className="text-3xl font-semibold">RSS Feed Reader</h1>
+        <p className="mt-4 text-lg">Please register to use the app.</p>
+        <Button
+          variant="outline"
+          className="mt-4"
+          onClick={async () => {
+            const response = await registerUser('testpassword');
+            if (response) {
+              setUserExists(true);
+            } else {
+              toast.error('Failed to register');
+            }
+          }}
+        >
+          Register
+        </Button>
+      </div>
+    );
+  }
+
+  if (!validToken) {
+    // login with password
+    return (
+      <div
+        className="flex h-screen flex-col items-center justify-center"
+        data-testid="login-view"
+      >
+        <h1 className="text-3xl font-semibold">RSS Feed Reader</h1>
+        <p className="mt-4 text-lg">Please log in to use the app.</p>
+        <Button
+          variant="outline"
+          className="mt-4"
+          onClick={async () => {
+            const response = await loginUser('testpassword');
+            if (response.access_token) {
+              localStorage.setItem('accessToken', response.access_token);
+              setValidToken(true);
+            } else {
+              toast.error('Failed to login');
+            }
+          }}
+        >
+          Log in
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <div className="flex min-h-[100vh] flex-col">
+      <motion.div
+        className="flex min-h-screen flex-col"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
         <Header />
-        <div className="flex justify-center">
-          <div className="mt-10 grid w-[1000px] grid-cols-5 grid-rows-1 gap-4">
-            <h1 className="col-span-5 mb-6 h-4 text-3xl font-semibold">
-              Dashboard
-            </h1>
-            <Separator className="col-span-5" />
-          </div>
-        </div>
-        <div className="mb-20 flex justify-center">
-          <div className="grid w-[1000px] grid-cols-5 grid-rows-3 gap-6">
-            <Card className="col-span-3 row-span-3 mt-12">
-              <CardHeader>
-                <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
-                <CardDescription>Add, Select or Delete feeds</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RssInput handleFeedAdd={handleFeedAdd} />
-              </CardContent>
-              <CardContent>
-                <Separator className="my-5" />
-                <DataTable
-                  columns={feedColumns}
-                  data={feedUrlList}
-                  onDeleteSelected={deleteSelectedRows}
-                  tableName={'List of RSS feeds'}
-                />
-              </CardContent>
-              <CardContent>
-                <Button
-                  variant="outline"
-                  onClick={handleSubmit}
-                  className="w-full p-6 text-base"
-                  disabled={isUrlSetDisabled}
-                >
-                  <div className="flex justify-center">
-                    <CheckIcon className="mr-3 size-6"></CheckIcon>
-                    Send selected RSS feeds
-                  </div>
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="col-span-2 row-span-2 mt-12">
-              <CardHeader className="mb-2">
-                <CardTitle className="text-lg">Collector</CardTitle>
-                <CardDescription>Manage article fetching</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Separator />
-                <Button
-                  variant="outline"
-                  className="mt-10 w-full p-6 text-base"
-                  onClick={handleFetchStart}
-                  disabled={isFetching}
-                >
-                  <div className="flex justify-center">
-                    <BarsArrowUpIcon className="mr-3 size-6"></BarsArrowUpIcon>
-                    Activate RSS fetching
-                  </div>
-                </Button>
-              </CardContent>
-              <CardContent>
-                <Button
-                  variant="outline"
-                  className="w-full p-6 text-base"
-                  onClick={handleFetchStop}
-                  disabled={!isFetching}
-                >
-                  <div className="flex justify-center">
-                    <BarsArrowDownIcon className="mr-3 size-6"></BarsArrowDownIcon>
-                    Disable RSS fetching
-                  </div>
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="col col-span-2">
-              <CardHeader>
-                <CardTitle className="text-lg">Export</CardTitle>
-                <CardDescription>
-                  Download article data in JSON, CSV or Parquet
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={() => handleArticleDownload('json')}
-                  disabled={isDisabled}
-                  className="w-[30%] p-6 text-base"
-                >
-                  <div className="flex justify-center">
-                    <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
-                    JSON
-                  </div>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleArticleDownload('csv')}
-                  disabled={isDisabled}
-                  className="w-[30%] p-6 text-base"
-                >
-                  <div className="flex justify-center">
-                    <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
-                    CSV
-                  </div>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleArticleDownload('parquet')}
-                  disabled={isDisabled}
-                  className="w-[30%] p-6 text-base"
-                >
-                  <div className="flex justify-center">
-                    <ArrowDownTrayIcon className="mr-1.5 size-6"></ArrowDownTrayIcon>
-                    Parquet
-                  </div>
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="col-span-5">
-              <CardHeader>
-                <CardTitle className="text-lg">Search articles</CardTitle>
-                <CardDescription>
-                  Filter articles based on matching text
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-4">
-                <Input
-                  className="w-full p-6"
-                  onChange={handleFilterInputChange}
-                  placeholder="Insert search query..."
-                  value={searchQuery}
-                ></Input>
+        <motion.div
+          className="mt-16 flex justify-center px-4 sm:px-6 lg:px-8"
+          variants={itemVariants}
+        >
+          <div className="w-full max-w-5xl">
+            <motion.div className="mt-10" variants={itemVariants}>
+              <h1 className="mb-4 text-3xl font-semibold">Dashboard</h1>
+              <Separator />
+            </motion.div>
 
-                <Button
-                  className="p-6 text-base"
-                  variant="outline"
-                  onClick={handleSearchQuery}
-                >
-                  <div className="flex justify-center">
-                    <MagnifyingGlassIcon className="mr-3 size-6"></MagnifyingGlassIcon>
-                    Search
-                  </div>
-                </Button>
-              </CardContent>
-              <CardContent>
-                <DataTable
-                  columns={articleColumns}
-                  data={searchData}
-                  tableName={'Query results'}
-                />
-              </CardContent>
-            </Card>
-            <Logs />
-            <div className="col-start-2 col-end-5 mt-16">
-              <QuestionsAccordion />
-            </div>
+            <motion.div
+              className="mt-12 grid gap-6 sm:grid-cols-1 lg:grid-cols-5"
+              variants={containerVariants}
+            >
+              <Card className="lg:col-span-3 lg:row-span-3">
+                <CardHeader>
+                  <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
+                  <CardDescription>Add or delete feeds</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RssInput
+                    handleFeedAdd={handleFeedAdd}
+                    isUrlSetDisabled={isUrlSetDisabled}
+                  />
+                </CardContent>
+                <CardContent>
+                  <DataTable
+                    columns={feedColumns}
+                    data={feedUrlList}
+                    onDeleteSelected={deleteSelectedRows}
+                    tableName={'List of RSS feeds'}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card className="lg:col-span-2 lg:row-span-2">
+                <CardHeader className="mb-2">
+                  <CardTitle className="text-lg">Fetcher</CardTitle>
+                  <CardDescription>
+                    Manage article fetching
+                    <InfoIcon
+                      tooltipContent="Collects new article data from feeds every 5 minutes."
+                      ariaLabel="Fetcher info"
+                    />
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Separator />
+                  <Button
+                    variant="outline"
+                    className="mt-10 w-full p-6 text-base"
+                    onClick={handleFetchStart}
+                    disabled={isFetching}
+                  >
+                    <div className="flex justify-center">
+                      <BarsArrowUpIcon className="mr-3 size-6" />
+                      Activate RSS fetching
+                    </div>
+                  </Button>
+                </CardContent>
+                <CardContent>
+                  <Button
+                    variant="outline"
+                    className="w-full p-6 text-base"
+                    onClick={handleFetchStop}
+                    disabled={!isFetching}
+                  >
+                    <div className="flex justify-center">
+                      <BarsArrowDownIcon className="mr-3 size-6" />
+                      Disable RSS fetching
+                    </div>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <motion.div
+                variants={itemVariants}
+                className="lg:col-span-2 lg:row-span-1"
+              >
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Export</CardTitle>
+                    <CardDescription>
+                      Download article data in JSON, CSV or Parquet
+                      <InfoIcon
+                        tooltipContent="Already collected data from database."
+                        ariaLabel="Download info"
+                      />
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleArticleDownload('json')}
+                      disabled={isDisabled}
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        JSON
+                      </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleArticleDownload('csv')}
+                      disabled={isDisabled}
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        CSV
+                      </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleArticleDownload('parquet')}
+                      disabled={isDisabled}
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        Parquet
+                      </div>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                variants={itemVariants}
+                className="lg:col-span-5 lg:row-span-1"
+              >
+                <Card className="lg:col-span-5">
+                  <CardHeader className="mb-2">
+                    <CardTitle className="text-center text-lg">
+                      Statistics
+                    </CardTitle>
+                    <CardDescription className="text-center">
+                      View summary statistics of all articles
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex justify-between">
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button
+                          variant="outline"
+                          onClick={handleFetchStatistics}
+                          disabled={isDisabled}
+                          className="w-full p-6 text-base sm:w-[45%]"
+                        >
+                          <div className="flex justify-center">
+                            <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
+                            Domain distribution
+                          </div>
+                        </Button>
+                      </DrawerTrigger>
+                      <DrawerContent>
+                        <div className="mx-auto w-full max-w-sm">
+                          <DrawerHeader>
+                            <DrawerTitle>
+                              {' '}
+                              Articles collected from{' '}
+                              {statisticData.length === 0
+                                ? 0
+                                : statisticData[0].length}{' '}
+                              domain(s) and{' '}
+                              {statisticData.length === 0
+                                ? 0
+                                : statisticData[1].length}{' '}
+                              subdirectories{' '}
+                            </DrawerTitle>
+                            <DrawerDescription>
+                              {' '}
+                              Number of articles by domain and subdirectory
+                            </DrawerDescription>
+                          </DrawerHeader>
+                          <div className="mt-3 h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart width={400} height={400}>
+                                <Pie
+                                  data={statisticData[0]}
+                                  dataKey="count"
+                                  cx="50%"
+                                  cy="50%"
+                                  outerRadius={60}
+                                  fill="#8884d8"
+                                />
+                                <Tooltip />
+                                <Pie
+                                  data={statisticData[1]}
+                                  dataKey="count"
+                                  cx="50%"
+                                  cy="50%"
+                                  innerRadius={70}
+                                  outerRadius={90}
+                                  fill="#82ca9d"
+                                  label
+                                />
+                                <Tooltip />
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </div>
+                          <DrawerFooter>
+                            <DrawerClose asChild>
+                              <Button variant="outline">Close</Button>
+                            </DrawerClose>
+                          </DrawerFooter>
+                        </div>
+                      </DrawerContent>
+                    </Drawer>
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button
+                          variant="outline"
+                          onClick={handleFetchStatistics}
+                          disabled={isDisabled}
+                          className="w-full p-6 text-base sm:w-[45%]"
+                        >
+                          <div className="flex justify-center">
+                            <ChartBarIcon className="mr-1.5 size-6"></ChartBarIcon>
+                            Time series
+                          </div>
+                        </Button>
+                      </DrawerTrigger>
+                      <DrawerContent>
+                        <div className="mx-auto w-full max-w-sm">
+                          <DrawerHeader>
+                            <DrawerTitle>
+                              {' '}
+                              Time series for collected articles
+                            </DrawerTitle>
+                            <DrawerDescription>
+                              {' '}
+                              Number of articles posted per day
+                            </DrawerDescription>
+                          </DrawerHeader>
+
+                          <TimeSeries data={statisticData[2]}></TimeSeries>
+
+                          <DrawerFooter>
+                            <DrawerClose asChild>
+                              <Button variant="outline">Close</Button>
+                            </DrawerClose>
+                          </DrawerFooter>
+                        </div>
+                      </DrawerContent>
+                    </Drawer>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div variants={itemVariants} className="lg:col-span-5">
+                <Card className="lg:col-span-5">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Search articles</CardTitle>
+                    <CardDescription>
+                      Filter articles based on matching text
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+                    <Input
+                      className="w-full p-6"
+                      onChange={handleFilterInputChange}
+                      placeholder="Insert search query..."
+                      value={searchQuery}
+                    />
+                    <Button
+                      className="p-6 text-base"
+                      variant="outline"
+                      onClick={handleSearchQuery}
+                    >
+                      <div className="flex justify-center">
+                        <MagnifyingGlassIcon className="mr-3 size-6" />
+                        Search
+                      </div>
+                    </Button>
+                  </CardContent>
+                  <CardContent>
+                    <DataTable
+                      columns={articleColumns}
+                      data={searchData}
+                      tableName={'Query results'}
+                      isLoading={articlesLoading}
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                variants={itemVariants}
+                className="mb-20 lg:col-span-5"
+              >
+                <Logs />
+              </motion.div>
+
+              <motion.div
+                variants={itemVariants}
+                className="mb-40 lg:col-start-2 lg:col-end-5"
+              >
+                <QuestionsAccordion />
+              </motion.div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         <Footer />
-      </div>
+      </motion.div>
+      <ReactTooltip
+        id="react-tooltip"
+        place="right"
+        variant="dark"
+        style={{ fontSize: '10px' }}
+      />
     </ThemeProvider>
   );
 }

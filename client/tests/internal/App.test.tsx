@@ -1,13 +1,30 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import App from '@/App';
 import '@testing-library/jest-dom';
 import { expect, test, vi, describe, beforeEach } from 'vitest';
 import { toast } from 'sonner';
 
 describe('App component', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     render(<App />);
+
+    await waitFor(() => {
+      const registerView = screen.queryByTestId('register-view');
+      const loginView = screen.queryByTestId('login-view');
+
+      // Ensure the Register view is not present
+      expect(registerView).not.toBeInTheDocument();
+
+      // Ensure the Login view is not present
+      expect(loginView).not.toBeInTheDocument();
+    });
   });
 
   test('renders app component', async () => {
@@ -16,7 +33,9 @@ describe('App component', () => {
   });
 
   test('starts RSS fetching', async () => {
-    const activateFetchButton = await screen.findByText(/Activate RSS fetching/i);
+    const activateFetchButton = await screen.findByText(
+      /Activate RSS fetching/i
+    );
     fireEvent.click(activateFetchButton);
 
     await waitFor(() => {
@@ -33,8 +52,8 @@ describe('App component', () => {
     });
   });
 
-  test('adds RSS feed URL to the list', async () => {
-    const input = screen.getByPlaceholderText('RSS-feed address here...');
+  test('submits RSS feed URLs', async () => {
+    const input = screen.getByPlaceholderText('RSS feed address here...');
     fireEvent.change(input, { target: { value: 'https://blabla.com/feed' } });
 
     const addToListButton = screen.getByText(/Add to list/i);
@@ -43,17 +62,6 @@ describe('App component', () => {
     await waitFor(() => {
       expect(screen.getByText('https://blabla.com/feed')).toBeInTheDocument();
     });
-  });
-
-  test('submits RSS feed URLs', async () => {
-    const input = screen.getByPlaceholderText('RSS-feed address here...');
-    fireEvent.change(input, { target: { value: 'https://blabla.com/feed' } });
-
-    const addToListButton = screen.getByText(/Add to list/i);
-    fireEvent.click(addToListButton);
-
-    const sendFeedsButton = screen.getByText(/Send selected RSS feeds/i);
-    fireEvent.click(sendFeedsButton);
 
     await waitFor(() => {
       expect(toast.promise).toHaveBeenCalledWith(
