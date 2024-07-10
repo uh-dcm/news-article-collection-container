@@ -21,7 +21,7 @@ from data_analysis.stats_analyzer import get_stats
 from data_export.export_manager import get_export
 
 os.makedirs(f"./{FETCHER_FOLDER}/data/", exist_ok=True)
-engine = create_engine(DATABASE_URL, echo=False)
+engine = create_engine(DATABASE_URL, echo=False, pool_size=20, max_overflow=20)
 connection = engine.connect()
 
 app = Flask(__name__, static_folder='static')
