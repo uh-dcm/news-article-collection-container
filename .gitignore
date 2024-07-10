@@ -38,4 +38,4 @@ __pycache__
 # Project-specific
 **/articles.json
 data.db
-server/rss-fetcher/data
+rss-fetcher/
