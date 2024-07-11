@@ -130,7 +130,7 @@ export default function RssInput({
                 <FormItem>
                   <FormControl>
                     <div className="grid w-full max-w-sm items-center gap-1.5">
-                      <Label htmlFor="rssFileInput">
+                      <Label>
                         Text file
                         <InfoIcon
                           tooltipContent="Upload a text file containing RSS feed URLs, one per line."
