@@ -118,12 +118,13 @@ export default function App() {
     checkToken();
   }, []);
 
-  const formSubDirectoryData = async (url: string, f: boolean) => {
-    if (!f) {
-        await setSubDirectoryData(statisticData[0].filter(x => x.name.startsWith(url)))
+  const formSubDirectoryData = async (url: string, filtered: boolean) => {
+    if (!filtered) {
+        await setSubDirectoryData(statisticData[1].filter(x => x.name.startsWith(url)))
     }
     else {
-        await setFilteredSubDirectoryData(filteredStatisticData[0].filter(x => x.name.startsWith(url)))
+        await setFilteredSubDirectoryData(filteredStatisticData[1].filter(x => x.name.startsWith(url)))
+        console.log(filteredSubDirectoryData)
     }
   };
 
@@ -771,7 +772,7 @@ export default function App() {
                                   domain(s) and{' '}
                                   {filteredStatisticData.length === 0
                                     ? 0
-                                    : filteredStatisticData[1].length}{' '}
+                                    : filteredStatisticData[1].length}{' '}   
                                   subdirectories{' '}
                                 </DrawerTitle>
                                 <DrawerDescription>
