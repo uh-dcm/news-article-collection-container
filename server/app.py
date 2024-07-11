@@ -67,7 +67,7 @@ def register():
     """
 
     if os.getenv('FLASK_ENV') == 'testing':
-        with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w') as f:
+        with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w', encoding='utf-8') as f:
             f.write(generate_password_hash("testpassword"))
         return jsonify({"msg": "User created"}), 200
 
@@ -82,7 +82,7 @@ def register():
     if os.path.exists(f'./{FETCHER_FOLDER}/data/password.txt'):
         return jsonify({"msg": "User already exists"}), 409
     
-    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w') as f:
+    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w', encoding='utf-8') as f:
         f.write(hashed_password)
 
     return jsonify({"msg": "User created"}), 200
@@ -100,7 +100,7 @@ def login():
     if not os.path.exists(f'./{FETCHER_FOLDER}/data/password.txt'):
         return jsonify({"msg": "User does not exist"}), 404
 
-    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'r') as f:
+    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'r', encoding='utf-8') as f:
         hashed_password = f.read()
 
     if not check_password_hash(hashed_password, password):

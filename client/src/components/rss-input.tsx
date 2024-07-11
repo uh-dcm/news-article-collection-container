@@ -94,7 +94,7 @@ export default function RssInput({
           ariaLabel="RSS feed URL info"
           verticalOffset="-0.2em"
         />
-        </Label>
+      </Label>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -133,7 +133,7 @@ export default function RssInput({
                       <Label>
                         Text file
                         <InfoIcon
-                          tooltipContent="Upload a text file containing RSS feed URLs, one per line."
+                          tooltipContent="You can also upload a text file containing RSS feed URLs, one per line."
                           ariaLabel="RSS feed file info"
                         />
                       </Label>
