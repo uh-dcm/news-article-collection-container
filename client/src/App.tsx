@@ -231,10 +231,10 @@ export default function App() {
     stopFetching();
   };
 
-  const handleArticleDownload = async (format: 'json' | 'csv' | 'parquet') => {
+  const handleArticleDownload = async (format: 'json' | 'csv' | 'parquet', isQuery: boolean = false) => {
     toast.dismiss();
     setIsDisabled(true);
-
+  
     const toastOptions = {
       loading: 'Downloading...',
       description: 'Please note that the process might take some time.',
@@ -245,74 +245,29 @@ export default function App() {
         return 'Failed to download the file. Have you fetched articles yet?';
       },
     } as ToastOptions satisfies ToastOptions;
-
+  
     toast.promise(async () => {
       try {
+        const endpoint = isQuery ? '/api/articles/export_query' : '/api/articles/export';
         const response = await authClient.get(
-          `/api/articles/export?format=${format}`,
+          `${endpoint}?format=${format}`,
           {
             responseType: 'blob',
           }
         );
-
+  
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `articles.${format}`);
+        link.setAttribute('download', `articles${isQuery ? '_query' : ''}.${format}`);
         document.body.appendChild(link);
         link.click();
-
+  
         link.parentNode!.removeChild(link);
         window.URL.revokeObjectURL(url);
-
+  
         toastOptions.description = null;
-
-        return 'Download successful!';
-      } catch (error) {
-        console.error('Download failed', error);
-        throw new Error('Failed to download the file.');
-      } finally {
-        setIsDisabled(false);
-      }
-    }, toastOptions);
-  };
-
-  const handleFilteredArticleDownload = async (format: 'json' | 'csv' | 'parquet') => {
-    toast.dismiss();
-    setIsDisabled(true);
-
-    const toastOptions = {
-      loading: 'Downloading the searched articles file...',
-      description: 'Please note that the process might take some time.',
-      duration: 4000,
-      success: (msg: string) => msg,
-      error: (error: string) => {
-        console.error('Error downloading:', error);
-        return 'Failed to download the searched-file.';
-      },
-    } as ToastOptions satisfies ToastOptions;
-
-    toast.promise(async () => {
-      try {
-        const response = await axios.get(
-          `${serverUrl}/api/articles/filtered?format=${format}`, 
-          {
-            responseType: 'blob',
-          }
-        );
-
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `articles/filtered.${format}`);
-        document.body.appendChild(link);
-        link.click();
-
-        link.parentNode!.removeChild(link);
-        window.URL.revokeObjectURL(url);
-
-        toastOptions.description = null;
-
+  
         return 'Download successful!';
       } catch (error) {
         console.error('Download failed', error);
@@ -553,9 +508,9 @@ export default function App() {
                   <CardHeader>
                     <CardTitle className="text-lg">Export</CardTitle>
                     <CardDescription>
-                      Download article data in JSON, CSV or Parquet
+                      Download all article data in JSON, CSV or Parquet
                       <InfoIcon
-                        tooltipContent="Already collected data from database."
+                        tooltipContent="See Q&A for more info."
                         ariaLabel="Download info"
                       />
                     </CardDescription>
@@ -700,13 +655,12 @@ export default function App() {
                 </Card>
               </motion.div>
 
-
               <motion.div variants={itemVariants} className="lg:col-span-5">
                 <Card className="lg:col-span-5">
                   <CardHeader>
-                    <CardTitle className="text-lg">Search articles.</CardTitle>
+                    <CardTitle className="text-lg">Search articles</CardTitle>
                     <CardDescription>
-                      Filter articles based on matching text.
+                      Query and export articles on matching data
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
@@ -727,68 +681,49 @@ export default function App() {
                       </div>
                     </Button>
                   </CardContent>
-              <motion.div
-                variants={itemVariants}
-                className="lg:col-span-2 lg:row-span-1"
-              >
-                <Card className="lg:col-span-2">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Search Export and Download</CardTitle>
-                    <CardDescription>
-                      <span
-                        data-tooltip-id="app-tooltip"
-                        data-tooltip-content="Already collected data from database."
-                        className="cursor-pointer"
-                      >
-                      </span>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-                    <Button
-                      variant="outline"
-                      onClick={() => handleFilteredArticleDownload('json')}
-                      disabled={isDisabled}
-                      className="w-full p-6 text-base sm:w-[30%]"
-                    >
-                      <div className="flex justify-center">
-                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                        JSON
-                      </div>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleFilteredArticleDownload('csv')}
-                      disabled={isDisabled}
-                      className="w-full p-6 text-base sm:w-[30%]"
-                    >
-                      <div className="flex justify-center">
-                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                        CSV
-                      </div>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleFilteredArticleDownload('parquet')}
-                      disabled={isDisabled}
-                      className="w-full p-6 text-base sm:w-[30%]"
-                    >
-                      <div className="flex justify-center">
-                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                        Parquet
-                      </div>
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
- 
                   <CardContent>
                     <DataTable
                       columns={articleColumns}
                       data={searchData}
                       tableName={'Query results'}
                       isLoading={articlesLoading}
+                      reducedSpacing={true}
                     />
+                  </CardContent>
+                  <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleArticleDownload('json', true)}
+                      disabled={isDisabled || searchData.length === 0}
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        JSON (Query)
+                      </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleArticleDownload('csv', true)}
+                      disabled={isDisabled || searchData.length === 0}
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        CSV (Query)
+                      </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleArticleDownload('parquet', true)}
+                      disabled={isDisabled || searchData.length === 0}
+                      className="w-full p-6 text-base sm:w-[30%]"
+                    >
+                      <div className="flex justify-center">
+                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                        Parquet (Query)
+                      </div>
+                    </Button>
                   </CardContent>
                 </Card>
               </motion.div>

@@ -1,7 +1,7 @@
 """
 This searches db for specific queries. Called by app.py.
 """
-from flask import jsonify, request
+from flask import jsonify, request, current_app
 from sqlalchemy import text, inspect
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -21,7 +21,7 @@ def get_search_results(engine):
         search_query = request.args.get('searchQuery', '')
         # Datetime object used instead of string to achieve proper sorting in table
         stmt = text("""
-            SELECT DATETIME(time) as time, url, full_text 
+            SELECT id, DATETIME(time) as time, url, full_text
             FROM articles 
             WHERE full_text LIKE :word 
             COLLATE utf8_general_ci
@@ -33,7 +33,8 @@ def get_search_results(engine):
             result = connection.execute(stmt)
             rows = result.fetchall()
 
-        data = [{"time": time, "url": url, "full_text": full_text} for time, url, full_text in rows]
+        data = [{"time": time, "url": url, "full_text": full_text} for _, time, url, full_text in rows]
+        current_app.last_search_ids = [row[0] for row in rows]
 
         return jsonify(data), 200
     except SQLAlchemyError as e:
