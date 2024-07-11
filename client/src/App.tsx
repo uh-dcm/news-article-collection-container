@@ -89,7 +89,9 @@ export default function App() {
   const [articlesLoading, setArticlesLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statisticData, setStatisticsData] = useState<DomainData[][]>([]);
+  const [filteredStatisticData, setFilteredStatisticsData] = useState<DomainData[][]>([]);
   const [subDirectoryData, setSubDirectoryData] = useState<DomainData[]>([]);
+  const [filteredSubDirectoryData, setFilteredSubDirectoryData] = useState<DomainData[]>([]);
   const [userExists, setUserExists] = useState(false);
   const [validToken, setValidToken] = useState(false);
 
@@ -116,8 +118,13 @@ export default function App() {
     checkToken();
   }, []);
 
-  const formSubDirectoryData = async (url: string) => {
-    await setSubDirectoryData(statisticData[1].filter(x => x.name.startsWith(url)))
+  const formSubDirectoryData = async (url: string, f: boolean) => {
+    if (!f) {
+        await setSubDirectoryData(statisticData[0].filter(x => x.name.startsWith(url)))
+    }
+    else {
+        await setFilteredSubDirectoryData(filteredStatisticData[0].filter(x => x.name.startsWith(url)))
+    }
   };
 
   const handleFilterInputChange = (event: {
@@ -126,7 +133,7 @@ export default function App() {
     setSearchQuery(event.target.value);
   };
 
-  const handleFetchStatistics = async () => {
+  const handleFetchStatistics = async (filtered: boolean) => {
     toast.dismiss();
 
     const toastOptions = {
@@ -144,9 +151,16 @@ export default function App() {
 
     toast.promise(async () => {
       try {
-        const data = await sendStatisticsQuery();
-        setStatisticsData(data);
-        console.log(statisticData);
+        if (!filtered) {
+          const data = await sendStatisticsQuery('');
+          setStatisticsData(data);
+          console.log(statisticData);
+        }
+        else {
+          const data = await sendStatisticsQuery(searchQuery);
+          setFilteredStatisticsData(data);
+          console.log(filteredStatisticData);
+        }
 
         return 'Got statistics succesfully!';
       } catch (error) {
@@ -571,7 +585,7 @@ export default function App() {
                         <DrawerTrigger asChild>
                           <Button
                             variant="outline"
-                            onClick={handleFetchStatistics}
+                            onClick={() => handleFetchStatistics(false)}
                             disabled={isDisabled}
                             className="w-full p-6 text-base sm:w-[45%]"
                           >
@@ -605,12 +619,14 @@ export default function App() {
                               </DrawerDescription>
                             </DrawerHeader>
                             <div className="grid grid-cols-1 grid-cols-2 gap-4">
-                                <PieChart data={statisticData[0]} fnc={formSubDirectoryData}></PieChart>
+                                <PieChart data={statisticData[0]} fnc={ formSubDirectoryData } filtered={false}></PieChart>
                                 <SubPieChart data={subDirectoryData}></SubPieChart>
                             </div>
                             <DrawerFooter>
                               <DrawerClose asChild>
-                                <Button variant="outline">Close</Button>
+                                 <p className="text-center">
+                                  <Button className="sm:w-[20%]" variant="outline">Close</Button>
+                                </p>
                               </DrawerClose>
                             </DrawerFooter>
                           </div>
@@ -620,7 +636,7 @@ export default function App() {
                         <DrawerTrigger asChild>
                           <Button
                             variant="outline"
-                            onClick={handleFetchStatistics}
+                            onClick={() => handleFetchStatistics(false)}
                             disabled={isDisabled}
                             className="w-full p-6 text-base sm:w-[45%]"
                           >
@@ -724,6 +740,94 @@ export default function App() {
                           Parquet (Query)
                         </div>
                       </Button>
+                    </CardContent>
+                    <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                      <Drawer>
+                          <DrawerTrigger asChild>
+                            <Button
+                              variant="outline"
+                              onClick={() => handleFetchStatistics(true)}
+                              disabled={isDisabled}
+                              className="w-full p-6 text-base sm:w-[45%]"
+                            >
+                              <div className="flex justify-center">
+                                <ChartPieIcon className="mr-1.5 size-6"></ChartPieIcon>
+                                Domain distribution
+                              </div>
+                            </Button>
+                          </DrawerTrigger>
+                          <DrawerContent>
+                            <div className="mx-auto w-full max-w-full">
+                              <DrawerHeader>
+                                <DrawerTitle>
+                                  {' '}
+                                  {filteredStatisticData.length === 0
+                                    ? 0
+                                    : filteredStatisticData[0].map(x => x.count).reduce((s, c) => s + c, 0)}{' '}
+                                  articles collected from{' '}
+                                  {filteredStatisticData.length === 0
+                                    ? 0
+                                    : filteredStatisticData[0].length}{' '}
+                                  domain(s) and{' '}
+                                  {filteredStatisticData.length === 0
+                                    ? 0
+                                    : filteredStatisticData[1].length}{' '}
+                                  subdirectories{' '}
+                                </DrawerTitle>
+                                <DrawerDescription>
+                                  {' '}
+                                  Click on a domain to view the subdirectory distribution
+                                </DrawerDescription>
+                              </DrawerHeader>
+                              <div className="grid grid-cols-1 grid-cols-2 gap-4">
+                                  <PieChart data={filteredStatisticData[0]} fnc={ formSubDirectoryData } filtered={true}></PieChart>
+                                  <SubPieChart data={filteredSubDirectoryData}></SubPieChart>
+                              </div>
+                              <DrawerFooter>
+                                <DrawerClose asChild>
+                                  <p className="text-center">
+                                    <Button className="sm:w-[20%]" variant="outline">Close</Button>
+                                  </p>
+                                </DrawerClose>
+                              </DrawerFooter>
+                            </div>
+                          </DrawerContent>
+                        </Drawer>
+                        <Drawer>
+                          <DrawerTrigger asChild>
+                            <Button
+                              variant="outline"
+                              onClick={() => handleFetchStatistics(true)}
+                              disabled={isDisabled}
+                              className="w-full p-6 text-base sm:w-[45%]"
+                            >
+                              <div className="flex justify-center">
+                                <ChartBarSquareIcon className="mr-1.5 size-6"></ChartBarSquareIcon>
+                                Time series
+                              </div>
+                            </Button>
+                          </DrawerTrigger>
+                          <DrawerContent>
+                            <div className="mx-auto w-full max-w-sm">
+                              <DrawerHeader>
+                                <DrawerTitle>
+                                  {' '}
+                                  Time series for collected articles
+                                </DrawerTitle>
+                                <DrawerDescription>
+                                  {' '}
+                                  Number of articles collected per day
+                                </DrawerDescription>
+                              </DrawerHeader>
+                                <TimeSeries data={filteredStatisticData[2]}></TimeSeries>
+                              <DrawerFooter>
+                                <DrawerClose asChild>
+                                  <Button variant="outline">Close</Button>
+                                </DrawerClose>
+                              </DrawerFooter>
+                            </div>
+                          </DrawerContent>
+                        </Drawer>
                     </CardContent>
                   </Card>
                 </motion.div>

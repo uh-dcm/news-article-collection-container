@@ -1,7 +1,7 @@
 """
 This returns statistics about db articles. Called by app.py.
 """
-from flask import jsonify
+from flask import jsonify, request
 from sqlalchemy import text, inspect
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -9,7 +9,7 @@ from log_config import logger
 
 def get_stats(engine):
     """
-    Returns various preselected stats about db articles.
+    Returns various preselected stats about db articles. 
     Called by app.get_stats_route().
     """
     try:
@@ -17,14 +17,20 @@ def get_stats(engine):
         if not inspector.has_table('articles'):
             return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 404
 
+        # denotes whether or not the the query should be done on filtered articles.
+        filter = request.args.get('filter', '')
+
         # Queries URLs of the form www.url.com
         domain_query = text("""
                             SELECT 
                                 SUBSTRING( REPLACE( REPLACE( URL, 'https://', ''), 'http://', ''), 1, INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/")- 1) as domain,
                                 COUNT(*) as count
                             FROM articles 
+                            WHERE full_text LIKE :word
+                            COLLATE utf8_general_ci
                             GROUP BY domain
-                            """)
+                            """).bindparams(word=f'%{filter}%')
+
         with engine.connect() as connection:
             result = connection.execute(domain_query)
             domain_rows = result.fetchall()
@@ -40,8 +46,10 @@ def get_stats(engine):
                                     ) as domain,
                             COUNT (*) as count
                             FROM articles
+                            WHERE full_text LIKE :word
+                            COLLATE utf8_general_ci
                             GROUP BY domain
-                                """)
+                                """).bindparams(word=f'%{filter}%')
         with engine.connect() as connection:
             result = connection.execute(subdir_query)
             subdir_rows = result.fetchall()
@@ -50,9 +58,12 @@ def get_stats(engine):
         dates_query = text("""
                             SELECT time, COUNT(*) as count
                             FROM articles
+                            WHERE full_text LIKE :word
+                            COLLATE utf8_general_ci
                             GROUP BY strftime('%d-%m-%Y', time)
                             ORDER BY time ASC;
-                            """)
+                            """).bindparams(word=f'%{filter}%')
+                            
         with engine.connect() as connection:
             result = connection.execute(dates_query)
             dates_row = result.fetchall()

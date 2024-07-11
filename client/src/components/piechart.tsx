@@ -8,7 +8,7 @@ type DomainData = {
 };
 
 
-export const PieChart = ({data, fnc}: {data: DomainData[], fnc: (arg: string) => void}) => {
+export const PieChart = ({data, fnc, filtered}: {data: DomainData[], fnc: (arg: string, f: boolean) => void, filtered: boolean}) => {
 
   const options: ApexOptions = {
     labels: data === undefined ? [] : data.map(x => x.name),
@@ -18,7 +18,8 @@ export const PieChart = ({data, fnc}: {data: DomainData[], fnc: (arg: string) =>
       events: {
         //@ts-expect-error: Should expect types
         dataPointSelection: (event, chartContext, config) => {   
-            fnc(config.w.config.labels[config.dataPointIndex])}
+            fnc(config.w.config.labels[config.dataPointIndex], filtered)
+          }
         },
     },
     noData: {

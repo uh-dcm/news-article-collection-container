@@ -7,8 +7,10 @@ const sendSearchQuery = async (searchQuery: string) => {
   return response.data;
 };
 
-const sendStatisticsQuery = async () => {
-  const response = await authClient.get(`/api/articles/statistics`);
+const sendStatisticsQuery = async (filter: string) => {
+  const response = await authClient.get(`/api/articles/statistics`, {
+    params: { filter: filter }
+  });
   return response.data;
 };
 
