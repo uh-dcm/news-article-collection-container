@@ -40,6 +40,7 @@ import { DataTable } from './components/ui/data-table';
 import { articleColumns, Article } from './components/ui/article-columns';
 import { feedColumns, Feed } from './components/ui/feed-columns';
 import InfoIcon from './components/ui/info-icon';
+import * as Tooltip from '@radix-ui/react-tooltip';
 
 import {
   Card,
@@ -64,8 +65,6 @@ import {
 } from '@/components/ui/drawer';
 
 import { motion } from 'framer-motion';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
-
 import { checkUserExists } from './services/authfunctions';
 
 type ToastOptions = {
@@ -231,7 +230,7 @@ export default function App() {
     stopFetching();
   };
 
-  const handleArticleDownload = async (format: 'json' | 'csv' | 'parquet') => {
+  const handleArticleDownload = async (format: 'json' | 'csv' | 'parquet', isQuery: boolean = false) => {
     toast.dismiss();
     setIsDisabled(true);
 
@@ -248,8 +247,9 @@ export default function App() {
 
     toast.promise(async () => {
       try {
+        const endpoint = isQuery ? '/api/articles/export_query' : '/api/articles/export';
         const response = await authClient.get(
-          `/api/articles/export?format=${format}`,
+          `${endpoint}?format=${format}`,
           {
             responseType: 'blob',
           }
@@ -258,7 +258,7 @@ export default function App() {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `articles.${format}`);
+        link.setAttribute('download', `articles${isQuery ? '_query' : ''}.${format}`);
         document.body.appendChild(link);
         link.click();
 
@@ -417,305 +417,337 @@ export default function App() {
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <motion.div
-        className="flex min-h-screen flex-col"
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-      >
-        <Header />
+      <Tooltip.Provider delayDuration={300}>
         <motion.div
-          className="mt-16 flex justify-center px-4 sm:px-6 lg:px-8"
-          variants={itemVariants}
+          className="flex min-h-screen flex-col"
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
         >
-          <div className="w-full max-w-5xl">
-            <motion.div className="mt-10" variants={itemVariants}>
-              <h1 className="mb-4 text-3xl font-semibold">Dashboard</h1>
-              <Separator />
-            </motion.div>
-
-            <motion.div
-              className="mt-12 grid gap-6 sm:grid-cols-1 lg:grid-cols-5"
-              variants={containerVariants}
-            >
-              <Card className="lg:col-span-3 lg:row-span-3">
-                <CardHeader>
-                  <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
-                  <CardDescription>Add or delete feeds</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <RssInput
-                    handleFeedAdd={handleFeedAdd}
-                    isUrlSetDisabled={isUrlSetDisabled}
-                  />
-                </CardContent>
-                <CardContent>
-                  <DataTable
-                    columns={feedColumns}
-                    data={feedUrlList}
-                    onDeleteSelected={deleteSelectedRows}
-                    tableName={'List of RSS feeds'}
-                  />
-                </CardContent>
-              </Card>
-
-              <Card className="lg:col-span-2 lg:row-span-2">
-                <CardHeader className="mb-2">
-                  <CardTitle className="text-lg">Fetcher</CardTitle>
-                  <CardDescription>
-                    Manage article fetching
-                    <InfoIcon
-                      tooltipContent="Collects new article data from feeds every 5 minutes."
-                      ariaLabel="Fetcher info"
-                    />
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Separator />
-                  <Button
-                    variant="outline"
-                    className="mt-10 w-full p-6 text-base"
-                    onClick={handleFetchStart}
-                    disabled={isFetching}
-                  >
-                    <div className="flex justify-center">
-                      <BarsArrowUpIcon className="mr-3 size-6" />
-                      Activate RSS fetching
-                    </div>
-                  </Button>
-                </CardContent>
-                <CardContent>
-                  <Button
-                    variant="outline"
-                    className="w-full p-6 text-base"
-                    onClick={handleFetchStop}
-                    disabled={!isFetching}
-                  >
-                    <div className="flex justify-center">
-                      <BarsArrowDownIcon className="mr-3 size-6" />
-                      Disable RSS fetching
-                    </div>
-                  </Button>
-                </CardContent>
-              </Card>
+          <Header />
+          <motion.div
+            className="mt-16 flex justify-center px-4 sm:px-6 lg:px-8"
+            variants={itemVariants}
+          >
+            <div className="w-full max-w-5xl">
+              <motion.div className="mt-10" variants={itemVariants}>
+                <h1 className="mb-4 text-3xl font-semibold">Dashboard</h1>
+                <Separator />
+              </motion.div>
 
               <motion.div
-                variants={itemVariants}
-                className="lg:col-span-2 lg:row-span-1"
+                className="mt-12 grid gap-6 sm:grid-cols-1 lg:grid-cols-5"
+                variants={containerVariants}
               >
-                <Card className="lg:col-span-2">
+                <Card className="lg:col-span-3 lg:row-span-3">
                   <CardHeader>
-                    <CardTitle className="text-lg">Export</CardTitle>
+                    <CardTitle className="text-lg">RSS Feed Manager</CardTitle>
+                    <CardDescription>Add or delete feeds</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <RssInput
+                      handleFeedAdd={handleFeedAdd}
+                      isUrlSetDisabled={isUrlSetDisabled}
+                    />
+                  </CardContent>
+                  <CardContent>
+                    <DataTable
+                      columns={feedColumns}
+                      data={feedUrlList}
+                      onDeleteSelected={deleteSelectedRows}
+                      tableName={'List of RSS feeds'}
+                    />
+                  </CardContent>
+                </Card>
+
+                <Card className="lg:col-span-2 lg:row-span-2">
+                  <CardHeader className="mb-2">
+                    <CardTitle className="text-lg">Fetcher</CardTitle>
                     <CardDescription>
-                      Download article data in JSON, CSV or Parquet
+                      Manage article fetching
                       <InfoIcon
-                        tooltipContent="Already collected data from database."
-                        ariaLabel="Download info"
+                        tooltipContent="Collects new article data from feeds every 5 minutes."
+                        ariaLabel="Fetcher info"
                       />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                  <CardContent>
+                    <Separator />
                     <Button
                       variant="outline"
-                      onClick={() => handleArticleDownload('json')}
-                      disabled={isDisabled}
-                      className="w-full p-6 text-base sm:w-[30%]"
+                      className="mt-10 w-full p-6 text-base"
+                      onClick={handleFetchStart}
+                      disabled={isFetching}
                     >
                       <div className="flex justify-center">
-                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                        JSON
-                      </div>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleArticleDownload('csv')}
-                      disabled={isDisabled}
-                      className="w-full p-6 text-base sm:w-[30%]"
-                    >
-                      <div className="flex justify-center">
-                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                        CSV
-                      </div>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleArticleDownload('parquet')}
-                      disabled={isDisabled}
-                      className="w-full p-6 text-base sm:w-[30%]"
-                    >
-                      <div className="flex justify-center">
-                        <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                        Parquet
-                      </div>
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div
-                variants={itemVariants}
-                className="lg:col-span-5 lg:row-span-1"
-              >
-                <Card className="lg:col-span-5">
-                  <CardHeader className="mb-2">
-                    <CardTitle className="text-center text-lg">
-                      Statistics
-                    </CardTitle>
-                    <CardDescription className="text-center">
-                      View summary statistics of all articles
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex justify-between">
-                    <Drawer>
-                      <DrawerTrigger asChild>
-                        <Button
-                          variant="outline"
-                          onClick={handleFetchStatistics}
-                          disabled={isDisabled}
-                          className="w-full p-6 text-base sm:w-[45%]"
-                        >
-                          <div className="flex justify-center">
-                            <ChartPieIcon className="mr-1.5 size-6"></ChartPieIcon>
-                            Domain distribution
-                          </div>
-                        </Button>
-                      </DrawerTrigger>
-                      <DrawerContent>
-                        <div className="mx-auto w-full max-w-full">
-                          <DrawerHeader>
-                            <DrawerTitle>
-                              {' '}
-                              {statisticData.length === 0
-                                ? 0
-                                : statisticData[0].map(x => x.count).reduce((s, c) => s + c, 0)}{' '}
-                              articles collected from{' '}
-                              {statisticData.length === 0
-                                ? 0
-                                : statisticData[0].length}{' '}
-                              domain(s) and{' '}
-                              {statisticData.length === 0
-                                ? 0
-                                : statisticData[1].length}{' '}
-                              subdirectories{' '}
-                            </DrawerTitle>
-                            <DrawerDescription>
-                              {' '}
-                              Click on a domain to view the subdirectory distribution
-                            </DrawerDescription>
-                          </DrawerHeader>
-                          <div className="grid grid-cols-1 grid-cols-2 gap-4">
-                              <PieChart data={statisticData[0]} fnc={formSubDirectoryData}></PieChart>
-                              <SubPieChart data={subDirectoryData}></SubPieChart>
-                          </div>
-                          <DrawerFooter>
-                            <DrawerClose asChild>
-                              <Button variant="outline">Close</Button>
-                            </DrawerClose>
-                          </DrawerFooter>
-                        </div>
-                      </DrawerContent>
-                    </Drawer>
-                    <Drawer>
-                      <DrawerTrigger asChild>
-                        <Button
-                          variant="outline"
-                          onClick={handleFetchStatistics}
-                          disabled={isDisabled}
-                          className="w-full p-6 text-base sm:w-[45%]"
-                        >
-                          <div className="flex justify-center">
-                            <ChartBarSquareIcon className="mr-1.5 size-6"></ChartBarSquareIcon>
-                            Time series
-                          </div>
-                        </Button>
-                      </DrawerTrigger>
-                      <DrawerContent>
-                        <div className="mx-auto w-full max-w-sm">
-                          <DrawerHeader>
-                            <DrawerTitle>
-                              {' '}
-                              Time series for collected articles
-                            </DrawerTitle>
-                            <DrawerDescription>
-                              {' '}
-                              Number of articles collected per day
-                            </DrawerDescription>
-                          </DrawerHeader>
-                            <TimeSeries data={statisticData[2]}></TimeSeries>
-                          <DrawerFooter>
-                            <DrawerClose asChild>
-                              <Button variant="outline">Close</Button>
-                            </DrawerClose>
-                          </DrawerFooter>
-                        </div>
-                      </DrawerContent>
-                    </Drawer>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={itemVariants} className="lg:col-span-5">
-                <Card className="lg:col-span-5">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Search articles</CardTitle>
-                    <CardDescription>
-                      Filter articles based on matching text
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-                    <Input
-                      className="w-full p-6"
-                      onChange={handleFilterInputChange}
-                      placeholder="Insert search query..."
-                      value={searchQuery}
-                    />
-                    <Button
-                      className="p-6 text-base"
-                      variant="outline"
-                      onClick={handleSearchQuery}
-                    >
-                      <div className="flex justify-center">
-                        <MagnifyingGlassIcon className="mr-3 size-6" />
-                        Search
+                        <BarsArrowUpIcon className="mr-3 size-6" />
+                        Activate RSS fetching
                       </div>
                     </Button>
                   </CardContent>
                   <CardContent>
-                    <DataTable
-                      columns={articleColumns}
-                      data={searchData}
-                      tableName={'Query results'}
-                      isLoading={articlesLoading}
-                    />
+                    <Button
+                      variant="outline"
+                      className="w-full p-6 text-base"
+                      onClick={handleFetchStop}
+                      disabled={!isFetching}
+                    >
+                      <div className="flex justify-center">
+                        <BarsArrowDownIcon className="mr-3 size-6" />
+                        Disable RSS fetching
+                      </div>
+                    </Button>
                   </CardContent>
                 </Card>
-              </motion.div>
 
-              <motion.div
-                variants={itemVariants}
-                className="mb-20 lg:col-span-5"
-              >
-                <Logs />
-              </motion.div>
+                <motion.div
+                  variants={itemVariants}
+                  className="lg:col-span-2 lg:row-span-1"
+                >
+                  <Card className="lg:col-span-2">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Export</CardTitle>
+                      <CardDescription>
+                        Download all article data in JSON, CSV or Parquet
+                        <InfoIcon
+                          tooltipContent="See Q&A below for more info."
+                          ariaLabel="Download info"
+                        />
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                      <Button
+                        variant="outline"
+                        onClick={() => handleArticleDownload('json')}
+                        disabled={isDisabled}
+                        className="w-full p-6 text-base sm:w-[30%]"
+                      >
+                        <div className="flex justify-center">
+                          <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                          JSON
+                        </div>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleArticleDownload('csv')}
+                        disabled={isDisabled}
+                        className="w-full p-6 text-base sm:w-[30%]"
+                      >
+                        <div className="flex justify-center">
+                          <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                          CSV
+                        </div>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleArticleDownload('parquet')}
+                        disabled={isDisabled}
+                        className="w-full p-6 text-base sm:w-[30%]"
+                      >
+                        <div className="flex justify-center">
+                          <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                          Parquet
+                        </div>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
 
-              <motion.div
-                variants={itemVariants}
-                className="mb-40 lg:col-start-2 lg:col-end-5"
-              >
-                <QuestionsAccordion />
+                <motion.div
+                  variants={itemVariants}
+                  className="lg:col-span-5 lg:row-span-1"
+                >
+                  <Card className="lg:col-span-5">
+                    <CardHeader className="mb-2">
+                      <CardTitle className="text-center text-lg">
+                        Statistics
+                      </CardTitle>
+                      <CardDescription className="text-center">
+                        View summary statistics of all articles
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex justify-between">
+                      <Drawer>
+                        <DrawerTrigger asChild>
+                          <Button
+                            variant="outline"
+                            onClick={handleFetchStatistics}
+                            disabled={isDisabled}
+                            className="w-full p-6 text-base sm:w-[45%]"
+                          >
+                            <div className="flex justify-center">
+                              <ChartPieIcon className="mr-1.5 size-6"></ChartPieIcon>
+                              Domain distribution
+                            </div>
+                          </Button>
+                        </DrawerTrigger>
+                        <DrawerContent>
+                          <div className="mx-auto w-full max-w-full">
+                            <DrawerHeader>
+                              <DrawerTitle>
+                                {' '}
+                                {statisticData.length === 0
+                                  ? 0
+                                  : statisticData[0].map(x => x.count).reduce((s, c) => s + c, 0)}{' '}
+                                articles collected from{' '}
+                                {statisticData.length === 0
+                                  ? 0
+                                  : statisticData[0].length}{' '}
+                                domain(s) and{' '}
+                                {statisticData.length === 0
+                                  ? 0
+                                  : statisticData[1].length}{' '}
+                                subdirectories{' '}
+                              </DrawerTitle>
+                              <DrawerDescription>
+                                {' '}
+                                Click on a domain to view the subdirectory distribution
+                              </DrawerDescription>
+                            </DrawerHeader>
+                            <div className="grid grid-cols-1 grid-cols-2 gap-4">
+                                <PieChart data={statisticData[0]} fnc={formSubDirectoryData}></PieChart>
+                                <SubPieChart data={subDirectoryData}></SubPieChart>
+                            </div>
+                            <DrawerFooter>
+                              <DrawerClose asChild>
+                                <Button variant="outline">Close</Button>
+                              </DrawerClose>
+                            </DrawerFooter>
+                          </div>
+                        </DrawerContent>
+                      </Drawer>
+                      <Drawer>
+                        <DrawerTrigger asChild>
+                          <Button
+                            variant="outline"
+                            onClick={handleFetchStatistics}
+                            disabled={isDisabled}
+                            className="w-full p-6 text-base sm:w-[45%]"
+                          >
+                            <div className="flex justify-center">
+                              <ChartBarSquareIcon className="mr-1.5 size-6"></ChartBarSquareIcon>
+                              Time series
+                            </div>
+                          </Button>
+                        </DrawerTrigger>
+                        <DrawerContent>
+                          <div className="mx-auto w-full max-w-sm">
+                            <DrawerHeader>
+                              <DrawerTitle>
+                                {' '}
+                                Time series for collected articles
+                              </DrawerTitle>
+                              <DrawerDescription>
+                                {' '}
+                                Number of articles collected per day
+                              </DrawerDescription>
+                            </DrawerHeader>
+                              <TimeSeries data={statisticData[2]}></TimeSeries>
+                            <DrawerFooter>
+                              <DrawerClose asChild>
+                                <Button variant="outline">Close</Button>
+                              </DrawerClose>
+                            </DrawerFooter>
+                          </div>
+                        </DrawerContent>
+                      </Drawer>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="lg:col-span-5">
+                  <Card className="lg:col-span-5">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Search articles</CardTitle>
+                      <CardDescription>
+                        Query and export articles on matching data
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+                      <Input
+                        className="w-full p-6"
+                        onChange={handleFilterInputChange}
+                        placeholder="Insert search query..."
+                        value={searchQuery}
+                      />
+                      <Button
+                        className="p-6 text-base"
+                        variant="outline"
+                        onClick={handleSearchQuery}
+                      >
+                        <div className="flex justify-center">
+                          <MagnifyingGlassIcon className="mr-3 size-6" />
+                          Search
+                        </div>
+                      </Button>
+                    </CardContent>
+                    <CardContent>
+                      <DataTable
+                        columns={articleColumns}
+                        data={searchData}
+                        tableName={'Query results'}
+                        isLoading={articlesLoading}
+                        reducedSpacing={true}
+                      />
+                    </CardContent>
+                    <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+                      <Button
+                        variant="outline"
+                        onClick={() => handleArticleDownload('json', true)}
+                        disabled={isDisabled || searchData.length === 0}
+                        className="w-full p-6 text-base sm:w-[30%]"
+                      >
+                        <div className="flex justify-center">
+                          <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                          JSON (Query)
+                        </div>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleArticleDownload('csv', true)}
+                        disabled={isDisabled || searchData.length === 0}
+                        className="w-full p-6 text-base sm:w-[30%]"
+                      >
+                        <div className="flex justify-center">
+                          <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                          CSV (Query)
+                        </div>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleArticleDownload('parquet', true)}
+                        disabled={isDisabled || searchData.length === 0}
+                        className="w-full p-6 text-base sm:w-[30%]"
+                      >
+                        <div className="flex justify-center">
+                          <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                          Parquet (Query)
+                        </div>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                <motion.div
+                  variants={itemVariants}
+                  className="mb-20 lg:col-span-5"
+                >
+                  <Logs />
+                </motion.div>
+
+                <motion.div
+                  variants={itemVariants}
+                  className="mb-40 lg:col-start-2 lg:col-end-5"
+                >
+                  <QuestionsAccordion />
+                </motion.div>
               </motion.div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
+
+          <Footer />
         </motion.div>
-
-        <Footer />
-      </motion.div>
-      <ReactTooltip
-        id="react-tooltip"
-        place="right"
-        variant="dark"
-        style={{ fontSize: '10px' }}
-      />
+      </Tooltip.Provider>
     </ThemeProvider>
   );
 }

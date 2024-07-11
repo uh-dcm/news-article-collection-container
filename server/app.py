@@ -2,23 +2,26 @@
 This is the main backend app for the project.
 """
 import os
+from functools import wraps
 from flask import Flask, send_from_directory, jsonify, request
 from flask_cors import CORS
 from sqlalchemy import create_engine
 
-# authentication
+# authentication imports
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from werkzeug.security import check_password_hash, generate_password_hash
 
+# basic functionality module imports
 from scheduler_config import init_scheduler, Config
 from config import DATABASE_URL, FETCHER_FOLDER
 from log_config import LOG_FILE_PATH
 
+# route functionality module imports
 from data_acquisition.feed_manager import get_feed_urls, set_feed_urls
 from data_acquisition.content_fetcher import start_fetch, stop_fetch, get_fetch_status
 from data_analysis.query_processor import get_search_results
 from data_analysis.stats_analyzer import get_stats
-from data_export.export_manager import get_export
+from data_export.export_manager import get_all_export, get_query_export
 
 os.makedirs(f"./{FETCHER_FOLDER}/data/", exist_ok=True)
 engine = create_engine(DATABASE_URL, echo=False)
@@ -31,8 +34,6 @@ app.config['JWT_SECRET_KEY'] = "your_secret_key_here_change_this" # TODO: change
 jwt = JWTManager(app)
 
 init_scheduler(app)
-
-from functools import wraps
 
 def jwt_required_conditional(fn):
     @wraps(fn)
@@ -66,7 +67,7 @@ def register():
     """
 
     if os.getenv('FLASK_ENV') == 'testing':
-        with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w') as f:
+        with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w', encoding='utf-8') as f:
             f.write(generate_password_hash("testpassword"))
         return jsonify({"msg": "User created"}), 200
 
@@ -81,7 +82,7 @@ def register():
     if os.path.exists(f'./{FETCHER_FOLDER}/data/password.txt'):
         return jsonify({"msg": "User already exists"}), 409
     
-    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w') as f:
+    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w', encoding='utf-8') as f:
         f.write(hashed_password)
 
     return jsonify({"msg": "User created"}), 200
@@ -99,7 +100,7 @@ def login():
     if not os.path.exists(f'./{FETCHER_FOLDER}/data/password.txt'):
         return jsonify({"msg": "User does not exist"}), 404
 
-    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'r') as f:
+    with open(f'./{FETCHER_FOLDER}/data/password.txt', 'r', encoding='utf-8') as f:
         hashed_password = f.read()
 
     if not check_password_hash(hashed_password, password):
@@ -168,11 +169,19 @@ def get_stats_route():
 
 @app.route('/api/articles/export', methods=['GET'])
 @jwt_required_conditional
-def get_export_route():
+def get_all_export_route():
     """
-    Exports the articles from db. Uses export_manager.py.
+    Exports all the articles from db. Uses export_manager.py.
     """
-    return get_export(engine)
+    return get_all_export(engine)
+
+@app.route('/api/articles/export_query', methods=['GET'])
+@jwt_required_conditional
+def get_query_export_route():
+    """
+    Exports queried articles from db. Uses export_manager.py.
+    """
+    return get_query_export(engine)
 
 @app.route('/api/error_logs', methods=['GET'])
 @jwt_required_conditional

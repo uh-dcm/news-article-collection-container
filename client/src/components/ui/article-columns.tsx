@@ -13,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useMemo, useState } from 'react';
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -69,6 +68,7 @@ export const articleColumns: ColumnDef<Article>[] = [
         </Button>
       );
     },
+    filterFn: 'includesString',
   },
   {
     accessorKey: 'url',
@@ -95,39 +95,46 @@ export const articleColumns: ColumnDef<Article>[] = [
         </a>
       );
     },
+    filterFn: 'includesString',
   },
   {
     accessorKey: 'full_text',
     header: 'Full text',
     cell: ({ row, table }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [showFullText, setShowFullText] = useState(false);
       const text: string = row.getValue('full_text');
-      const searchTerm =
-        (table.getColumn('full_text')?.getFilterValue() as string) || '';
+      const searchTerm = table.getState().globalFilter || '';
+      const isExpanded = row.getIsExpanded();
 
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const formattedText = useMemo(() => {
-        const truncatedText =
-          text.slice(0, 50) + (text.length > 50 ? '...' : '');
-        return showFullText ? text : truncatedText;
-      }, [text, showFullText]);
+      const truncatedText = text.slice(0, 50) + (text.length > 50 ? '...' : '');
 
-      const handleToggle = () => {
-        setShowFullText(!showFullText);
-      };
       return (
         <div>
-          <div>
-            <HighlightedText text={formattedText} highlight={searchTerm} />
-          </div>
-          <a onClick={handleToggle}>
-            <p className="cursor-pointer text-blue-500 hover:underline">
-              {showFullText ? 'Show less' : 'Show more...'}
-            </p>
-          </a>
+          {isExpanded ? (
+            <div className="flex flex-col">
+              <HighlightedText text={text} highlight={searchTerm} />
+              <button
+                onClick={() => row.toggleExpanded()}
+                className="mt-2 self-start cursor-pointer text-blue-500 hover:underline"
+              >
+                Show less
+              </button>
+            </div>
+          ) : (
+            <div>
+              <HighlightedText text={truncatedText} highlight={searchTerm} />
+              {text.length > 50 && (
+                <button
+                  onClick={() => row.toggleExpanded()}
+                  className="ml-2 cursor-pointer text-blue-500 hover:underline"
+                >
+                  Show more...
+                </button>
+              )}
+            </div>
+          )}
         </div>
       );
     },
+    filterFn: 'includesString',
   },
 ];

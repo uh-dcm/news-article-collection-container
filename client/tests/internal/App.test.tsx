@@ -75,7 +75,7 @@ describe('App component', () => {
   });
 
   test('downloads articles in JSON format', async () => {
-    const downloadButton = screen.getByRole('button', { name: /JSON/i });
+    const downloadButton = screen.getByRole('button', { name: /^JSON$/i });
     fireEvent.click(downloadButton);
 
     await waitFor(() => {
@@ -90,7 +90,7 @@ describe('App component', () => {
   });
 
   test('downloads articles in CSV format', async () => {
-    const downloadButton = screen.getByRole('button', { name: /CSV/i });
+    const downloadButton = screen.getByRole('button', { name: /^CSV$/i });
     fireEvent.click(downloadButton);
 
     await waitFor(() => {
@@ -105,7 +105,7 @@ describe('App component', () => {
   });
 
   test('downloads articles in Parquet format', async () => {
-    const downloadButton = screen.getByRole('button', { name: /Parquet/i });
+    const downloadButton = screen.getByRole('button', { name: /^Parquet$/i });
     fireEvent.click(downloadButton);
 
     await waitFor(() => {
