@@ -5,9 +5,10 @@ from flask import jsonify, request, current_app
 from sqlalchemy import text, inspect
 from sqlalchemy.exc import SQLAlchemyError
 
+from db_config import engine
 from log_config import logger
 
-def get_search_results(engine):
+def get_search_results():
     """
     Searches db articles for a custom user query.
     Called by app.get_search_results_route().

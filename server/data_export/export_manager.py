@@ -8,13 +8,14 @@ from sqlalchemy import inspect
 from sqlalchemy.exc import SQLAlchemyError
 import pandas as pd
 
+from db_config import engine
 from log_config import logger
 from config import FETCHER_FOLDER
 from data_export.format_converter import convert_db_to_format
 
 LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
-def get_all_export(engine):
+def get_all_export():
     """
     Returns an export file of all of db articles via export_articles().
     Called by app.get_all_export_route().
@@ -32,9 +33,9 @@ def get_all_export(engine):
         time.sleep(1)
 
     query = "SELECT * FROM articles"
-    return export_articles(engine, query, file_format)
+    return export_articles(query, file_format)
 
-def get_query_export(engine):
+def get_query_export():
     """
     Returns an export file of queried db articles via export_articles().
     Called by app.get_query_export_route().
@@ -55,16 +56,16 @@ def get_query_export(engine):
     else:
         query = "SELECT * FROM articles"
 
-    return export_articles(engine, query, file_format, "articles_query")
+    return export_articles(query, file_format, "articles_query")
 
-def export_articles(engine, query, file_format, base_filename="articles"):
+def export_articles(query, file_format, base_filename="articles"):
     """
     Queries database for either all or a specified query to export.
     Passes it to convert_and_send().
     Called by get_all_export() and get_query_export().
     """
     try:
-        error = check_articles_table(engine)
+        error = check_articles_table()
         if error:
             return error
 
@@ -92,7 +93,7 @@ def convert_and_send(df, file_format, base_filename):
 
 # the following functions just help to validate
 
-def check_articles_table(engine):
+def check_articles_table():
     """
     Checks whether the table exists, used often. Used by export_articles().
     """

@@ -8,7 +8,6 @@ from copy import deepcopy
 import pytest
 import pandas as pd
 
-from app import engine
 from data_export.format_converter import convert_db_to_format
 
 expected_data = [

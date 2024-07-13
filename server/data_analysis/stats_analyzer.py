@@ -5,9 +5,10 @@ from flask import jsonify, request
 from sqlalchemy import text, inspect
 from sqlalchemy.exc import SQLAlchemyError
 
+from db_config import engine
 from log_config import logger
 
-def get_stats(engine):
+def get_stats():
     """
     Returns various preselected stats about db articles. 
     Called by app.get_stats_route().

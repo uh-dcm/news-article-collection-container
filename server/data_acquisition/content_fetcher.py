@@ -56,7 +56,11 @@ def run_collect_and_process():
     The lock file is to make exporting wait. Called by start_fetch().
     """
     if os.path.exists(LOCK_FILE):
-        print("Processing is already active.")
+        logger.info("Processing is already active.")
+        return
+
+    if not os.path.exists(f'./{FETCHER_FOLDER}/data/feeds.txt'):
+        logger.info("Fetch attempted without feeds")
         return
 
     try:
@@ -66,8 +70,6 @@ def run_collect_and_process():
         run_subprocess('collect.py', FETCHER_FOLDER)
         run_subprocess('process.py', FETCHER_FOLDER)
 
-    except subprocess.CalledProcessError as e:
-        print("Error: ", e.stderr)
     except Exception as e:
         logger.error("Error in run_collect_and_process: %s", e)
     finally:
