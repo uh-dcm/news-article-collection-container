@@ -37,7 +37,8 @@ setup_testing_environment()
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # general, main part of configurations for tests begins here
-from app import app, engine as app_engine
+from app import app
+from db_config import engine as app_engine
 from scheduler_config import scheduler
 from tests.database_filler import fill_test_database
 
@@ -80,4 +81,4 @@ def setup_and_teardown(engine):  # pylint: disable=redefined-outer-name
     if scheduler.running:
         scheduler.shutdown()
 
-    shutil.rmtree('test-rss-fetcher')
+    shutil.rmtree(base_dir)

@@ -1,5 +1,8 @@
 # Testing
 
+You can run the automated tests script at root with simply:
+- `$ bash runtests.sh`
+
 ### Backend unit tests (Pytest)
 - `$ python3 -m venv venv` (install venv folder, an isolated Python environment)
 
@@ -7,9 +10,13 @@
 
 - `$ pip install -r server/requirements.txt` (install dependencies into venv)
 
+- `$ cd server` (move to server folder)
+
 - `$ pytest` (run Pytests)
 
-- `$ deactivate` (deactivate venv, you can remove venv folder if you want)
+- `$ deactivate` (deactivate venv)
+
+- `$ cd ..` (move back to root)
 
 ### Frontend unit and integration tests (Vitest)
 - `$ cd client` (move to the client folder)
@@ -29,4 +36,4 @@
 
 - `$ npm install` (also if not done already)
 
-- `$ npx cypress run` (run Cypress tests, remove node_modules if you want)
+- `$ npx cypress run` (run Cypress tests)

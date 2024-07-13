@@ -2,28 +2,26 @@
 Tests export_manager.py route responses and functions.
 """
 from unittest.mock import patch
-from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
+import pytest
 
-from app import engine
-
+@pytest.mark.usefixtures("setup_and_teardown")
 def test_exporting_json(client):
     response = client.get('/api/articles/export?format=json')
-    assert response.status_code in [200, 404]
-    if response.status_code == 200:
-        assert response.content_type == 'application/json'
+    assert response.status_code == 200
+    assert response.content_type == 'application/json'
 
+@pytest.mark.usefixtures("setup_and_teardown")
 def test_exporting_csv(client):
     response = client.get('/api/articles/export?format=csv')
-    assert response.status_code in [200, 404]
-    if response.status_code == 200:
-        assert response.content_type.startswith('text/csv')
+    assert response.status_code == 200
+    assert response.content_type == 'text/csv; charset=utf-8'
 
+@pytest.mark.usefixtures("setup_and_teardown")
 def test_exporting_parquet(client):
     response = client.get('/api/articles/export?format=parquet')
-    assert response.status_code in [200, 404]
-    if response.status_code == 200:
-        assert response.content_type == 'application/octet-stream'
+    assert response.status_code == 200
+    assert response.content_type == 'application/octet-stream'
 
 def test_exporting_insensitive_format(client):
     response = client.get('/api/articles/export?format=JSON')
@@ -48,11 +46,8 @@ def test_exporting_no_format(client):
     assert response.status_code == 400
     assert response.json['message'] == "No format specified."
 
+# doesn't have db setup fixture so doesn't get articles
 def test_exporting_no_data(client):
-    conn = engine.connect()
-    conn.execute(text("DROP TABLE IF EXISTS articles"))
-    conn.close()
-
     response = client.get('/api/articles/export?format=json')
     assert response.status_code == 404
     assert response.json['message'] == "No articles found. Please fetch the articles first."

@@ -50,6 +50,7 @@ jobs:
 
       - name: Run Python tests
         run: |
+          cd server
           pytest
 
       - name: Docker Compose

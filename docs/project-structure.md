@@ -40,31 +40,9 @@ General project structure in Markdown. Date: July 8, 2024. Intermittently update
             └── dev.yml
             └── main.yml
             └── playground.yml
-    └── .pylintrc
-    └── Dockerfile
-    └── LICENSE
-    └── README.md
     └── 📁client
-        └── .eslintrc.cjs
-        └── .eslintrc.json
-        └── .prettierrc
-        └── Dockerfile
-        └── README.md
-        └── components.json
-        └── cypress.config.ts
-        └── index.html
-        └── package-lock.json
-        └── package.json
-        └── postcss.config.js
         └── 📁src
-            └── App.tsx
             └── 📁components
-                └── footer.tsx
-                └── header.tsx
-                └── logs.tsx
-                └── questions-accordion.tsx
-                └── rss-input.tsx
-                └── timeseries.tsx
                 └── 📁ui
                     └── accordion.tsx
                     └── article-columns.tsx
@@ -77,6 +55,7 @@ General project structure in Markdown. Date: July 8, 2024. Intermittently update
                     └── feed-columns.tsx
                     └── form.tsx
                     └── highlighted-text.tsx
+                    └── info-icon.tsx
                     └── input.tsx
                     └── label.tsx
                     └── mode-toggle.tsx
@@ -89,18 +68,27 @@ General project structure in Markdown. Date: July 8, 2024. Intermittently update
                     └── toast.tsx
                     └── toaster.tsx
                     └── use-toast.ts
+                └── footer.tsx
+                └── header.tsx
+                └── logs.tsx
+                └── piechart.tsx
+                └── questions-accordion.tsx
+                └── rss-input.tsx
+                └── timeseries.tsx
             └── 📁css
                 └── index.css
             └── 📁lib
                 └── utils.ts
-            └── main.tsx
             └── 📁services
+                └── authclient.tsx
+                └── authfunctions.tsx
                 └── database_queries.tsx
                 └── feed_urls.tsx
                 └── fetching-news.tsx
                 └── log_records.tsx
+            └── App.tsx
+            └── main.tsx
             └── vite-env.d.ts
-        └── tailwind.config.ts
         └── 📁tests
             └── 📁e2e
                 └── news_article_collector.cy.ts
@@ -117,11 +105,21 @@ General project structure in Markdown. Date: July 8, 2024. Intermittently update
                 └── rss-input.test.tsx
                 └── setupTests.ts
                 └── sonner.test.tsx
+        └── .eslintrc.cjs
+        └── .eslintrc.json
+        └── .prettierrc
+        └── Dockerfile
+        └── README.md
+        └── components.json
+        └── cypress.config.ts
+        └── index.html
+        └── package-lock.json
+        └── package.json
+        └── postcss.config.js
+        └── tailwind.config.ts
         └── tsconfig.json
         └── tsconfig.node.json
         └── vite.config.ts
-    └── docker-compose.dev.yml
-    └── docker-compose.yml
     └── 📁docs
         └── 📁assets
             └── rahti
@@ -130,19 +128,16 @@ General project structure in Markdown. Date: July 8, 2024. Intermittently update
         └── testing-instructions.md
         └── project-structure.md
     └── 📁manifests
-        └── build-prod.yaml
-        └── deployment-prod.yaml
-        └── image-stream.yaml
         └── 📁manifests_playground
             └── deployment.yaml
             └── imagestream.yaml
             └── route.yaml
+        └── build-prod.yaml
+        └── deployment-prod.yaml
+        └── image-stream.yaml
         └── pvc-prod.yaml
         └── service-route-prod.yaml
     └── 📁server
-        └── Dockerfile
-        └── app.py
-        └── config.py
         └── 📁data_acquisition
             └── content_fetcher.py
             └── feed_manager.py
@@ -152,9 +147,6 @@ General project structure in Markdown. Date: July 8, 2024. Intermittently update
         └── 📁data_export
             └── export_manager.py
             └── format_converter.py
-        └── log_config.py
-        └── requirements.txt
-        └── scheduler_config.py
         └── 📁tests
             └── conftest.py
             └── database_filler.py
@@ -165,6 +157,21 @@ General project structure in Markdown. Date: July 8, 2024. Intermittently update
             └── test_format_converter.py
             └── test_query_processor.py
             └── test_stats_analyzer.py
+        └── Dockerfile
+        └── app.py
+        └── config.py
+        └── db_config.py
+        └── log_config.py
+        └── requirements.txt
+        └── scheduler_config.py
+        └── user_management.py
+    └── .pylintrc
+    └── Dockerfile
+    └── LICENSE
+    └── README.md
+    └── docker-compose.dev.yml
+    └── docker-compose.yml
+    └── runtests.sh
 ```
 
 ```
