@@ -10,7 +10,7 @@ from config import FETCHER_FOLDER
 
 def register():
     """
-    Register a new user.
+    Register a new user. Called by app.register_route().
     """
     if os.getenv('FLASK_ENV') == 'testing':
         with open(f'./{FETCHER_FOLDER}/data/password.txt', 'w', encoding='utf-8') as f:
@@ -35,7 +35,7 @@ def register():
 
 def login():
     """
-    Login a user.
+    Login a user. Called by app.login_route().
     """
     password = request.json.get('password', None)
 

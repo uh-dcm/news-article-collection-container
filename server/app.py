@@ -54,10 +54,16 @@ def serve(path):
 
 @app.route('/api/register', methods=['POST'])
 def register_route():
+    """
+    Register a new user. Uses user_management.register().
+    """
     return register()
 
 @app.route('/api/login', methods=['POST'])
 def login_route():
+    """
+    Login a user. Uses user_management.login().
+    """
     return login()
 
 @app.route('/api/get_user_exists', methods=['GET'])
