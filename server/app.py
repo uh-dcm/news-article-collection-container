@@ -181,9 +181,6 @@ def clear_error_logs_route():
     except Exception as e:
         return jsonify({"error": "Failed to clear logs", "details": str(e)}), 500
 
-# used by stream below to see processing status, see content_fetcher.py
-LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
-
 @app.route('/stream')
 def stream():
     """
