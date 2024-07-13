@@ -491,7 +491,7 @@ export default function App() {
                   <CardHeader className="relative">
                       <div className="absolute top-4 right-4 flex flex-col items-end text-sm text-muted-foreground">
                           <span className={isFetching ? 'text-black' : 'text-muted-foreground'}>
-                            {isFetching ? 'Active' : 'Inactive'}
+                            {isFetching ? 'Fetching' : 'Not Fetching'}
                           </span>
                           <span className={isProcessing ? 'text-black' : 'text-muted-foreground'}>
                             {isProcessing ? 'Processing' : 'Not Processing'}

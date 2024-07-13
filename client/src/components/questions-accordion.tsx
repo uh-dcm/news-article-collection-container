@@ -40,9 +40,7 @@ export default function QuestionsAccordion() {
             >
               Parquet
             </a>{' '}
-            file. Please note that during processing, exporting will
-            wait for it to finish. Also, if login validation cuts out, try
-            refreshing the page.
+            file.
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
@@ -62,6 +60,9 @@ export default function QuestionsAccordion() {
               <li>
                 Activate the RSS fetching, which will automatically check
                 and process any new URLs in the feeds every 5 minutes.
+                The "Fetching" means an active fetching schedule is on,
+                while "Processing" means processing of feeds is happening
+                and the database is getting updated.
               </li>
               <li>
                 (Optional): If you wish to stop the fetching, you can disable
@@ -72,6 +73,11 @@ export default function QuestionsAccordion() {
                 articles you have collected, and perform searches on their
                 contents. You can also download the gathered article data
                 in three possible formats: JSON, CSV and Parquet.
+              </li>
+              <li className="list-none">
+                Please note that during processing of the fetched feeds,
+                exporting will wait for that to finish. Also, if login
+                validation cuts out, try refreshing the page.
               </li>
             </ul>
           </AccordionContent>
