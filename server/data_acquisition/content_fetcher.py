@@ -8,6 +8,7 @@ from flask import jsonify
 from scheduler_config import scheduler
 from log_config import logger
 from config import FETCHER_FOLDER
+from db_config import ProcessingStatus
 
 LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
 
@@ -55,7 +56,7 @@ def run_collect_and_process():
     news_article_container repo on feeds from feeds.txt.
     The lock file is to make exporting wait. Called by start_fetch().
     """
-    if os.path.exists(LOCK_FILE):
+    if ProcessingStatus.get_status():
         logger.info("Processing is already active.")
         return
 
@@ -64,17 +65,14 @@ def run_collect_and_process():
         return
 
     try:
-        with open(LOCK_FILE, 'w', encoding='utf-8') as f:
-            f.write('processing')
-
+        ProcessingStatus.set_status(True)
         run_subprocess('collect.py', FETCHER_FOLDER)
         run_subprocess('process.py', FETCHER_FOLDER)
 
     except Exception as e:
         logger.error("Error in run_collect_and_process: %s", e)
     finally:
-        if os.path.exists(LOCK_FILE):
-            os.remove(LOCK_FILE)
+        ProcessingStatus.set_status(False)
 
 def run_subprocess(script_name, fetcher_folder):
     """

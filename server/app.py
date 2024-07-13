@@ -12,6 +12,7 @@ from flask_jwt_extended import JWTManager, jwt_required
 from scheduler_config import init_scheduler, Config
 from config import FETCHER_FOLDER
 from log_config import LOG_FILE_PATH
+from db_config import ProcessingStatus
 
 # route functionality module imports
 from user_management import register, login
@@ -191,7 +192,7 @@ def stream():
     def event_stream():
         last_status = None
         while True:
-            current_status = os.path.exists(LOCK_FILE)
+            current_status = ProcessingStatus.get_status()
             if current_status != last_status:
                 yield f"event: processing_status\ndata: {str(current_status).lower()}\n\n"
                 last_status = current_status

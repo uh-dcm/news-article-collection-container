@@ -1,14 +1,13 @@
 """
 This handles exporting files from db. Called by app.py.
 """
-import os
 import time
 from flask import jsonify, send_from_directory, request, current_app
 from sqlalchemy import inspect
 from sqlalchemy.exc import SQLAlchemyError
 import pandas as pd
 
-from db_config import engine
+from db_config import engine, ProcessingStatus
 from log_config import logger
 from config import FETCHER_FOLDER
 from data_export.format_converter import convert_db_to_format
@@ -29,7 +28,7 @@ def get_all_export():
         return error
 
     # wait for processing to finish
-    while os.path.exists(LOCK_FILE):
+    while ProcessingStatus.get_status():
         time.sleep(1)
 
     query = "SELECT * FROM articles"
@@ -46,7 +45,7 @@ def get_query_export():
         return error
     
     # wait for processing to finish if it were to coincide
-    while os.path.exists(LOCK_FILE):
+    while ProcessingStatus.get_status():
         time.sleep(1)
 
     last_search_ids = current_app.last_search_ids if hasattr(current_app, 'last_search_ids') else None
