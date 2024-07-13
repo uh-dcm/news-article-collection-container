@@ -32,15 +32,17 @@ export default function QuestionsAccordion() {
               href="https://en.wikipedia.org/wiki/Comma-separated_values"
             >
               CSV
-            </a>
-            , or{' '}
+            </a>{' '}
+            or{' '}
             <a
               className="opacity-50 hover:underline hover:opacity-100"
               href="https://en.wikipedia.org/wiki/Apache_Parquet"
             >
               Parquet
             </a>{' '}
-            file.
+            file. Please note that during processing, exporting will
+            wait for it to finish. Also, if login validation cuts out, try
+            refreshing the page.
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">

@@ -2,8 +2,9 @@
 This is the main backend app for the project.
 """
 import os
+import time
 from functools import wraps
-from flask import Flask, send_from_directory, jsonify
+from flask import Flask, send_from_directory, jsonify, Response, stream_with_context
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required
 
@@ -172,6 +173,24 @@ def clear_error_logs_route():
         return jsonify({"message": "Logs cleared successfully"}), 200
     except Exception as e:
         return jsonify({"error": "Failed to clear logs", "details": str(e)}), 500
+
+# used by stream below to see processing status, see content_fetcher.py
+LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
+
+@app.route('/stream')
+def stream():
+    """
+    Processing status stream for App.tsx. Inactive when client not in use.
+    """
+    def event_stream():
+        last_status = None
+        while True:
+            current_status = os.path.exists(LOCK_FILE)
+            if current_status != last_status:
+                yield f"event: processing_status\ndata: {str(current_status).lower()}\n\n"
+                last_status = current_status
+            time.sleep(1)
+    return Response(stream_with_context(event_stream()), content_type='text/event-stream')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

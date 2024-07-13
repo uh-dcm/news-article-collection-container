@@ -85,6 +85,7 @@ export default function App() {
   const [isDisabled, setIsDisabled] = useState(false);
   const [isUrlSetDisabled, setIsUrlSetDisabled] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [searchData, setSearchData] = useState<Article[]>([]);
   const [articlesLoading, setArticlesLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -223,7 +224,7 @@ export default function App() {
     toast.dismiss();
     toast.info('RSS fetching in progress', {
       description: 'Gathering articles...',
-      duration: Infinity,
+      duration: 10000,
       classNames: {
         title: 'text-sm',
       },
@@ -353,6 +354,17 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [validToken]);
 
+  useEffect(() => {
+    const eventSource = new EventSource('/stream');
+    eventSource.addEventListener('processing_status', (event) => {
+      const isActive = event.data === 'true';
+      setIsProcessing(isActive);
+    });
+    return () => {
+      eventSource.close();
+    };
+  }, []);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -476,7 +488,15 @@ export default function App() {
                 </Card>
 
                 <Card className="lg:col-span-2 lg:row-span-2">
-                  <CardHeader className="mb-2">
+                  <CardHeader className="relative">
+                      <div className="absolute top-4 right-4 flex flex-col items-end text-sm text-muted-foreground">
+                          <span className={isFetching ? 'text-black' : 'text-muted-foreground'}>
+                            {isFetching ? 'Active' : 'Inactive'}
+                          </span>
+                          <span className={isProcessing ? 'text-black' : 'text-muted-foreground'}>
+                            {isProcessing ? 'Processing' : 'Not Processing'}
+                          </span>
+                      </div>
                     <CardTitle className="text-lg">Fetcher</CardTitle>
                     <CardDescription>
                       Manage article fetching

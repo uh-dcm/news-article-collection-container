@@ -101,7 +101,7 @@ export const articleColumns: ColumnDef<Article>[] = [
     accessorKey: 'full_text',
     header: 'Full text',
     cell: ({ row, table }) => {
-      const text: string = row.getValue('full_text');
+      const text: string = row.getValue('full_text') || 'No full text available.';
       const searchTerm = table.getState().globalFilter || '';
       const isExpanded = row.getIsExpanded();
 

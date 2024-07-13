@@ -9,10 +9,15 @@ import App from '@/App';
 import '@testing-library/jest-dom';
 import { expect, test, vi, describe, beforeEach } from 'vitest';
 import { toast } from 'sonner';
+import { MockEventSource } from './setupTests';
 
 describe('App component', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
+    vi.spyOn(global, 'EventSource').mockImplementation(
+      (url: string | URL, eventSourceInitDict?: EventSourceInit) => 
+        new MockEventSource(url, eventSourceInitDict)
+    );
     render(<App />);
 
     await waitFor(() => {
