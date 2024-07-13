@@ -28,12 +28,14 @@ run_vitests() {
     npm install
     npm test
     echo "Vitests done"
+    cd ..
 }
 
 run_cypress_tests() {
     echo "Starting container build"
     docker compose up --build -d
     echo "Running Cypress tests"
+    cd client
     npx cypress run
     echo "Cypress tests done"
     cd ..
