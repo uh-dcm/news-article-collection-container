@@ -10,8 +10,6 @@ from log_config import logger
 from config import FETCHER_FOLDER
 from db_config import ProcessingStatus
 
-LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
-
 def start_fetch():
     """
     Schedules the fetching job to run at five minute intervals, starting now.
@@ -66,19 +64,18 @@ def run_collect_and_process():
 
     try:
         ProcessingStatus.set_status(True)
-        run_subprocess('collect.py', FETCHER_FOLDER)
-        run_subprocess('process.py', FETCHER_FOLDER)
-
+        run_subprocess('collect.py')
+        run_subprocess('process.py')
     except Exception as e:
         logger.error("Error in run_collect_and_process: %s", e)
     finally:
         ProcessingStatus.set_status(False)
 
-def run_subprocess(script_name, fetcher_folder):
+def run_subprocess(script_name):
     """
     The actual, once repeated subprocess run with logging for run_collect_and_process().
     """
-    result = subprocess.run(['python3', script_name], cwd=f'./{fetcher_folder}', capture_output=True, check=True, text=True)
+    result = subprocess.run(['python3', script_name], cwd=f'./{FETCHER_FOLDER}', capture_output=True, check=True, text=True)
     if result.stdout:
         logger.info("%s output:\n%s", script_name, result.stdout.strip(), extra={'script_name': script_name})
     if result.stderr:

@@ -12,8 +12,6 @@ from log_config import logger
 from config import FETCHER_FOLDER
 from data_export.format_converter import convert_db_to_format
 
-LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
-
 def get_all_export():
     """
     Returns an export file of all of db articles via export_articles().
