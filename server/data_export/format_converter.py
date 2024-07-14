@@ -44,7 +44,8 @@ def convert_db_to_csv(df, base_filename):
 def convert_db_to_parquet(df, base_filename):
     """
     True convert of db to .parquet. Called by convert_db_to_format().
-    Doesn't require any special settings.
+    Doesn't require any special settings. Pandas needed Pyarrow
+    for this however.
     """
     parquet_file_path = f'./{FETCHER_FOLDER}/data/{base_filename}.parquet'
     df.to_parquet(parquet_file_path, index=False)

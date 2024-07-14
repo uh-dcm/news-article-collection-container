@@ -48,7 +48,7 @@ export const articleColumns: ColumnDef<Article>[] = [
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(article.full_text)}
             >
-              Copy Full text to clipboard
+              Copy full text to clipboard
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -62,11 +62,16 @@ export const articleColumns: ColumnDef<Article>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          className="w-full justify-center"
         >
           Time
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
+    },
+    cell: ({ row }) => {
+      const time: string = row.getValue('time');
+      return <div className="w-30 whitespace-nowrap">{time}</div>;
     },
     filterFn: 'includesString',
   },
@@ -77,6 +82,7 @@ export const articleColumns: ColumnDef<Article>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          className="w-full justify-center"
         >
           URL
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -86,32 +92,45 @@ export const articleColumns: ColumnDef<Article>[] = [
     cell: ({ row }) => {
       const url: string = row.getValue('url');
       return (
-        <a
-          className="cursor-pointer text-blue-500 hover:underline"
-          href={url}
-          target="_blank"
-        >
-          {url}
-        </a>
+        <div className="w-64 break-words">
+          <a
+            className="cursor-pointer text-blue-500 hover:underline"
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {url}
+          </a>
+        </div>
       );
     },
     filterFn: 'includesString',
   },
   {
     accessorKey: 'full_text',
-    header: 'Full text',
+    header: () => <div className="text-center">Full text</div>,
     cell: ({ row, table }) => {
-      const text: string = row.getValue('full_text') || 'No full text available.';
+      const text: string = row.getValue('full_text');
       const searchTerm = table.getState().globalFilter || '';
       const isExpanded = row.getIsExpanded();
+
+      if (!text) {
+        return <div className="italic text-gray-500">No full text available.</div>;
+      }
 
       const truncatedText = text.slice(0, 50) + (text.length > 50 ? '...' : '');
 
       return (
-        <div>
+        <div className="max-w-2xl">
           {isExpanded ? (
             <div className="flex flex-col">
-              <HighlightedText text={text} highlight={searchTerm} />
+              <div className="max-h-96 overflow-y-auto">
+                {text.split('\n').map((paragraph, index) => (
+                  <p key={index} className="mb-2">
+                    <HighlightedText text={paragraph} highlight={searchTerm} />
+                  </p>
+                ))}
+              </div>
               <button
                 onClick={() => row.toggleExpanded()}
                 className="mt-2 self-start cursor-pointer text-blue-500 hover:underline"

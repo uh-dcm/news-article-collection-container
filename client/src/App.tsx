@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getAllFeedUrls, sendAllFeedUrls } from './services/feed_urls';
 
 import {
@@ -8,7 +8,8 @@ import {
 } from './services/fetching-news';
 import {
   sendSearchQuery,
-  sendStatisticsQuery
+  sendStatisticsQuery,
+  SearchParams
 } from './services/database_queries';
 
 import authClient from './services/authclient';
@@ -88,7 +89,11 @@ export default function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchData, setSearchData] = useState<Article[]>([]);
   const [articlesLoading, setArticlesLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [textQuery, setTextQuery] = useState('');
+  const [urlQuery, setUrlQuery] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [htmlQuery, setHtmlQuery] = useState('');
   const [statisticData, setStatisticsData] = useState<DomainData[][]>([]);
   const [filteredStatisticData, setFilteredStatisticsData] = useState<DomainData[][]>([]);
   const [subDirectoryData, setSubDirectoryData] = useState<DomainData[]>([]);
@@ -129,15 +134,9 @@ export default function App() {
     }
   };
 
-  const handleFilterInputChange = (event: {
-    target: { value: React.SetStateAction<string> };
-  }) => {
-    setSearchQuery(event.target.value);
-  };
-
   const handleFetchStatistics = async (filtered: boolean) => {
     toast.dismiss();
-
+  
     const toastOptions = {
       loading: 'Getting statistics..',
       description: 'Note that the statistics might not be updated yet',
@@ -150,21 +149,19 @@ export default function App() {
         return 'Failed to get statistics';
       },
     } as ToastOptions satisfies ToastOptions;
-
+  
     toast.promise(async () => {
       try {
+        const data = await sendStatisticsQuery(filtered);
         if (!filtered) {
-          const data = await sendStatisticsQuery('');
           setStatisticsData(data);
           console.log(statisticData);
-        }
-        else {
-          const data = await sendStatisticsQuery(searchQuery);
+        } else {
           setFilteredStatisticsData(data);
           console.log(filteredStatisticData);
         }
-
-        return 'Got statistics succesfully!';
+  
+        return 'Got statistics successfully!';
       } catch (error) {
         throw new Error();
       }
@@ -294,8 +291,22 @@ export default function App() {
   };
 
   const handleSearchQuery = async () => {
-    const data = await sendSearchQuery(searchQuery);
-    setSearchData(data);
+    setArticlesLoading(true);
+    try {
+      const params: SearchParams = {
+        textQuery,
+        urlQuery,
+        startTime,
+        endTime,
+        htmlQuery
+      };
+      const data = await sendSearchQuery(params);
+      setSearchData(data);
+    } catch (error) {
+      console.error('Error in handleSearchQuery:', error);
+    } finally {
+      setArticlesLoading(false);
+    }
   };
 
   const deleteSelectedRows = (selectedRows: Feed[]) => {
@@ -333,7 +344,7 @@ export default function App() {
         toast.dismiss();
         toast.info('RSS fetching in progress', {
           description: 'Gathering articles...',
-          duration: Infinity,
+          duration: 10000,
           classNames: {
             title: 'text-sm',
           },
@@ -703,12 +714,39 @@ export default function App() {
                     <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
                       <Input
                         className="w-full p-6"
-                        onChange={handleFilterInputChange}
-                        placeholder="Insert search query..."
-                        value={searchQuery}
+                        onChange={(e) => setTextQuery(e.target.value)}
+                        placeholder="Insert text query..."
+                        value={textQuery}
+                      />
+                      <Input
+                        className="w-full p-6"
+                        onChange={(e) => setUrlQuery(e.target.value)}
+                        placeholder="Insert URL query..."
+                        value={urlQuery}
+                      />
+                      <Input
+                        className="w-full p-6"
+                        type="text"
+                        placeholder="Insert start time... (YYYY-MM-DD HH:MM:SS)"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                      />
+                      <Input
+                        className="w-full p-6"
+                        type="text"
+                        placeholder="Insert end time... (YYYY-MM-DD HH:MM:SS)"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                      />
+                      <Input
+                        className="w-full p-6"
+                        type="text"
+                        placeholder="Insert HTML query..."
+                        value={htmlQuery}
+                        onChange={(e) => setHtmlQuery(e.target.value)}
                       />
                       <Button
-                        className="p-6 text-base"
+                        className="w-full p-6 text-base"
                         variant="outline"
                         onClick={handleSearchQuery}
                       >
