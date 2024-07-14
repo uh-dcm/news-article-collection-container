@@ -136,7 +136,7 @@ export default function App() {
 
   const handleFetchStatistics = async (filtered: boolean) => {
     toast.dismiss();
-  
+
     const toastOptions = {
       loading: 'Getting statistics..',
       description: 'Note that the statistics might not be updated yet',
@@ -149,7 +149,7 @@ export default function App() {
         return 'Failed to get statistics';
       },
     } as ToastOptions satisfies ToastOptions;
-  
+
     toast.promise(async () => {
       try {
         const data = await sendStatisticsQuery(filtered);
@@ -160,7 +160,7 @@ export default function App() {
           setFilteredStatisticsData(data);
           console.log(filteredStatisticData);
         }
-  
+
         return 'Got statistics successfully!';
       } catch (error) {
         throw new Error();
@@ -347,7 +347,7 @@ export default function App() {
     };
     if (validToken) fetchFeedUrls();
 
-    const isFetching = async () => {
+    const checkFetchingStatus = async () => {
       const response = await getFetchingStatus();
       if (response.status === 'running') {
         toast.dismiss();
@@ -361,7 +361,7 @@ export default function App() {
         setIsFetching(true);
       }
     };
-    if (validToken) isFetching();
+    if (validToken) checkFetchingStatus();
 
     const updateArticleTable = async () => {
       try {
