@@ -309,6 +309,15 @@ export default function App() {
     }
   };
 
+  const handleClear = () => {
+    setTextQuery('');
+    setUrlQuery('');
+    setStartTime('');
+    setEndTime('');
+    setHtmlQuery('');
+    setSearchData([]);
+  };
+
   const deleteSelectedRows = (selectedRows: Feed[]) => {
     setFeedUrlList((prevData) =>
       prevData.filter((item) => !selectedRows.includes(item))
@@ -705,11 +714,21 @@ export default function App() {
 
                 <motion.div variants={itemVariants} className="lg:col-span-5">
                   <Card className="lg:col-span-5">
-                    <CardHeader>
+                    <CardHeader className="relative">
                       <CardTitle className="text-lg">Search articles</CardTitle>
                       <CardDescription>
                         Query and export articles on matching data
                       </CardDescription>
+                      <div className="absolute top-4 right-4 flex items-center space-x-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleClear}
+                          className="h-8 px-2 text-xs"
+                        >
+                          Clear
+                        </Button>
+                      </div>
                     </CardHeader>
                     <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
                       <Input
