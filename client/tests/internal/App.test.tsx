@@ -124,8 +124,9 @@ describe('App component', () => {
     });
   });
 
+  // handler at setup is only using textQuery for now
   test('searches articles based on query', async () => {
-    const searchInput = screen.getByPlaceholderText('Insert search query...');
+    const searchInput = screen.getByPlaceholderText('Insert text query...');
     const searchButton = screen.getByRole('button', { name: /Search/i });
 
     await act(async () => {

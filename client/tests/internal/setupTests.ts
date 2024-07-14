@@ -46,7 +46,7 @@ const handlers = [
   }),
   http.get(`${serverUrl}/api/articles/search`, async ({ request }) => {
     const url = new URL(request.url);
-    const query = url.searchParams.get('searchQuery');
+    const query = url.searchParams.get('textQuery');
     if (!query) {
       return HttpResponse.json([]);
     }

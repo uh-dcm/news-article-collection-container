@@ -80,6 +80,7 @@ export function DataTable<TData, TValue>({
         .getSelectedRowModel()
         .rows.map((row) => row.original);
       onDeleteSelected(selectedRows);
+      table.toggleAllRowsSelected(false);
     }
   };
 
