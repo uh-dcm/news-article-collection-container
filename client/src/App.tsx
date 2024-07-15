@@ -717,7 +717,7 @@ export default function App() {
                     <CardHeader className="relative">
                       <CardTitle className="text-lg">Search articles</CardTitle>
                       <CardDescription>
-                        Query and export articles on matching data
+                        Query and export articles with matching data
                       </CardDescription>
                       <div className="absolute top-4 right-4 flex items-center space-x-4">
                         <Button

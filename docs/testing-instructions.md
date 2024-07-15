@@ -3,7 +3,7 @@
 You can run the automated tests script at root with simply:
 - `$ bash runtests.sh`
 
-### Backend unit tests (Pytest)
+### Backend unit tests (Pytest) <sup><sub>File location: /server/tests/</sub></sup>
 - `$ python3 -m venv venv` (install venv folder, an isolated Python environment)
 
 - `$ source venv/bin/activate` (activate venv)
@@ -18,14 +18,14 @@ You can run the automated tests script at root with simply:
 
 - `$ cd ..` (move back to root)
 
-### Frontend unit and integration tests (Vitest)
+### Frontend unit and integration tests (Vitest) <sup><sub>File location: /client/tests/internal/</sub></sup>
 - `$ cd client` (move to the client folder)
 
 - `$ npm install` (install dependencies to node_modules)
 
 - `$ npm test` (run Vitests)
 
-### E2E tests (Cypress)
+### E2E tests (Cypress) <sup><sub>File location: /client/tests/e2e/</sub></sup>
 - Open a new CLI window next to the main testing window and in it:
   
 - `$ docker compose up --build` (run the app normally)
