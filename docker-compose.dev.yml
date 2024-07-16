@@ -1,5 +1,6 @@
 services:
   frontend:
+    container_name: frontend_dev_container
     build:
       context: ./client
       dockerfile: Dockerfile
@@ -13,11 +14,17 @@ services:
     depends_on:
       - backend
   backend:
+    container_name: backend_dev_container
     build:
       context: ./server
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
       - 5000:5000
     volumes:
       - ./server/app.py:/app/server/app.py
-      - ./server/db_to_json.py:/app/server/db_to_json.py
+      - backend-data-folder:/app/server/rss-fetcher/data # persist data, TODO: think if necessary
+    stdin_open: true # keep STDIN open even if not attached
+    tty: true
+
+volumes:
+  backend-data-folder:

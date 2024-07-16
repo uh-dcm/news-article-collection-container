@@ -1,0 +1,26 @@
+FROM python:3.12-slim-bookworm
+
+WORKDIR /app/server
+
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+RUN rm -rf rss-fetcher
+RUN git clone https://github.com/ayriainen/news-article-collection rss-fetcher
+
+COPY . .
+
+# Make directory for data and add file
+RUN mkdir -p rss-fetcher/data && touch rss-fetcher/data/feeds.txt
+
+# Install dependencies of the flask backend, without caching them
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install dependencies of the rss-fetcher, without caching them
+RUN pip install --no-cache-dir -r rss-fetcher/requirements.txt
+
+EXPOSE 5000
+
+ENV FLASK_ENV=development
+ENV FLASK_DEBUG=1
+
+CMD ["bash"]
