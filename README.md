@@ -16,6 +16,7 @@ This is being worked on as part of the University of Helsinki [Ohjelmistotuotant
 - [Sprint 2 Task Board](https://github.com/orgs/uh-dcm/projects/9/views/1)
 - [Sprint 3 Task Board](https://github.com/orgs/uh-dcm/projects/10/views/1)
 - [Sprint 4 Task Board](https://github.com/orgs/uh-dcm/projects/11/views/1)
+- [Sprint 5 Task Board](https://github.com/orgs/uh-dcm/projects/13/views/1)
 
 ## Starting the app
 
