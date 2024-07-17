@@ -1,45 +1,73 @@
 """
 This handles exporting files from db. Called by app.py.
 """
-import os
 import time
-from flask import jsonify, send_from_directory, request
+from flask import jsonify, send_from_directory, request, current_app
 from sqlalchemy import inspect
 from sqlalchemy.exc import SQLAlchemyError
+import pandas as pd
 
+from db_config import engine, ProcessingStatus
 from log_config import logger
 from config import FETCHER_FOLDER
 from data_export.format_converter import convert_db_to_format
 
-LOCK_FILE = f'./{FETCHER_FOLDER}/data/processing.lock'
-
-def get_export(engine):
+def get_all_export():
     """
-    Returns an export file of db via convert(). Called by app.get_export_route().
+    Returns an export file of all of db articles via export_articles().
+    Called by app.get_all_export_route().
     """
-    # this multiple format request check is just extra security, likely never used
     if len(request.args.getlist('format')) > 1:
         return jsonify({"status": "error", "message": "Invalid format requested."}), 400
 
     file_format = request.args.get('format')
-
-    # these format type check are just extra security, likely never used
-    if not file_format:
-        return jsonify({"status": "error", "message": "No format specified."}), 400
-    if file_format not in ['json', 'csv', 'parquet']:
-        return jsonify({"status": "error", "message": "Invalid format requested."}), 400
+    error = validate_format(file_format)
+    if error:
+        return error
 
     # wait for processing to finish
-    while os.path.exists(LOCK_FILE):
+    while ProcessingStatus.get_status():
         time.sleep(1)
 
-    try:
-        # check whether the table exists, this is used often
-        inspector = inspect(engine)
-        if not inspector.has_table('articles'):
-            return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 404
+    query = "SELECT * FROM articles"
+    return export_articles(query, file_format)
 
-        return convert(engine,file_format) # the main part
+def get_query_export():
+    """
+    Returns an export file of queried db articles via export_articles().
+    Called by app.get_query_export_route().
+    """
+    file_format = request.args.get('format')
+    error = validate_format(file_format)
+    if error:
+        return error
+    
+    # wait for processing to finish if it were to coincide
+    while ProcessingStatus.get_status():
+        time.sleep(1)
+
+    last_search_ids = current_app.last_search_ids if hasattr(current_app, 'last_search_ids') else None
+
+    if last_search_ids:
+        query = f"SELECT * FROM articles WHERE id IN ({','.join(map(str, last_search_ids))})"
+    else:
+        query = "SELECT * FROM articles"
+
+    return export_articles(query, file_format, "articles_query")
+
+def export_articles(query, file_format, base_filename="articles"):
+    """
+    Queries database for either all or a specified query to export.
+    Passes it to convert_and_send().
+    Called by get_all_export() and get_query_export().
+    """
+    try:
+        error = check_articles_table()
+        if error:
+            return error
+
+        df = pd.read_sql_query(query, engine)
+        return convert_and_send(df, file_format, base_filename)
     except SQLAlchemyError as e:
         logger.error("Database error when downloading: %s", e)
         return jsonify({"status": "error", "message": f"Database error when downloading: {str(e)}"}), 500
@@ -47,23 +75,37 @@ def get_export(engine):
         logger.error("Downloading articles resulted in failure: %s", e)
         return jsonify({"status": "error", "message": str(e)}), 400
 
-def convert(engine, file_format):
+def convert_and_send(df, file_format, base_filename):
     """
-    Manages converting via format_converter.convert_db_to_format(). Called by get_export().
+    Converts the dataframe to the specified format via
+    format_converter.convert_db_to_format(). Called by export_articles().
+    Lastly sends the converted file on via Flask.
     """
-    output_file_path = None
     try:
-        convert_db_to_format(engine, file_format)
-        if file_format == 'json':
-            output_file_path = "articles.json"
-        elif file_format == 'csv':
-            output_file_path = "articles.csv"
-        elif file_format == 'parquet':
-            output_file_path = "articles.parquet"
-        else:
-            return jsonify({"status": "error", "message": "Invalid format requested."}), 400
-
+        output_file_path = convert_db_to_format(df, file_format, base_filename)
         return send_from_directory(f'./{FETCHER_FOLDER}/data', output_file_path, as_attachment=True)
     except Exception as e:
         logger.error("Exporting articles resulted in failure: %s", e)
         return jsonify({"status": "error", "message": f"Exporting articles resulted in failure: {str(e)}"}), 400
+
+# the following functions just help to validate
+
+def check_articles_table():
+    """
+    Checks whether the table exists, used often. Used by export_articles().
+    """
+    inspector = inspect(engine)
+    if not inspector.has_table('articles'):
+        return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 404
+    return None
+
+def validate_format(file_format):
+    """
+    Checks for format errors that are unlikely to occur as the format's not typed.
+    Used by get_all_export() and get_query_export().
+    """
+    if not file_format:
+        return jsonify({"status": "error", "message": "No format specified."}), 400
+    if file_format not in ['json', 'csv', 'parquet']:
+        return jsonify({"status": "error", "message": "Invalid format requested."}), 400
+    return None

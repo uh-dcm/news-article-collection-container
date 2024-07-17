@@ -9,10 +9,15 @@ import App from '@/App';
 import '@testing-library/jest-dom';
 import { expect, test, vi, describe, beforeEach } from 'vitest';
 import { toast } from 'sonner';
+import { MockEventSource } from './setupTests';
 
 describe('App component', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
+    vi.spyOn(global, 'EventSource').mockImplementation(
+      (url: string | URL, eventSourceInitDict?: EventSourceInit) => 
+        new MockEventSource(url, eventSourceInitDict)
+    );
     render(<App />);
 
     await waitFor(() => {
@@ -75,7 +80,7 @@ describe('App component', () => {
   });
 
   test('downloads articles in JSON format', async () => {
-    const downloadButton = screen.getByRole('button', { name: /JSON/i });
+    const downloadButton = screen.getByRole('button', { name: /^JSON$/i });
     fireEvent.click(downloadButton);
 
     await waitFor(() => {
@@ -90,7 +95,7 @@ describe('App component', () => {
   });
 
   test('downloads articles in CSV format', async () => {
-    const downloadButton = screen.getByRole('button', { name: /CSV/i });
+    const downloadButton = screen.getByRole('button', { name: /^CSV$/i });
     fireEvent.click(downloadButton);
 
     await waitFor(() => {
@@ -105,7 +110,7 @@ describe('App component', () => {
   });
 
   test('downloads articles in Parquet format', async () => {
-    const downloadButton = screen.getByRole('button', { name: /Parquet/i });
+    const downloadButton = screen.getByRole('button', { name: /^Parquet$/i });
     fireEvent.click(downloadButton);
 
     await waitFor(() => {
@@ -119,8 +124,9 @@ describe('App component', () => {
     });
   });
 
+  // handler at setup is only using textQuery for now
   test('searches articles based on query', async () => {
-    const searchInput = screen.getByPlaceholderText('Insert search query...');
+    const searchInput = screen.getByPlaceholderText('Insert text query...');
     const searchButton = screen.getByRole('button', { name: /Search/i });
 
     await act(async () => {

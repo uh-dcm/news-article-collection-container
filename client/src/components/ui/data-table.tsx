@@ -11,6 +11,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  getExpandedRowModel,
 } from '@tanstack/react-table';
 
 import {
@@ -32,6 +33,7 @@ interface DataTableProps<TData, TValue> {
   onDeleteSelected?: (selectedRows: TData[]) => void;
   tableName: string;
   isLoading?: boolean;
+  reducedSpacing?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -40,11 +42,13 @@ export function DataTable<TData, TValue>({
   onDeleteSelected,
   tableName,
   isLoading = false,
+  reducedSpacing = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [globalFilter, setGlobalFilter] = React.useState('');
 
   const table = useReactTable({
     data,
@@ -55,9 +59,13 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: 'includesString',
     state: {
       sorting,
       columnFilters,
+      globalFilter,
     },
     initialState: {
       pagination: {
@@ -72,6 +80,7 @@ export function DataTable<TData, TValue>({
         .getSelectedRowModel()
         .rows.map((row) => row.original);
       onDeleteSelected(selectedRows);
+      table.toggleAllRowsSelected(false);
     }
   };
 
@@ -115,7 +124,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="mb-4 flex h-8 items-center justify-between">
+      <div className={`flex h-8 items-center justify-between ${reducedSpacing ? 'mb-2' : 'mb-4'}`}>
         <Label className="text-base font-medium">{tableName}</Label>
 
         {onDeleteSelected && table.getSelectedRowModel().rows.length > 0 && (
@@ -125,15 +134,11 @@ export function DataTable<TData, TValue>({
         )}
       </div>
       {table.getColumn('full_text') && (
-        <div className="flex items-center py-4">
+        <div className={`flex items-center ${reducedSpacing ? 'py-2' : 'py-4'}`}>
           <Input
-            placeholder="Filter full text ..."
-            value={
-              (table.getColumn('full_text')?.getFilterValue() as string) ?? ''
-            }
-            onChange={(event) =>
-              table.getColumn('full_text')?.setFilterValue(event.target.value)
-            }
+            placeholder="Quick filter visible results..."
+            value={globalFilter}
+            onChange={(event) => setGlobalFilter(event.target.value)}
             className="max-w-sm"
           />
         </div>

@@ -8,7 +8,6 @@ from copy import deepcopy
 import pytest
 import pandas as pd
 
-from app import engine
 from data_export.format_converter import convert_db_to_format
 
 expected_data = [
@@ -34,7 +33,6 @@ def verify_csv_data(file_path, expected_csv_data):
     expected_csv_data_copy = deepcopy(expected_csv_data)
     for item in expected_csv_data_copy:
         item['id'] = str(item['id'])
-
     with open(file_path, 'r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         csv_data = list(reader)
@@ -50,33 +48,36 @@ def verify_parquet_data(file_path, expected_parquet_data):
     parquet_data = df.to_dict(orient='records')
     expected_parquet_data_copy = deepcopy(expected_parquet_data)
     for item in expected_parquet_data_copy:
-        item['time'] = pd.Timestamp(item['time'])
-        item['download_time'] = pd.Timestamp(item['download_time'])
-
+        item['time'] = str(item['time'])
+        item['download_time'] = str(item['download_time'])
     assert parquet_data == expected_parquet_data_copy, f"The data in articles.parquet does not match the expected data. Expected: {expected_parquet_data_copy}, Actual: {parquet_data}"
 
 @pytest.mark.usefixtures("setup_and_teardown")
 def test_convert_db_to_csv():
-    convert_db_to_format(engine, 'csv')
+    df = pd.DataFrame(expected_data)
+    convert_db_to_format(df, 'csv', 'articles')
     file_path = 'test-rss-fetcher/data/articles.csv'
     assert os.path.exists(file_path), "The articles.csv file was not created."
     verify_csv_data(file_path, expected_data)
 
 @pytest.mark.usefixtures("setup_and_teardown")
 def test_convert_db_to_json():
-    convert_db_to_format(engine, 'json')
+    df = pd.DataFrame(expected_data)
+    convert_db_to_format(df, 'json', 'articles')
     file_path = 'test-rss-fetcher/data/articles.json'
     assert os.path.exists(file_path), "The articles.json file was not created."
     verify_json_data(file_path, expected_data)
 
 @pytest.mark.usefixtures("setup_and_teardown")
 def test_convert_db_to_parquet():
-    convert_db_to_format(engine, 'parquet')
+    df = pd.DataFrame(expected_data)
+    convert_db_to_format(df, 'parquet', 'articles')
     file_path = 'test-rss-fetcher/data/articles.parquet'
     assert os.path.exists(file_path), "The articles.parquet file was not created."
     verify_parquet_data(file_path, expected_data)
 
 @pytest.mark.usefixtures("setup_and_teardown")
 def test_convert_db_to_invalid_format():
+    df = pd.DataFrame(expected_data)
     with pytest.raises(ValueError):
-        convert_db_to_format(engine, 'invalid_format')
+        convert_db_to_format(df, 'invalid_format', 'articles')

@@ -29,7 +29,7 @@ If you'd like to setup the environment using the graphical UI, you can do the fo
 Alternatively, you can use the CLI tool to setup the environment by doing the following:
 
 1. [Login to Rahti 2](https://docs.csc.fi/cloud/rahti2/usage/getting_started/) from [https://rahti.csc.fi](https://rahti.csc.fi).
-2. Go to `../manifests` and run `oc apply -f image-stream.yaml`  (or fetch latest image from Docker hub using `oc import-image news-collection `).
+2. Go to `../manifests` and run `oc apply -f image-stream.yaml`  (or fetch latest image from Docker hub using `oc import-image news-collection`).
 3. Run `oc describe is news-collection` to get the `sha`-hash identifier of the latest image
 4. Update the `sha`-identifier to `spec.spec.containers[0]` of `deployment-prod.yaml` in order to get the latest build from the image stream.
 5. Run `oc apply -f <cfg_file>.yaml` for each of the remaining config files in `../manifests`.
@@ -41,3 +41,16 @@ between an earlier pod that it was attached to and a new pod trying to claim it.
 oc scale deployment news-collection-prod --replicas=0
 oc scale deployment news-collection-prod --replicas=1
 ```
+
+## Updating the image with current deployment strategy
+
+1. Build and push latest Docker image to `ohtukontitus/news-collection`
+2. Fetch (or wait for automatic fetch) latest image from ImageStream via using `oc import-image news-collection`
+3. Update the `sha`-identifier as above
+4. Run `oc apply -f deployment-prod.yaml`
+5. Run 
+```
+oc scale deployment news-collection-prod --replicas=0
+oc scale deployment news-collection-prod --replicas=1
+```
+6. The latest image should now be accessible via the URL defined in `service-route-prod.yaml`.

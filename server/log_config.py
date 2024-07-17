@@ -13,7 +13,7 @@ LOG_FILE_PATH = f'./{FETCHER_FOLDER}/data/logs/errors.log'
 # Create and configure a logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(filename)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter('%(asctime)s - %(filename)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
 
 # Configure and setup a file handler and a formatter
 # With RotatingFileHandler, when the log file is filled, it is closed and renamed

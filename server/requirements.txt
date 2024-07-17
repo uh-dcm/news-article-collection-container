@@ -1,9 +1,9 @@
 flask
 flask-cors
-pandas
-sqlalchemy
+flask_jwt_extended
 apscheduler
 flask_apscheduler
-pytest
+sqlalchemy
+pandas
 pyarrow
-flask_jwt_extended
+pytest

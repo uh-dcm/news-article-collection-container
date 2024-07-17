@@ -15,7 +15,7 @@ export default function QuestionsAccordion() {
         <AccordionItem value="item-1">
           <AccordionTrigger>How does the collector work?</AccordionTrigger>
           <AccordionContent>
-            The news feed article collector gathers contents from all of the
+            The news feed article collector gathers the contents of all of the
             articles in the RSS feed addresses in the feed list. It processes
             any added feed in the list automatically every 5 minutes as long
             as the fetcher has been activated. You can view statistics of the
@@ -32,8 +32,8 @@ export default function QuestionsAccordion() {
               href="https://en.wikipedia.org/wiki/Comma-separated_values"
             >
               CSV
-            </a>
-            , or{' '}
+            </a>{' '}
+            or{' '}
             <a
               className="opacity-50 hover:underline hover:opacity-100"
               href="https://en.wikipedia.org/wiki/Apache_Parquet"
@@ -60,6 +60,9 @@ export default function QuestionsAccordion() {
               <li>
                 Activate the RSS fetching, which will automatically check
                 and process any new URLs in the feeds every 5 minutes.
+                The "Fetching" means an active fetching schedule is on,
+                while "Processing" means processing of feeds is happening
+                and the database is getting updated.
               </li>
               <li>
                 (Optional): If you wish to stop the fetching, you can disable
@@ -67,9 +70,26 @@ export default function QuestionsAccordion() {
               </li>
               <li>
                 After the fetching is done, you can view statistics of the
-                articles you have collected, and perform searches on their
-                contents. You can also download the gathered article data
-                in three possible formats: JSON, CSV and Parquet.
+                articles you have collected.
+              </li>
+              <li>
+                You can also perform searches on the contents of the
+                articles. Search inputs are possible in the four data types
+                collected: full text, URL, time and HTML. Time is split into
+                start time and end time, with the formatting being
+                YYYY-MM-DD HH:MM:SS, and the input of partial values also
+                being possible. Additionally, sometimes the full texts of the
+                articles aren't successfully collected, in which case try to
+                use the HTML data. You can specifically search for those
+                without full text with a special query, asterisks included:
+                *No full text available.*
+              </li>
+              <li>
+                You can download the gathered article data
+                in three possible formats: JSON, CSV and Parquet, for all
+                gathered articles or just queried ones. Please note that
+                during processing of the fetched feeds, exporting will wait
+                for that to finish.
               </li>
             </ul>
           </AccordionContent>

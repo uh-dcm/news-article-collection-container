@@ -30,7 +30,6 @@ dist-ssr
 *.sw?
 downloads/
 screenshots/
-runtests.sh
 
 # Python cache
 __pycache__
