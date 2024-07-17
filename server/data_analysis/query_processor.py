@@ -2,6 +2,7 @@
 This searches db for specific queries. Called by app.py.
 """
 from datetime import datetime, timedelta
+import re
 from flask import jsonify, request, current_app
 from sqlalchemy import text, inspect
 from sqlalchemy.exc import SQLAlchemyError
@@ -37,15 +38,14 @@ def get_search_results():
         params = {}
 
         if text_query:
-            if text_query == "*No full text available.*":
-                query += " AND (full_text IS NULL OR full_text = '')"
-            else:
-                query += " AND full_text LIKE :text_query"
-                params['text_query'] = f'%{text_query}%'
+            parsed_query, query_params = parse_operators(text_query, 'full_text')
+            query += f" AND ({parsed_query})"
+            params.update(query_params)
 
         if url_query:
-            query += " AND url LIKE :url_query"
-            params['url_query'] = f'%{url_query}%'
+            parsed_query, query_params = parse_operators(url_query, 'url')
+            query += f" AND ({parsed_query})"
+            params.update(query_params)
 
         if start_time:
             parsed_start = parse_input_date(start_time, is_end_date=False)
@@ -60,8 +60,9 @@ def get_search_results():
                 params['end_time'] = parsed_end
 
         if html_query:
-            query += " AND html LIKE :html_query"
-            params['html_query'] = f'%{html_query}%'
+            parsed_query, query_params = parse_operators(html_query, 'html')
+            query += f" AND ({parsed_query})"
+            params.update(query_params)
 
         query += " ORDER BY time DESC"
 
@@ -83,6 +84,44 @@ def get_search_results():
     except Exception as e:
         logger.error("Error when searching: %s", e)
         return jsonify({"status": "error", "message": str(e)}), 500
+
+def parse_operators(query, column):
+    """
+    Parses operators #AND#, #OR# and #NOT# in full text, URL
+    and HTML queries. #ESC# enables escaping % and _. Also uses
+    special query #NOTEXT# for articles without full text.
+    """
+    parts = re.split(r'(#AND#|#OR#|#NOT#)', query)
+    sql_parts = []
+    query_params = {}
+    negate_next = False
+    for i, part in enumerate(parts):
+        if part == "#AND#":
+            sql_parts.append('AND')
+        elif part == "#OR#":
+            sql_parts.append('OR')
+        elif part == "#NOT#":
+            negate_next = True
+        else:
+            part = part.strip()
+            if part:
+                if part == "#NOTEXT#":
+                    condition = f"({column} IS NULL OR {column} = '')"
+                else:
+                    param_name = f'{column}_query_{i}'
+                    if '#ESC#' in part:
+                        condition = f"{column} LIKE :{param_name} ESCAPE '\\'"
+                        esc_part = part.replace('#ESC#%', r'\%').replace('#ESC#_', r'\_')
+                    else:
+                        condition = f"{column} LIKE :{param_name}"
+                        esc_part = part
+                    query_params[param_name] = f'%{esc_part}%'
+                if negate_next:
+                    sql_parts.append(f"NOT ({condition})")
+                    negate_next = False
+                else:
+                    sql_parts.append(condition)
+    return ' '.join(sql_parts) if sql_parts else "1=1", query_params
 
 def parse_input_date(date_string, is_end_date=False):
     """

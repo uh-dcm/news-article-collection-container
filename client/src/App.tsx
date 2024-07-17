@@ -509,14 +509,14 @@ export default function App() {
 
                 <Card className="lg:col-span-2 lg:row-span-2">
                   <CardHeader className="relative">
-                      <div className="absolute top-4 right-4 flex flex-col items-end text-sm text-muted-foreground">
-                          <span className={isFetching ? 'text-black' : 'text-muted-foreground'}>
-                            {isFetching ? 'Fetching' : 'Not Fetching'}
-                          </span>
-                          <span className={isProcessing ? 'text-black' : 'text-muted-foreground'}>
-                            {isProcessing ? 'Processing' : 'Not Processing'}
-                          </span>
-                      </div>
+                    <div className="absolute top-4 right-4 flex flex-col items-end text-sm">
+                      <span className={`${isFetching ? 'text-primary' : 'text-muted-foreground'}`}>
+                        {isFetching ? 'Fetching' : 'Not Fetching'}
+                      </span>
+                      <span className={`${isProcessing ? 'text-primary' : 'text-muted-foreground'}`}>
+                        {isProcessing ? 'Processing' : 'Not Processing'}
+                      </span>
+                    </div>
                     <CardTitle className="text-lg">Fetcher</CardTitle>
                     <CardDescription>
                       Manage article fetching
