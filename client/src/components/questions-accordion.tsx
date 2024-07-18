@@ -78,16 +78,16 @@ export default function QuestionsAccordion() {
                 collected: full text, URL, time and HTML. Time is split into
                 start time and end time, with the formatting being
                 YYYY-MM-DD HH:MM:SS, and the input of partial values also
-                being possible. You can use the #AND#, #OR# and #NOT#
-                operators with the surrounding hashtags to refine your search,
-                for example: economy #AND# #NOT# inflation. You can do wildcard
+                being possible. You can use the AND, OR and NOT
+                boolean operators to refine your search, for example:
+                economy AND NOT inflation. You can do wildcard
                 searches with _ (matches any character) and % (matches any
                 sequence of 0+ characters). For example, you can search
                 specifically for Oulu by _ oulu. If you need to escape % and _,
-                you can use #ESC#. Additionally, sometimes the full texts
+                you can use ESC. Additionally, sometimes the full texts
                 of the articles aren't successfully collected, in which case
                 try to use the HTML data. You can specifically search for
-                those without full text with a special query: #NOTEXT#.
+                those without full text with a special query: NOTEXT.
               </li>
               <li>
                 You can download the gathered article data

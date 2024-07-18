@@ -87,31 +87,31 @@ def get_search_results():
 
 def parse_operators(query, column):
     """
-    Parses operators #AND#, #OR# and #NOT# in full text, URL
-    and HTML queries. #ESC# enables escaping % and _. Also uses
-    special query #NOTEXT# for articles without full text.
+    Parses operators AND, OR and NOT in full text, URL
+    and HTML queries. ESC enables escaping % and _. Also uses
+    special query NOTEXT for articles without full text.
     """
-    parts = re.split(r'(#AND#|#OR#|#NOT#)', query)
+    parts = re.split(r'\b(AND|OR|NOT)\b', query)
     sql_parts = []
     query_params = {}
     negate_next = False
     for i, part in enumerate(parts):
-        if part == "#AND#":
+        if part == "AND":
             sql_parts.append('AND')
-        elif part == "#OR#":
+        elif part == "OR":
             sql_parts.append('OR')
-        elif part == "#NOT#":
+        elif part == "NOT":
             negate_next = True
         else:
             part = part.strip()
             if part:
-                if part == "#NOTEXT#":
+                if part == "NOTEXT":
                     condition = f"({column} IS NULL OR {column} = '')"
                 else:
                     param_name = f'{column}_query_{i}'
-                    if '#ESC#' in part:
+                    if 'ESC' in part:
                         condition = f"{column} LIKE :{param_name} ESCAPE '\\'"
-                        esc_part = part.replace('#ESC#%', r'\%').replace('#ESC#_', r'\_')
+                        esc_part = part.replace('ESC%', r'\%').replace('ESC_', r'\_')
                     else:
                         condition = f"{column} LIKE :{param_name}"
                         esc_part = part
