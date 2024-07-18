@@ -28,6 +28,16 @@ run_vitests() {
     npm install
     npm test
     echo "Vitests done"
+}
+
+run_eslint() {
+    echo "Running ESLint check"
+    if npm run lint --silent; then
+        echo "ESLint: OK! No problem found."
+    else
+        echo "ESLint: Problems found!"
+    fi
+    echo "ESLint check done"
     cd ..
 }
 
@@ -49,6 +59,9 @@ run_pytests
 sleep 1
 
 run_vitests
+sleep 1
+
+run_eslint
 sleep 1
 
 run_cypress_tests
