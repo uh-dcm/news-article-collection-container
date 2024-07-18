@@ -6,6 +6,10 @@ interface LoginProps {
   onLoginSuccess: () => void;
 }
 
+interface LoginResponse {
+  access_token: string;
+}
+
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -13,7 +17,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await loginUser(password); // Ensure loginUser is typed to return the correct response
+      const response: LoginResponse | null = await loginUser(password);
       if (response && response.access_token) {
         localStorage.setItem('accessToken', response.access_token);
         onLoginSuccess();
@@ -22,7 +26,11 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         toast.error('Failed to login');
       }
     } catch (error: unknown) {
-      toast.error('Login failed: ' + error.message);
+      if (error instanceof Error) {
+        toast.error('Login failed: ' + error.message);
+      } else {
+        toast.error('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }

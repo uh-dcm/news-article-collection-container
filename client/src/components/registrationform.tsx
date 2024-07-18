@@ -22,7 +22,11 @@ const Register: React.FC<RegisterProps> = ({ onRegistrationSuccess }) => {
         toast.error('Failed to register');
       }
     } catch (error: unknown) {
-      toast.error('Registration failed: ' + error.message);
+      if (error instanceof Error) {
+        toast.error('Registration failed: ' + error.message);
+      } else {
+        toast.error('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
