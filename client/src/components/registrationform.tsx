@@ -21,7 +21,7 @@ const Register: React.FC<RegisterProps> = ({ onRegistrationSuccess }) => {
       } else {
         toast.error('Failed to register');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error('Registration failed: ' + error.message);
     } finally {
       setLoading(false);

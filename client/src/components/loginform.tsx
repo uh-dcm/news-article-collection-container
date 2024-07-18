@@ -21,7 +21,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       } else {
         toast.error('Failed to login');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error('Login failed: ' + error.message);
     } finally {
       setLoading(false);
