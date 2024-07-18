@@ -25,6 +25,8 @@ You can run the automated tests script at root with simply:
 
 - `$ npm test` (run Vitests)
 
+- `$ npm run lint` (run ESLint check, if no problems then ok)
+
 ### E2E tests (Cypress) <sup><sub>File location: /client/tests/e2e/</sub></sup>
 - Open a new CLI window next to the main testing window and in it:
   

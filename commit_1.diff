@@ -1,0 +1,31 @@
+diff --git a/runtests.sh b/runtests.sh
+index 6b46aec..87fc4c8 100755
+--- a/runtests.sh
++++ b/runtests.sh
+@@ -28,6 +28,16 @@ run_vitests() {
+     npm install
+     npm test
+     echo "Vitests done"
++}
++
++run_eslint() {
++    echo "Running ESLint check"
++    if npm run lint --silent; then
++        echo "ESLint: OK! No problem found."
++    else
++        echo "ESLint: Problems found!"
++    fi
++    echo "ESLint check done"
+     cd ..
+ }
+ 
+@@ -51,6 +61,9 @@ sleep 1
+ run_vitests
+ sleep 1
+ 
++run_eslint
++sleep 1
++
+ run_cypress_tests
+ 
+ echo "Tests ended"
