@@ -101,7 +101,7 @@ const handlers = [
     return new HttpResponse('data: {"is_active":false}\n\n', {
       headers: { 'Content-Type': 'text/event-stream' },
     });
-  })
+  }),
 ];
 
 const server = setupServer(...handlers);
@@ -140,6 +140,7 @@ beforeAll(async () => {
     onUnhandledRequest: 'warn',
   });
   // create a new user and login
+  // TODO / CAUTION: this will break!
   localStorage.setItem('accessToken', 'mock-access-token');
 });
 

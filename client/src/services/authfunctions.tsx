@@ -12,9 +12,10 @@ const checkUserExists = async () => {
   }
 };
 
-const registerUser = async (password: string) => {
+const registerUser = async (email: string, password: string) => {
   try {
     const response = await axios.post(`${serverUrl}/api/register`, {
+      email,
       password,
     });
     return response.data;

@@ -9,7 +9,7 @@ import {
 import {
   sendSearchQuery,
   sendStatisticsQuery,
-  SearchParams
+  SearchParams,
 } from './services/database_queries';
 
 import authClient from './services/authclient';
@@ -21,7 +21,7 @@ import {
   BarsArrowUpIcon,
   MagnifyingGlassIcon,
   ChartBarSquareIcon,
-  ChartPieIcon
+  ChartPieIcon,
 } from '@heroicons/react/24/solid';
 
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,9 @@ import { articleColumns, Article } from './components/ui/article-columns';
 import { feedColumns, Feed } from './components/ui/feed-columns';
 import InfoIcon from './components/ui/info-icon';
 import * as Tooltip from '@radix-ui/react-tooltip';
+
+import Register from './components/registrationform';
+import Login from './components/loginform';
 
 import {
   Card,
@@ -75,11 +78,7 @@ type ToastOptions = {
   error: (error: string) => string;
 };
 
-import {
-  registerUser,
-  getIsValidToken,
-  loginUser,
-} from './services/authfunctions';
+import { getIsValidToken } from './services/authfunctions';
 
 export default function App() {
   const [feedUrlList, setFeedUrlList] = useState<Feed[]>([]);
@@ -95,9 +94,13 @@ export default function App() {
   const [endTime, setEndTime] = useState('');
   const [htmlQuery, setHtmlQuery] = useState('');
   const [statisticData, setStatisticsData] = useState<DomainData[][]>([]);
-  const [filteredStatisticData, setFilteredStatisticsData] = useState<DomainData[][]>([]);
+  const [filteredStatisticData, setFilteredStatisticsData] = useState<
+    DomainData[][]
+  >([]);
   const [subDirectoryData, setSubDirectoryData] = useState<DomainData[]>([]);
-  const [filteredSubDirectoryData, setFilteredSubDirectoryData] = useState<DomainData[]>([]);
+  const [filteredSubDirectoryData, setFilteredSubDirectoryData] = useState<
+    DomainData[]
+  >([]);
   const [userExists, setUserExists] = useState(false);
   const [validToken, setValidToken] = useState(false);
 
@@ -126,11 +129,14 @@ export default function App() {
 
   const formSubDirectoryData = async (url: string, filtered: boolean) => {
     if (!filtered) {
-        await setSubDirectoryData(statisticData[1].filter(x => x.name.startsWith(url)))
-    }
-    else {
-        await setFilteredSubDirectoryData(filteredStatisticData[1].filter(x => x.name.startsWith(url)))
-        console.log(filteredSubDirectoryData)
+      await setSubDirectoryData(
+        statisticData[1].filter((x) => x.name.startsWith(url))
+      );
+    } else {
+      await setFilteredSubDirectoryData(
+        filteredStatisticData[1].filter((x) => x.name.startsWith(url))
+      );
+      console.log(filteredSubDirectoryData);
     }
   };
 
@@ -243,7 +249,10 @@ export default function App() {
     stopFetching();
   };
 
-  const handleArticleDownload = async (format: 'json' | 'csv' | 'parquet', isQuery: boolean = false) => {
+  const handleArticleDownload = async (
+    format: 'json' | 'csv' | 'parquet',
+    isQuery: boolean = false
+  ) => {
     toast.dismiss();
     setIsDisabled(true);
 
@@ -260,18 +269,20 @@ export default function App() {
 
     toast.promise(async () => {
       try {
-        const endpoint = isQuery ? '/api/articles/export_query' : '/api/articles/export';
-        const response = await authClient.get(
-          `${endpoint}?format=${format}`,
-          {
-            responseType: 'blob',
-          }
-        );
+        const endpoint = isQuery
+          ? '/api/articles/export_query'
+          : '/api/articles/export';
+        const response = await authClient.get(`${endpoint}?format=${format}`, {
+          responseType: 'blob',
+        });
 
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `articles${isQuery ? '_query' : ''}.${format}`);
+        link.setAttribute(
+          'download',
+          `articles${isQuery ? '_query' : ''}.${format}`
+        );
         document.body.appendChild(link);
         link.click();
 
@@ -298,7 +309,7 @@ export default function App() {
         urlQuery,
         startTime,
         endTime,
-        htmlQuery
+        htmlQuery,
       };
       const data = await sendSearchQuery(params);
       setSearchData(data);
@@ -408,58 +419,66 @@ export default function App() {
   // for now, only login with fixed pass shall be used
 
   if (!userExists) {
+    return <Register onRegistrationSuccess={() => setUserExists(true)} />;
     // register view
-    return (
-      <div
-        className="flex h-screen flex-col items-center justify-center"
-        data-testid="register-view"
-      >
-        <h1 className="text-3xl font-semibold">RSS Feed Reader</h1>
-        <p className="mt-4 text-lg">Please register to use the app.</p>
-        <Button
-          variant="outline"
-          className="mt-4"
-          onClick={async () => {
-            const response = await registerUser('testpassword');
-            if (response) {
-              setUserExists(true);
-            } else {
-              toast.error('Failed to register');
-            }
-          }}
-        >
-          Register
-        </Button>
-      </div>
-    );
+    // return (
+    //   <div
+    //     className="flex h-screen flex-col items-center justify-center"
+    //     data-testid="register-view"
+    //   >
+    //     <h1 className="text-3xl font-semibold">RSS Feed Reader</h1>
+    //     <p className="mt-4 text-lg">Please register to use the app.</p>
+    //     <Button
+    //       variant="outline"
+    //       className="mt-4"
+    //       onClick={async () => {
+    //         const response = await registerUser('testpassword');
+    //         if (response) {
+    //           setUserExists(true);
+    //         } else {
+    //           toast.error('Failed to register');
+    //         }
+    //       }}
+    //     >
+    //       Register
+    //     </Button>
+    //   </div>
+    // );
   }
 
   if (!validToken) {
     // login with password
     return (
-      <div
-        className="flex h-screen flex-col items-center justify-center"
-        data-testid="login-view"
-      >
-        <h1 className="text-3xl font-semibold">RSS Feed Reader</h1>
-        <p className="mt-4 text-lg">Please log in to use the app.</p>
-        <Button
-          variant="outline"
-          className="mt-4"
-          onClick={async () => {
-            const response = await loginUser('testpassword');
-            if (response.access_token) {
-              localStorage.setItem('accessToken', response.access_token);
-              setValidToken(true);
-            } else {
-              toast.error('Failed to login');
-            }
-          }}
-        >
-          Log in
-        </Button>
-      </div>
+      <Login
+        onLoginSuccess={async () => {
+          setValidToken(true);
+        }}
+      />
     );
+    // return (
+    //   <div
+    //     className="flex h-screen flex-col items-center justify-center"
+    //     data-testid="login-view"
+    //   >
+    //     <h1 className="text-3xl font-semibold">RSS Feed Reader</h1>
+    //     <p className="mt-4 text-lg">Please log in to use the app.</p>
+    //     <Button
+    //       variant="outline"
+    //       className="mt-4"
+    //       onClick={async () => {
+    //         const response = await loginUser('testpassword');
+    //         if (response.access_token) {
+    //           localStorage.setItem('accessToken', response.access_token);
+    //           setValidToken(true);
+    //         } else {
+    //           toast.error('Failed to login');
+    //         }
+    //       }}
+    //     >
+    //       Log in
+    //     </Button>
+    //   </div>
+    // );
   }
 
   return (
@@ -509,11 +528,15 @@ export default function App() {
 
                 <Card className="lg:col-span-2 lg:row-span-2">
                   <CardHeader className="relative">
-                    <div className="absolute top-4 right-4 flex flex-col items-end text-sm">
-                      <span className={`${isFetching ? 'text-primary' : 'text-muted-foreground'}`}>
+                    <div className="absolute right-4 top-4 flex flex-col items-end text-sm">
+                      <span
+                        className={`${isFetching ? 'text-primary' : 'text-muted-foreground'}`}
+                      >
                         {isFetching ? 'Fetching' : 'Not Fetching'}
                       </span>
-                      <span className={`${isProcessing ? 'text-primary' : 'text-muted-foreground'}`}>
+                      <span
+                        className={`${isProcessing ? 'text-primary' : 'text-muted-foreground'}`}
+                      >
                         {isProcessing ? 'Processing' : 'Not Processing'}
                       </span>
                     </div>
@@ -643,7 +666,9 @@ export default function App() {
                                 {' '}
                                 {statisticData.length === 0
                                   ? 0
-                                  : statisticData[0].map(x => x.count).reduce((s, c) => s + c, 0)}{' '}
+                                  : statisticData[0]
+                                      .map((x) => x.count)
+                                      .reduce((s, c) => s + c, 0)}{' '}
                                 articles collected from{' '}
                                 {statisticData.length === 0
                                   ? 0
@@ -656,17 +681,29 @@ export default function App() {
                               </DrawerTitle>
                               <DrawerDescription>
                                 {' '}
-                                Click on a domain to view the subdirectory distribution
+                                Click on a domain to view the subdirectory
+                                distribution
                               </DrawerDescription>
                             </DrawerHeader>
                             <div className="grid grid-cols-1 grid-cols-2 gap-4">
-                                <PieChart data={statisticData[0]} fnc={ formSubDirectoryData } filtered={false}></PieChart>
-                                <SubPieChart data={subDirectoryData}></SubPieChart>
+                              <PieChart
+                                data={statisticData[0]}
+                                fnc={formSubDirectoryData}
+                                filtered={false}
+                              ></PieChart>
+                              <SubPieChart
+                                data={subDirectoryData}
+                              ></SubPieChart>
                             </div>
                             <DrawerFooter>
                               <DrawerClose asChild>
-                                 <p className="text-center">
-                                  <Button className="sm:w-[20%]" variant="outline">Close</Button>
+                                <p className="text-center">
+                                  <Button
+                                    className="sm:w-[20%]"
+                                    variant="outline"
+                                  >
+                                    Close
+                                  </Button>
                                 </p>
                               </DrawerClose>
                             </DrawerFooter>
@@ -699,7 +736,7 @@ export default function App() {
                                 Number of articles collected per day
                               </DrawerDescription>
                             </DrawerHeader>
-                              <TimeSeries data={statisticData[2]}></TimeSeries>
+                            <TimeSeries data={statisticData[2]}></TimeSeries>
                             <DrawerFooter>
                               <DrawerClose asChild>
                                 <Button variant="outline">Close</Button>
@@ -719,7 +756,7 @@ export default function App() {
                       <CardDescription>
                         Query and export articles with matching data
                       </CardDescription>
-                      <div className="absolute top-4 right-4 flex items-center space-x-4">
+                      <div className="absolute right-4 top-4 flex items-center space-x-4">
                         <Button
                           variant="outline"
                           size="sm"
@@ -821,91 +858,107 @@ export default function App() {
                     </CardContent>
                     <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
                       <Drawer>
-                          <DrawerTrigger asChild>
-                            <Button
-                              variant="outline"
-                              onClick={() => handleFetchStatistics(true)}
-                              disabled={isDisabled}
-                              className="w-full p-6 text-base sm:w-[45%]"
-                            >
-                              <div className="flex justify-center">
-                                <ChartPieIcon className="mr-1.5 size-6"></ChartPieIcon>
-                                Domain distribution
-                              </div>
-                            </Button>
-                          </DrawerTrigger>
-                          <DrawerContent>
-                            <div className="mx-auto w-full max-w-full">
-                              <DrawerHeader>
-                                <DrawerTitle>
-                                  {' '}
-                                  {filteredStatisticData.length === 0
-                                    ? 0
-                                    : filteredStatisticData[0].map(x => x.count).reduce((s, c) => s + c, 0)}{' '}
-                                  articles collected from{' '}
-                                  {filteredStatisticData.length === 0
-                                    ? 0
-                                    : filteredStatisticData[0].length}{' '}
-                                  domain(s) and{' '}
-                                  {filteredStatisticData.length === 0
-                                    ? 0
-                                    : filteredStatisticData[1].length}{' '}   
-                                  subdirectories{' '}
-                                </DrawerTitle>
-                                <DrawerDescription>
-                                  {' '}
-                                  Click on a domain to view the subdirectory distribution
-                                </DrawerDescription>
-                              </DrawerHeader>
-                              <div className="grid grid-cols-1 grid-cols-2 gap-4">
-                                  <PieChart data={filteredStatisticData[0]} fnc={ formSubDirectoryData } filtered={true}></PieChart>
-                                  <SubPieChart data={filteredSubDirectoryData}></SubPieChart>
-                              </div>
-                              <DrawerFooter>
-                                <DrawerClose asChild>
-                                  <p className="text-center">
-                                    <Button className="sm:w-[20%]" variant="outline">Close</Button>
-                                  </p>
-                                </DrawerClose>
-                              </DrawerFooter>
+                        <DrawerTrigger asChild>
+                          <Button
+                            variant="outline"
+                            onClick={() => handleFetchStatistics(true)}
+                            disabled={isDisabled}
+                            className="w-full p-6 text-base sm:w-[45%]"
+                          >
+                            <div className="flex justify-center">
+                              <ChartPieIcon className="mr-1.5 size-6"></ChartPieIcon>
+                              Domain distribution
                             </div>
-                          </DrawerContent>
-                        </Drawer>
-                        <Drawer>
-                          <DrawerTrigger asChild>
-                            <Button
-                              variant="outline"
-                              onClick={() => handleFetchStatistics(true)}
-                              disabled={isDisabled}
-                              className="w-full p-6 text-base sm:w-[45%]"
-                            >
-                              <div className="flex justify-center">
-                                <ChartBarSquareIcon className="mr-1.5 size-6"></ChartBarSquareIcon>
-                                Time series
-                              </div>
-                            </Button>
-                          </DrawerTrigger>
-                          <DrawerContent>
-                            <div className="mx-auto w-full max-w-sm">
-                              <DrawerHeader>
-                                <DrawerTitle>
-                                  {' '}
-                                  Time series for collected articles
-                                </DrawerTitle>
-                                <DrawerDescription>
-                                  {' '}
-                                  Number of articles collected per day
-                                </DrawerDescription>
-                              </DrawerHeader>
-                                <TimeSeries data={filteredStatisticData[2]}></TimeSeries>
-                              <DrawerFooter>
-                                <DrawerClose asChild>
-                                  <Button variant="outline">Close</Button>
-                                </DrawerClose>
-                              </DrawerFooter>
+                          </Button>
+                        </DrawerTrigger>
+                        <DrawerContent>
+                          <div className="mx-auto w-full max-w-full">
+                            <DrawerHeader>
+                              <DrawerTitle>
+                                {' '}
+                                {filteredStatisticData.length === 0
+                                  ? 0
+                                  : filteredStatisticData[0]
+                                      .map((x) => x.count)
+                                      .reduce((s, c) => s + c, 0)}{' '}
+                                articles collected from{' '}
+                                {filteredStatisticData.length === 0
+                                  ? 0
+                                  : filteredStatisticData[0].length}{' '}
+                                domain(s) and{' '}
+                                {filteredStatisticData.length === 0
+                                  ? 0
+                                  : filteredStatisticData[1].length}{' '}
+                                subdirectories{' '}
+                              </DrawerTitle>
+                              <DrawerDescription>
+                                {' '}
+                                Click on a domain to view the subdirectory
+                                distribution
+                              </DrawerDescription>
+                            </DrawerHeader>
+                            <div className="grid grid-cols-1 grid-cols-2 gap-4">
+                              <PieChart
+                                data={filteredStatisticData[0]}
+                                fnc={formSubDirectoryData}
+                                filtered={true}
+                              ></PieChart>
+                              <SubPieChart
+                                data={filteredSubDirectoryData}
+                              ></SubPieChart>
                             </div>
-                          </DrawerContent>
-                        </Drawer>
+                            <DrawerFooter>
+                              <DrawerClose asChild>
+                                <p className="text-center">
+                                  <Button
+                                    className="sm:w-[20%]"
+                                    variant="outline"
+                                  >
+                                    Close
+                                  </Button>
+                                </p>
+                              </DrawerClose>
+                            </DrawerFooter>
+                          </div>
+                        </DrawerContent>
+                      </Drawer>
+                      <Drawer>
+                        <DrawerTrigger asChild>
+                          <Button
+                            variant="outline"
+                            onClick={() => handleFetchStatistics(true)}
+                            disabled={isDisabled}
+                            className="w-full p-6 text-base sm:w-[45%]"
+                          >
+                            <div className="flex justify-center">
+                              <ChartBarSquareIcon className="mr-1.5 size-6"></ChartBarSquareIcon>
+                              Time series
+                            </div>
+                          </Button>
+                        </DrawerTrigger>
+                        <DrawerContent>
+                          <div className="mx-auto w-full max-w-sm">
+                            <DrawerHeader>
+                              <DrawerTitle>
+                                {' '}
+                                Time series for collected articles
+                              </DrawerTitle>
+                              <DrawerDescription>
+                                {' '}
+                                Number of articles collected per day
+                              </DrawerDescription>
+                            </DrawerHeader>
+                            <TimeSeries
+                              data={filteredStatisticData[2]}
+                            ></TimeSeries>
+                            <DrawerFooter>
+                              <DrawerClose asChild>
+                                <Button variant="outline">Close</Button>
+                              </DrawerClose>
+                            </DrawerFooter>
+                          </div>
+                        </DrawerContent>
+                      </Drawer>
                     </CardContent>
                   </Card>
                 </motion.div>

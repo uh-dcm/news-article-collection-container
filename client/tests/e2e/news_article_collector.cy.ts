@@ -9,25 +9,32 @@ describe('News Article Collector App', () => {
     // First, handle registration if on the registration screen
     cy.get('body').then((body) => {
       if (body.find('button:contains("Register")').length > 0) {
-        // Assuming registration requires just a password for simplicity
+        // Write text to email input
+        cy.get('input[type="email"]').type('test.jest@gmail.com');
+        cy.get('input[type="password"]').type('cypresstestpassword42');
+
+        cy.wait(500);
+
+        // Click the register button
         cy.contains('Register').click();
 
-        // Assuming the user is redirected to a login page or needs to navigate there manually
         // Add a wait to allow any redirection or confirmation messages to process
         cy.wait(500);
       }
     });
 
+    cy.wait(200);
+
     // Next, handle login whether coming from the registration process or directly at login
     cy.get('body').then((body) => {
       if (body.find('button:contains("Log in")').length > 0) {
-        // Assume the login requires a password (same as registration for simplicity)
+        cy.get('input[type="password"]').type('cypresstestpassword42');
+
         cy.contains('Log in').click();
         cy.wait(500);
       }
     });
 
-    // Optionally wait for authentication to complete, e.g., checking for a logout button or specific authenticated page element
     cy.contains('Dashboard', { timeout: 10000 }).should('be.visible'); // Ensure logged in
   });
 
