@@ -3,7 +3,7 @@
 # We copy the client build to the server's 'static' folder to serve it
 
 # First stage is here to build the client
-FROM node:22-bookworm-slim AS build-stage
+FROM node:22.5.1-bookworm-slim AS build-stage
 
 # Define build arguments for environment variables
 ARG VITE_API_BASE_URL=" "
