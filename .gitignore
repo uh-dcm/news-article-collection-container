@@ -28,8 +28,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.diff
 downloads/
-screenshots/
+.coverage
+coverage/
+coverage-reports.html
 
 # Python cache
 __pycache__

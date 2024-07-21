@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run --coverage --coverage.reporter=text-summary --coverage.reporter=html --coverage.reporter=json",
     "test:watch": "vitest watch",
     "cypress": "cypress open",
     "cypress:run": "cypress run"
@@ -57,6 +57,7 @@
     "@typescript-eslint/eslint-plugin": "^7.12.0",
     "@typescript-eslint/parser": "^7.12.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "^2.0.3",
     "autoprefixer": "^10.4.19",
     "cypress": "^13.11.0",
     "eslint": "^8.57.0",

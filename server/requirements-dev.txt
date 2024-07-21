@@ -1,0 +1,4 @@
+# testing and linting
+pytest==8.2.2
+pytest-cov==5.0.0
+pylint==3.2.5

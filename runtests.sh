@@ -13,13 +13,19 @@ run_pytests() {
     echo "Setting up venv for Pytests"
     python3 -m venv venv
     source venv/bin/activate
-    pip install -r server/requirements.txt
+    pip install -r server/requirements.txt -r server/requirements-dev.txt
     echo "Running Pytests"
     cd server
-    pytest
+    pytest --cov=. --cov-report=term --cov-report=html:tests/coverage
     echo "Pytests done"
-    deactivate
     cd ..
+}
+
+run_pylint() {
+    echo "Running Pylint check"
+    pylint --recursive=y --fail-under=7 server
+    echo "Pylint check done"
+    deactivate
 }
 
 run_vitests() {
@@ -33,7 +39,7 @@ run_vitests() {
 run_eslint() {
     echo "Running ESLint check"
     if npm run lint --silent; then
-        echo "ESLint: OK! No problem found."
+        echo "ESLint: OK! Everything looks fine."
     else
         echo "ESLint: Problems found!"
     fi
@@ -50,12 +56,41 @@ run_cypress_tests() {
     echo "Cypress tests done"
     cd ..
     echo "Stopping container"
-    docker compose down
+    docker compose down --rmi all
+}
+
+
+generate_coverage_report_html() {
+    if [ ! -f "coverage-reports.html" ]; then
+        cat > coverage-reports.html << EOL
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Coverage Reports</h1>
+    <div class="report-link">
+        <img src="https://raw.githubusercontent.com/vitest-dev/vitest/main/docs/public/logo.svg" width="100" height="100">
+        <a href="client/tests/coverage/index.html">Vitest Coverage Report</a>
+    </div>
+    <br>
+    <div class="report-link">
+        <img src="https://raw.githubusercontent.com/pytest-dev/pytest/main/doc/en/img/pytest_logo_curves.svg" width="100" height="100">
+        <a href="server/tests/coverage/index.html">Pytest Coverage Report</a>
+    </div>
+</body>
+</html>
+EOL
+        echo "Generated coverage-reports.html. You can read the detailed coverage reports in it."
+    else
+        echo "You can read the detailed coverage reports in coverage-reports.html."
+    fi
 }
 
 echo "Starting tests"
 
 run_pytests
+sleep 1
+
+run_pylint
 sleep 1
 
 run_vitests
@@ -65,5 +100,8 @@ run_eslint
 sleep 1
 
 run_cypress_tests
+sleep 1
+
+generate_coverage_report_html
 
 echo "Tests ended"
