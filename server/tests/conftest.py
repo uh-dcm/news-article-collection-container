@@ -1,59 +1,56 @@
 """
 This sets configurations for test functions.
 """
+# pylint: disable=wrong-import-position,redefined-outer-name
 import os
 import sys
 import shutil
 import pytest
-
-# since conftest is run first, the following setups are to be run before app import
-
-@pytest.fixture(scope='session', autouse=True)
-def reset_flask_env():
-    """
-    Resets to original FLASK_ENV after tests.
-    """
-    original_flask_env = os.environ.get('FLASK_ENV')
-
-    yield
-
-    if original_flask_env is None:
-        os.environ.pop('FLASK_ENV', None)
-    else:
-        os.environ['FLASK_ENV'] = original_flask_env
-
-def setup_testing_environment():
-    """
-    Sets FLASK_ENV to testing.
-    """
-    os.environ['FLASK_ENV'] = 'testing'
-
-    if os.getenv('FLASK_ENV') != 'testing':
-        pytest.exit("FLASK_ENV is not set to 'testing'. Exiting test suite.")
-
-setup_testing_environment()
+from sqlalchemy.exc import SQLAlchemyError
 
 # this makes Pytest understand the working directory for the test imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # general, main part of configurations for tests begins here
-from app import app
-from db_config import engine as app_engine
-from scheduler_config import scheduler
+from app import create_app
+from configs.db_config import get_engine
+from configs.scheduler_config import shutdown_scheduler
 from tests.database_filler import fill_test_database
 
 @pytest.fixture(scope='module')
-def engine():
-    return app_engine
+def app():
+    """
+    Creates a new app instance for testing.
+    """
+    app = create_app(testing=True)
+    yield app
+    with app.app_context():
+        shutdown_scheduler()
+
+@pytest.fixture(scope='module')
+def client(app):
+    """
+    Creates a test client for the app.
+    """
+    return app.test_client()
+
+@pytest.fixture(scope='module')
+def engine(app):
+    """
+    Engine fixture. Used as a parameter.
+    """
+    with app.app_context():
+        engine = get_engine()
+        yield engine
+        engine.dispose()
 
 @pytest.fixture(scope='function')
-def client():
-    app.config['TESTING'] = True
-    with app.test_client() as client:  # pylint: disable=redefined-outer-name
-        yield client
-
-@pytest.fixture(scope='function')
-def setup_and_teardown(engine):  # pylint: disable=redefined-outer-name
+def setup_and_teardown(engine):
+    """
+    Files and database setup fixture.
+    Used as a pytest.mark.usefixtures above the tests.
+    Can also be used as a parameter, but Pylint notes of unused variable.
+    """
     base_dir = os.path.abspath('test-rss-fetcher')
     data_dir = os.path.join(base_dir, 'data')
 
@@ -68,17 +65,18 @@ def setup_and_teardown(engine):  # pylint: disable=redefined-outer-name
         f.write('print("Bla bla bla process script")')
 
     conn = engine.connect()
+    trans = conn.begin()
     fill_test_database(conn)
-
-    for job in scheduler.get_jobs():
-        scheduler.remove_job(job.id)
 
     yield conn
 
-    conn.close()
-    engine.dispose()
+    try:
+        trans.rollback()
+    except SQLAlchemyError:
+        pass
+    finally:
+        conn.close()
 
-    if scheduler.running:
-        scheduler.shutdown()
+    engine.dispose()
 
     shutil.rmtree(base_dir)

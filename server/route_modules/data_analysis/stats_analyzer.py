@@ -2,11 +2,11 @@
 This returns statistics about db articles. Called by app.py.
 """
 from flask import jsonify, request, current_app
-from sqlalchemy import text, inspect
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from db_config import engine
-from log_config import logger
+from configs.db_config import get_engine
+from utils.db_utils import check_articles_table
 
 def get_stats():
     """
@@ -14,14 +14,17 @@ def get_stats():
     Called by app.get_stats_route().
     """
     try:
-        inspector = inspect(engine)
-        if not inspector.has_table('articles'):
-            return jsonify({"status": "error", "message": "No articles found. Please fetch the articles first."}), 404
+        db_check_error = check_articles_table()
+        if db_check_error:
+            return db_check_error
 
         # denotes whether or not the the query should be done on filtered articles.
         filtered = request.args.get('filtered', 'false').lower() == 'true'
-        last_search_ids = current_app.last_search_ids if hasattr(current_app, 'last_search_ids') else None
-
+        last_search_ids = (
+            current_app.last_search_ids
+            if hasattr(current_app, 'last_search_ids')
+            else None
+        )
         # base query to be built upon
         base_query = "FROM articles"
 
@@ -60,7 +63,7 @@ def get_stats():
             ORDER BY time ASC
         """)
 
-        with engine.connect() as connection:
+        with get_engine().connect() as connection:
             domain_rows = connection.execute(domain_query).fetchall()
             subdir_rows = connection.execute(subdir_query).fetchall()
             dates_row = connection.execute(dates_query).fetchall()
@@ -71,8 +74,11 @@ def get_stats():
 
         return jsonify(domain_data, subdir_data, dates), 200
     except SQLAlchemyError as e:
-        logger.error("Database error when getting statistics: %s", e)
-        return jsonify({"status": "error", "message": f"Database error when getting statistics: {str(e)}"}), 500
+        current_app.logger.error("Database error when getting statistics: %s", e)
+        return jsonify({
+            "status": "error",
+            "message": f"Database error when getting statistics: {str(e)}"
+        }), 500
     except Exception as e:
-        logger.error("Error when getting statistics: %s", e)
+        current_app.logger.error("Error when getting statistics: %s", e)
         return jsonify({"status": "error", "message": str(e)}), 500

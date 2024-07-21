@@ -6,9 +6,15 @@ export_manager.py and app.py.
 Split into its own file for testing import purposes.
 """
 from sqlalchemy import create_engine
-from config import DATABASE_URL
+from flask import current_app
 
-engine = create_engine(DATABASE_URL, echo=False)
+def get_engine():
+    """
+    Returns the engine, and creates it if it doesn't exist.
+    """
+    if not hasattr(current_app, 'db_engine'):
+        current_app.db_engine = create_engine(current_app.config['DATABASE_URL'], echo=False)
+    return current_app.db_engine
 
 class ProcessingStatus:
     """

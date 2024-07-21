@@ -29,9 +29,10 @@ run_pylint() {
 }
 
 run_vitests() {
-    echo "Running Vitests"
+    echo "Setting up node_modules for Vitest"
     cd client
     npm install
+    echo "Running Vitests"
     npm test
     echo "Vitests done"
 }
@@ -88,19 +89,14 @@ EOL
 echo "Starting tests"
 
 run_pytests
-sleep 1
 
 run_pylint
-sleep 1
 
 run_vitests
-sleep 1
 
 run_eslint
-sleep 1
 
 run_cypress_tests
-sleep 1
 
 generate_coverage_report_html
 

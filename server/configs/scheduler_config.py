@@ -5,11 +5,19 @@ Split into its own file for testing import purposes.
 """
 from flask_apscheduler import APScheduler
 
-class Config:
-    SCHEDULER_API_ENABLED = True
-
 scheduler = APScheduler()
 
 def init_scheduler(app):
-    scheduler.init_app(app)
-    scheduler.start()
+    """
+    Scheduler init function.
+    """
+    if not scheduler.running:
+        scheduler.init_app(app)
+        scheduler.start()
+
+def shutdown_scheduler():
+    """
+    Scheduler shutdown function.
+    """
+    if scheduler.running:
+        scheduler.shutdown()
