@@ -1,4 +1,4 @@
-General project structure in Markdown. Date: July 8, 2024. Intermittently updated.
+General project structure in Markdown. Date: July 21, 2024. Intermittently updated.
 
 1. Directory structure
 
@@ -21,10 +21,15 @@ General project structure in Markdown. Date: July 8, 2024. Intermittently update
     └── 📁manifests
         └── 📁manifests_playground
     └── 📁server
-        └── 📁data_acquisition
-        └── 📁data_analysis
-        └── 📁data_export
+        └── 📁configs
+        └── 📁route_modules
+            └── 📁administration
+            └── 📁data_acquisition
+            └── 📁data_analysis
+            └── 📁data_export
         └── 📁tests
+            └── 📁test_route_modules
+        └── 📁utils
 ```
 
 ```
@@ -138,33 +143,43 @@ General project structure in Markdown. Date: July 8, 2024. Intermittently update
         └── pvc-prod.yaml
         └── service-route-prod.yaml
     └── 📁server
-        └── 📁data_acquisition
-            └── content_fetcher.py
-            └── feed_manager.py
-        └── 📁data_analysis
-            └── query_processor.py
-            └── stats_analyzer.py
-        └── 📁data_export
-            └── export_manager.py
-            └── format_converter.py
+        └── 📁configs
+            └── config.py
+            └── db_config.py
+            └── log_config.py
+            └── scheduler_config.py
+        └── 📁route_modules
+            └── 📁administration
+                └── log_operations.py
+                └── user_management.py
+            └── 📁data_acquisition
+                └── content_fetcher.py
+                └── feed_manager.py
+            └── 📁data_analysis
+                └── query_processor.py
+                └── stats_analyzer.py
+            └── 📁data_export
+                └── export_manager.py
+                └── format_converter.py
         └── 📁tests
+            └── 📁test_route_modules
+                └── test_content_fetcher.py
+                └── test_export_manager.py
+                └── test_feed_manager.py
+                └── test_format_converter.py
+                └── test_log_operations.py
+                └── test_query_processor.py
+                └── test_stats_analyzer.py
+                └── test_user_management.py
             └── conftest.py
             └── database_filler.py
             └── test_app.py
-            └── test_content_fetcher.py
-            └── test_export_manager.py
-            └── test_feed_manager.py
-            └── test_format_converter.py
-            └── test_query_processor.py
-            └── test_stats_analyzer.py
+            └── test_auth_utils.py
         └── Dockerfile
+        └── Dockerfile.dev
         └── app.py
-        └── config.py
-        └── db_config.py
-        └── log_config.py
         └── requirements.txt
-        └── scheduler_config.py
-        └── user_management.py
+        └── requirements-dev.txt
     └── .pylintrc
     └── Dockerfile
     └── LICENSE

@@ -3,12 +3,10 @@ This schedules fetching and manages collect.py and process.py. Called by app.py.
 """
 import os
 import subprocess
-from flask import jsonify
+from flask import jsonify, current_app
 
-from scheduler_config import scheduler
-from log_config import logger
-from config import FETCHER_FOLDER
-from db_config import ProcessingStatus
+from configs.scheduler_config import scheduler
+from configs.db_config import ProcessingStatus
 
 def start_fetch():
     """
@@ -55,11 +53,11 @@ def run_collect_and_process():
     The lock file is to make exporting wait. Called by start_fetch().
     """
     if ProcessingStatus.get_status():
-        logger.info("Processing is already active.")
+        current_app.logger.info("Processing is already active.")
         return
 
-    if not os.path.exists(f'./{FETCHER_FOLDER}/data/feeds.txt'):
-        logger.info("Fetch attempted without feeds")
+    if not os.path.exists(f'./{current_app.config['FETCHER_FOLDER']}/data/feeds.txt'):
+        current_app.logger.info("Fetch attempted without feeds")
         return
 
     try:
@@ -67,7 +65,7 @@ def run_collect_and_process():
         run_subprocess('collect.py')
         run_subprocess('process.py')
     except Exception as e:
-        logger.error("Error in run_collect_and_process: %s", e)
+        current_app.logger.error("Error in run_collect_and_process: %s", e)
     finally:
         ProcessingStatus.set_status(False)
 
@@ -75,8 +73,24 @@ def run_subprocess(script_name):
     """
     The actual, once repeated subprocess run with logging for run_collect_and_process().
     """
-    result = subprocess.run(['python3', script_name], cwd=f'./{FETCHER_FOLDER}', capture_output=True, check=True, text=True)
+    result = subprocess.run(
+        ['python3', script_name],
+        cwd=f'./{current_app.config['FETCHER_FOLDER']}',
+        capture_output=True,
+        check=True,
+        text=True
+    )
     if result.stdout:
-        logger.info("%s output:\n%s", script_name, result.stdout.strip(), extra={'script_name': script_name})
+        current_app.logger.info(
+            "%s output:\n%s",
+            script_name,
+            result.stdout.strip(),
+            extra={'script_name': script_name}
+        )
     if result.stderr:
-        logger.error("%s error:\n%s", script_name, result.stderr.strip(), extra={'script_name': script_name})
+        current_app.logger.error(
+            "%s error:\n%s",
+            script_name,
+            result.stderr.strip(),
+            extra={'script_name': script_name}
+        )

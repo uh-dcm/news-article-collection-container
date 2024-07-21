@@ -13,7 +13,7 @@ COPY . .
 RUN mkdir -p rss-fetcher/data && touch rss-fetcher/data/feeds.txt
 
 # Install dependencies of the flask backend, without caching them
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
 
 # Install dependencies of the rss-fetcher, without caching them
 RUN pip install --no-cache-dir -r rss-fetcher/requirements.txt
