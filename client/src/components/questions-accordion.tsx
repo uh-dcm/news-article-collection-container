@@ -83,8 +83,8 @@ export default function QuestionsAccordion() {
                 economy AND NOT inflation. You can do wildcard
                 searches with _ (matches any character) and % (matches any
                 sequence of 0+ characters). For example, you can search
-                specifically for Oulu by _ oulu. If you need to escape % and _,
-                you can use ESC. Additionally, sometimes the full texts
+                specifically for Oulu by _ oulu. You can escape % and _ with
+                ESC, like: ESC%. Additionally, sometimes the full texts
                 of the articles aren't successfully collected, in which case
                 try to use the HTML data. You can specifically search for
                 those without full text with a special query: NOTEXT.

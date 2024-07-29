@@ -39,15 +39,17 @@ export default function Logs() {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <Button
-        className="w-full text-sm font-medium text-gray-600 hover:text-gray-800"
-        onClick={handleToggleLogs}
-        variant="ghost"
-      >
-        {showLogs ? 'Hide Error Logs' : 'Show Error Logs'}
-      </Button>
+      <div className="flex justify-center">
+        <Button
+          className="px-4 py-2 text-sm font-medium text-gray-600"
+          onClick={handleToggleLogs}
+          variant="ghost"
+        >
+          {showLogs ? 'Hide Error Logs' : 'Show Error Logs'}
+        </Button>
+      </div>
       {showLogs && (
-        <Card className="mt-2 shadow-sm">
+        <Card className="mt-2 shadow-sm w-full">
           <CardContent className="p-2">
             <div className="max-h-60 overflow-y-auto text-xs">
               {logRecords.length > 0 ? (
