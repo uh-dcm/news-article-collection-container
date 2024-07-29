@@ -1,18 +1,39 @@
 """
-Utils related to db use.
+This handles resource management related utilities,
+namely engine and scheduler init, check and teardown.
 """
-from flask import jsonify
-from sqlalchemy import inspect
-from configs.db_config import get_engine
+from flask_apscheduler import APScheduler
+from sqlalchemy import create_engine, inspect
+from flask import jsonify, current_app
 
-# db and scheduler functions here in the next commit
+def init_scheduler(app, testing=False):
+    """Initializes and starts the application scheduler. Used by app.py."""
+    app.scheduler = APScheduler()
+    app.scheduler.init_app(app)
+    if not testing:
+        app.scheduler.start()
+
+def init_db_engine(app):
+    """Creates the database engine. Used by app.py."""
+    if not hasattr(app, 'db_engine'):
+        app.db_engine = create_engine(app.config['DATABASE_URL'], echo=False)
+
+def shutdown_scheduler(app):
+    """Shuts down scheduler. Used by app.py when teardown happens."""
+    if hasattr(app, 'scheduler') and app.scheduler.running:
+        app.scheduler.shutdown()
+
+def dispose_engine(app):
+    """Disposes of database engine. Used by app.py when teardown happens."""
+    if hasattr(app, 'db_engine'):
+        app.db_engine.dispose()
 
 def check_articles_table():
     """
     Checks if the articles table exists in the database.
     Used by query_processor.py, stats_analyzer.py and export_manager.py.
     """
-    inspector = inspect(get_engine())
+    inspector = inspect(current_app.db_engine)
     if not inspector.has_table('articles'):
         return jsonify({
             "status": "error",
