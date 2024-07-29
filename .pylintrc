@@ -1,9 +1,11 @@
+# placed at root so code editors can easily pick it up automatically
+
 [MASTER]
 # this makes Pylint understand the working directory
-# you may need to restart you editor with a fresh setup
-init-hook='import sys; sys.path.extend([".", "./server"])'
+# with a fresh setup, you may need to restart your code editor
+init-hook='import sys; sys.path.extend([".", "./server", "./server/src"])'
 
 [MESSAGES CONTROL]
-# broad exception isn't an issue, certainly not worthy of a yellow warning
+# broad exception isn't really an issue, certainly not worthy of a yellow warning
 # else-returns make the many possible returns easier to read
 disable=broad-exception-caught,no-else-return

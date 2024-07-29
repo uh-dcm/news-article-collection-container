@@ -4,9 +4,7 @@ This is filler for test databases.
 from sqlalchemy import text
 
 def fill_test_database(conn):
-    """
-    Fills test database with mock data.
-    """
+    """Fills test database with mock data."""
     conn.execute(text("""
         CREATE TABLE IF NOT EXISTS articles (
             id INTEGER PRIMARY KEY,

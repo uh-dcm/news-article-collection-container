@@ -52,12 +52,12 @@ jobs:
 
       - name: Lint the Python code
         run: |
-          pylint --recursive=y --fail-under=7 server
+          pylint --recursive=y --fail-under=7 server/src
 
       - name: Run Python tests
         run: |
           cd server
-          pytest --cov=.
+          pytest
 
       - name: Docker Compose
         run: docker compose up --build -d

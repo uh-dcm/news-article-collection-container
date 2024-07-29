@@ -22,20 +22,11 @@ services:
       - 5000:5000
     volumes:
       # bind mount everything for development
-      # TODO: it would be better to encapsulate all source code within its own folder
-      # so that bind mounting just source and not the data folder too.
-      # for backend, this would make fast loading possible without restarting the container
-      - ./server/app.py:/app/server/app.py
-      - ./server/data_acquisition:/app/server/data_acquisition
-      - ./server/data_analysis:/app/server/data_analysis
-      - ./server/data_export:/app/server/data_export
+      - ./server/src:/app/server/src
+      - ./server/static:/app/server/static
       - ./server/tests:/app/server/tests
-      - ./server/db_config.py:/app/server/db_config.py
-      - ./server/log_config.py:/app/server/log_config.py
-      - ./server/scheduler_config.py:/app/server/scheduler_config.py
-      - ./server/user_management.py:/app/server/user_management.py
-      - ./server/config.py:/app/server/config.py
       - ./server/requirements.txt:/app/server/requirements.txt
+      - ./server/requirements-dev.txt:/app/server/requirements-dev.txt
       - backend-data-folder:/app/server/rss-fetcher/data # persist data, TODO: think if necessary
     stdin_open: true # keep STDIN open even if not attached
     tty: true
