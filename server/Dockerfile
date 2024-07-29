@@ -25,4 +25,4 @@ ENV FLASK_ENV=development
 
 ENV FLASK_DEBUG=1
 
-CMD sh -c "python src/app.py --debug"
+CMD sh -c "python -m src.app --debug"
