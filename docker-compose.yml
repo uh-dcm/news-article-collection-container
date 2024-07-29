@@ -17,4 +17,4 @@ services:
     # Mount the local app.py (flask server) file to the container
     # Mount also the frontend js files
     volumes:
-      - ./server/app.py:/app/server/app.py
+      - ./server/src/app.py:/app/server/src/app.py

@@ -133,7 +133,7 @@ export function DataTable<TData, TValue>({
           </Button>
         )}
       </div>
-      {table.getColumn('full_text') && (
+      {table.getAllColumns().some(column => column.getCanFilter()) && (
         <div className={`flex items-center ${reducedSpacing ? 'py-2' : 'py-4'}`}>
           <Input
             placeholder="Quick filter visible results..."

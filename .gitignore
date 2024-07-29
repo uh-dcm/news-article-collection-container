@@ -29,13 +29,16 @@ dist-ssr
 *.sln
 *.sw?
 *.diff
-downloads/
-.coverage
-coverage/
-coverage-reports.html
 
 # Python cache
 __pycache__
+
+# Testing artifacts
+downloads/
+screenshots/
+coverage/
+.coverage
+coverage-reports.html
 
 # Project-specific
 **/articles.json

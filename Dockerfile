@@ -33,7 +33,7 @@ COPY --from=build-stage /app/client/dist /app/client/build
 WORKDIR /app
 
 # Copy backend files to container
-COPY server server
+COPY server /app/server
 
 # Clone another repository into a subdirectory of /server
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* \
@@ -56,4 +56,4 @@ EXPOSE 5000
 
 WORKDIR /app/server
 
-CMD ["python3", "-m", "app"]
+CMD ["python3", "-m", "src.app"]

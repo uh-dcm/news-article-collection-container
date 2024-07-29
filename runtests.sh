@@ -1,4 +1,7 @@
-# Place at project root, run there in terminal with: bash runtests.sh
+#!/bin/bash
+
+# Place at project root and run in terminal with "bash runtests.sh" or "./runtests.sh"
+# If "Permission denied", run "chmod +x runtests.sh" once
 
 # Things that may help in rare non-code related issues:
 # 1. npm depency discrepancy issue: 
@@ -16,14 +19,14 @@ run_pytests() {
     pip install -r server/requirements.txt -r server/requirements-dev.txt
     echo "Running Pytests"
     cd server
-    pytest --cov=. --cov-report=term --cov-report=html:tests/coverage
+    COVERAGE_FILE=tests/.coverage pytest
     echo "Pytests done"
     cd ..
 }
 
 run_pylint() {
     echo "Running Pylint check"
-    pylint --recursive=y --fail-under=7 server
+    pylint --recursive=y --fail-under=7 server/src
     echo "Pylint check done"
     deactivate
 }

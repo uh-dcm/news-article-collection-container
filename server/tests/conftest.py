@@ -1,57 +1,44 @@
 """
 This sets configurations for test functions.
 """
-# pylint: disable=wrong-import-position,redefined-outer-name
 import os
-import sys
 import shutil
 import pytest
 from sqlalchemy.exc import SQLAlchemyError
 
-# this makes Pytest understand the working directory for the test imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# general, main part of configurations for tests begins here
-from app import create_app
-from configs.db_config import get_engine
-from configs.scheduler_config import shutdown_scheduler
+from src.app import create_app
 from tests.database_filler import fill_test_database
 
-@pytest.fixture(scope='module')
-def app():
-    """
-    Creates a new app instance for testing.
-    """
-    app = create_app(testing=True)
-    yield app
-    with app.app_context():
-        shutdown_scheduler()
+@pytest.fixture(scope='module', name='app')
+def app_fixture():
+    """Creates a new app instance for testing. Used as a parameter."""
+    application = create_app(testing=True)
+    yield application
 
-@pytest.fixture(scope='module')
-def client(app):
-    """
-    Creates a test client for the app.
-    """
+@pytest.fixture(scope='module', name='client')
+def client_fixture(app):
+    """Creates a test client for the app. Used as a parameter."""
     return app.test_client()
 
-@pytest.fixture(scope='module')
-def engine(app):
-    """
-    Engine fixture. Used as a parameter.
-    """
+@pytest.fixture(scope='module', name='engine')
+def engine_fixture(app):
+    """Engine fixture. Used as a parameter."""
     with app.app_context():
-        engine = get_engine()
-        yield engine
-        engine.dispose()
+        yield app.db_engine
+
+@pytest.fixture(scope='module', name='app_config')
+def app_config_fixture(app):
+    """Config fixture. Used as a parameter."""
+    return app.config
 
 @pytest.fixture(scope='function')
-def setup_and_teardown(engine):
+def setup_and_teardown(engine, app_config):
     """
     Files and database setup fixture.
     Used as a pytest.mark.usefixtures above the tests.
     Can also be used as a parameter, but Pylint notes of unused variable.
     """
-    base_dir = os.path.abspath('test-rss-fetcher')
+    base_dir = app_config['FETCHER_FOLDER']
     data_dir = os.path.join(base_dir, 'data')
 
     os.makedirs(data_dir, exist_ok=True)
