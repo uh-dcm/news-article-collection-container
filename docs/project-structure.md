@@ -1,4 +1,4 @@
-General project structure in Markdown. Date: July 21, 2024. Intermittently updated.
+General project structure in Markdown. Date: July 29, 2024. Intermittently updated.
 
 1. Directory structure
 
@@ -21,15 +21,14 @@ General project structure in Markdown. Date: July 21, 2024. Intermittently updat
     └── 📁manifests
         └── 📁manifests_playground
     └── 📁server
-        └── 📁configs
-        └── 📁route_modules
-            └── 📁administration
-            └── 📁data_acquisition
-            └── 📁data_analysis
-            └── 📁data_export
+        └── 📁src
+            └── 📁route_modules
+                └── 📁administration
+                └── 📁data_acquisition
+                └── 📁data_analysis
+                └── 📁data_export
+            └── 📁utils
         └── 📁tests
-            └── 📁test_route_modules
-        └── 📁utils
 ```
 
 ```
@@ -75,8 +74,10 @@ General project structure in Markdown. Date: July 21, 2024. Intermittently updat
                     └── use-toast.ts
                 └── footer.tsx
                 └── header.tsx
+                └── loginform.tsx
                 └── logs.tsx
                 └── piechart.tsx
+                └── registrationform.tsx
                 └── questions-accordion.tsx
                 └── rss-input.tsx
                 └── timeseries.tsx
@@ -114,13 +115,13 @@ General project structure in Markdown. Date: July 21, 2024. Intermittently updat
         └── .eslintrc.json
         └── .prettierrc
         └── Dockerfile
-        └── README.md
         └── components.json
         └── cypress.config.ts
         └── index.html
         └── package-lock.json
         └── package.json
         └── postcss.config.js
+        └── README.md
         └── tailwind.config.ts
         └── tsconfig.json
         └── tsconfig.node.json
@@ -143,26 +144,31 @@ General project structure in Markdown. Date: July 21, 2024. Intermittently updat
         └── pvc-prod.yaml
         └── service-route-prod.yaml
     └── 📁server
-        └── 📁configs
+        └── 📁src
+            └── 📁views
+                └── 📁administration
+                    └── log_operations.py
+                    └── status_stream.py
+                    └── user_management.py
+                └── 📁data_acquisition
+                    └── content_fetcher.py
+                    └── feed_manager.py
+                └── 📁data_analysis
+                    └── query_processor.py
+                    └── stats_analyzer.py
+                └── 📁data_export
+                    └── export_manager.py
+                    └── format_converter.py
+            └── 📁utils
+                └── auth_utils.py
+                └── log_config.py
+                └── processing_status.py
+                └── resource_management.py
+            └── app.py
             └── config.py
-            └── db_config.py
-            └── log_config.py
-            └── scheduler_config.py
-        └── 📁route_modules
-            └── 📁administration
-                └── log_operations.py
-                └── user_management.py
-            └── 📁data_acquisition
-                └── content_fetcher.py
-                └── feed_manager.py
-            └── 📁data_analysis
-                └── query_processor.py
-                └── stats_analyzer.py
-            └── 📁data_export
-                └── export_manager.py
-                └── format_converter.py
+            └── routes.py
         └── 📁tests
-            └── 📁test_route_modules
+            └── 📁test_views
                 └── test_content_fetcher.py
                 └── test_export_manager.py
                 └── test_feed_manager.py
@@ -177,23 +183,24 @@ General project structure in Markdown. Date: July 21, 2024. Intermittently updat
             └── test_auth_utils.py
         └── Dockerfile
         └── Dockerfile.dev
-        └── app.py
+        └── pytest.ini
         └── requirements.txt
         └── requirements-dev.txt
     └── .pylintrc
-    └── Dockerfile
-    └── LICENSE
-    └── README.md
     └── docker-compose.dev.yml
     └── docker-compose.yml
+    └── Dockerfile
+    └── LICENSE
+    └── quicktest.sh
+    └── README.md
     └── runtests.sh
 ```
 
 ```
 └── 📁news-article-collection
-    └── README.md
     └── collect.py
     └── database.py
     └── process.py
+    └── README.md
     └── requirements.txt
 ```
