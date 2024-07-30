@@ -45,6 +45,7 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 
 import Register from './components/registrationform';
 import Login from './components/loginform';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Card,
@@ -126,6 +127,25 @@ export default function App() {
     };
     checkToken();
   }, []);
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    setValidToken(false);
+    toast.success('You have been logged out', {
+      duration: 3000,
+      position: 'top-center',
+      style: {
+        background: 'black',
+        color: 'white',
+      },
+      icon: '👋',
+    });
+    setTimeout(() => {
+      navigate('/login');
+    }, 300);
+  };
 
   const formSubDirectoryData = async (url: string, filtered: boolean) => {
     if (!filtered) {
@@ -483,14 +503,14 @@ export default function App() {
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <Tooltip.Provider delayDuration={300}>
+      <Tooltip.Provider>
         <motion.div
           className="flex min-h-screen flex-col"
           initial="hidden"
           animate="visible"
           variants={containerVariants}
         >
-          <Header />
+          <Header onLogout={handleLogout} />
           <motion.div
             className="mt-16 flex justify-center px-4 sm:px-6 lg:px-8"
             variants={itemVariants}

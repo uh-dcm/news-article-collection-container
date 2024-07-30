@@ -10,6 +10,8 @@ import '@testing-library/jest-dom';
 import { expect, test, vi, describe, beforeEach } from 'vitest';
 import { toast } from 'sonner';
 import { MockEventSource } from './setupTests';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 describe('App component', () => {
   beforeEach(async () => {
@@ -18,7 +20,13 @@ describe('App component', () => {
       (url: string | URL, eventSourceInitDict?: EventSourceInit) => 
         new MockEventSource(url, eventSourceInitDict)
     );
-    render(<App />);
+    render(
+      <Router>
+        <TooltipProvider>
+          <App />
+        </TooltipProvider>
+      </Router>
+    );
 
     await waitFor(() => {
       const registerView = screen.queryByTestId('register-view');
@@ -33,7 +41,7 @@ describe('App component', () => {
   });
 
   test('renders app component', async () => {
-    expect(screen.getByText(/News article collector/i)).toBeInTheDocument();
+    expect(screen.getByText(/News Article Collector/i)).toBeInTheDocument();
     expect(await screen.findByText(/Enter RSS feed URL/i)).toBeInTheDocument();
   });
 

@@ -1,5 +1,5 @@
 """
-This returns statistics about db articles. Called by app.py.
+This handles db articles statistics get route. Called by routes.py.
 """
 from flask import jsonify, request, current_app
 from sqlalchemy import text
@@ -9,8 +9,8 @@ from src.utils.resource_management import check_articles_table
 
 def get_stats():
     """
-    Returns various preselected stats about db articles. 
-    Called by app.get_stats_route().
+    Returns various preselected stats about db articles.
+    Called by routes.init_routes() for route /api/articles/statistics.
     """
     try:
         db_check_error = check_articles_table()

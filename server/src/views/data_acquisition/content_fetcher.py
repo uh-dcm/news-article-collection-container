@@ -1,5 +1,6 @@
 """
-This schedules fetching and manages collect.py and process.py. Called by app.py.
+This handles fetching routes, schedules fetching and
+manages collect.py and process.py. Called by routes.py.
 """
 import os
 import subprocess
@@ -10,7 +11,7 @@ from src.utils.processing_status import ProcessingStatus
 def start_fetch():
     """
     Schedules the fetching job to run at five minute intervals, starting now.
-    Uses run_collect_and_process(). Called by app.start_fetch_route().
+    Uses run_collect_and_process(). Called by routes.init_routes() for route /api/start.
     """
     if not current_app.scheduler.get_job('collect_and_process'):
         current_app.scheduler.add_job(
@@ -28,7 +29,7 @@ def start_fetch():
 def stop_fetch():
     """
     Asks scheduler if the job exists, and if it does, tells it to end it.
-    Called by app.stop_fetch_route().
+    Called by  Called by routes.init_routes() for route /api/stop.
     """
     if current_app.scheduler.get_job('collect_and_process'):
         current_app.scheduler.remove_job('collect_and_process')
@@ -38,7 +39,8 @@ def stop_fetch():
 
 def get_fetch_status():
     """
-    Asks scheduler the status of the job. Called by app.fetch_status_route().
+    Asks scheduler the status of the job.
+    Called by routes.init_routes() for route /api/status.
     """
     if current_app.scheduler.get_job('collect_and_process'):
         return jsonify({"status": "running"}), 200

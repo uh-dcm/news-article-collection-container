@@ -3,6 +3,7 @@ Sets basic or testing config for the app.
 """
 # pylint: disable=invalid-name
 import os
+from datetime import timedelta
 from dataclasses import dataclass
 
 @dataclass
@@ -15,6 +16,7 @@ class Config:
     JWT_SECRET_KEY: str = os.environ.get(
         'JWT_SECRET_KEY', "your_secret_key_here_change_this"
     )  # TODO: change this
+    JWT_ACCESS_TOKEN_EXPIRES: timedelta = timedelta(minutes=60)
 
 @dataclass
 class TestConfig(Config):

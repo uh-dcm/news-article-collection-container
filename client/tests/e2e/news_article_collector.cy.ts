@@ -45,7 +45,7 @@ describe('News Article Collector App', () => {
   it('should load the app', () => {
     cy.wait(1000);
 
-    cy.contains('News article collector', { timeout: 3000 }).should(
+    cy.contains('News Article Collector', { timeout: 3000 }).should(
       'be.visible'
     );
   });

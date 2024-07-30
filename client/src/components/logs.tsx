@@ -81,21 +81,21 @@ export default function Logs() {
                     </Button>
                   </AlertDialog.Trigger>
                   <AlertDialog.Portal>
-                    <AlertDialog.Overlay className="bg-black/50 fixed inset-0" />
-                    <AlertDialog.Content className="fixed top-1/2 left-1/2 max-h-[85vh] w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-white p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none">
-                      <AlertDialog.Title className="text-lg font-medium">Are you sure?</AlertDialog.Title>
-                      <AlertDialog.Description className="mt-2 mb-5 text-sm">
-                        This action cannot be undone. This will delete all the error logs.
-                      </AlertDialog.Description>
-                      <div className="flex justify-end gap-[15px]">
-                        <AlertDialog.Cancel asChild>
-                          <Button variant="outline">Cancel</Button>
-                        </AlertDialog.Cancel>
-                        <AlertDialog.Action asChild>
-                          <Button variant="destructive" onClick={handleClearLogs}>Clear Logs</Button>
-                        </AlertDialog.Action>
-                      </div>
-                    </AlertDialog.Content>
+                    <AlertDialog.Overlay className="bg-background/80 fixed inset-0" />
+                      <AlertDialog.Content className="fixed top-1/2 left-1/2 max-h-[85vh] w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-background p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none">
+                        <AlertDialog.Title className="text-lg font-medium text-foreground">Are you sure?</AlertDialog.Title>
+                        <AlertDialog.Description className="mt-2 mb-5 text-sm text-muted-foreground">
+                          This action cannot be undone. This will delete all the error logs.
+                        </AlertDialog.Description>
+                        <div className="flex justify-end gap-[15px]">
+                          <AlertDialog.Cancel asChild>
+                            <Button variant="outline">Cancel</Button>
+                          </AlertDialog.Cancel>
+                          <AlertDialog.Action asChild>
+                            <Button variant="destructive" onClick={handleClearLogs}>Clear Logs</Button>
+                          </AlertDialog.Action>
+                        </div>
+                      </AlertDialog.Content>
                   </AlertDialog.Portal>
                 </AlertDialog.Root>
               </div>

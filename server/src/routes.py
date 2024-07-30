@@ -1,5 +1,5 @@
 """
-This defines the routes used in app.py. The route functionalities are in /views/.
+This defines the routes used in app.py. The route functionalities are in src.views.
 """
 import os
 from flask import send_from_directory, jsonify
