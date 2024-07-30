@@ -34,6 +34,7 @@ interface DataTableProps<TData, TValue> {
   tableName: string;
   isLoading?: boolean;
   reducedSpacing?: boolean;
+  showGlobalFilter?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -43,6 +44,7 @@ export function DataTable<TData, TValue>({
   tableName,
   isLoading = false,
   reducedSpacing = false,
+  showGlobalFilter = true,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -133,7 +135,7 @@ export function DataTable<TData, TValue>({
           </Button>
         )}
       </div>
-      {table.getAllColumns().some(column => column.getCanFilter()) && (
+      {showGlobalFilter && table.getAllColumns().some(column => column.getCanFilter()) && (
         <div className={`flex items-center ${reducedSpacing ? 'py-2' : 'py-4'}`}>
           <Input
             placeholder="Quick filter visible results..."

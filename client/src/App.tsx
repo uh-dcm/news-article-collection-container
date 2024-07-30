@@ -542,6 +542,7 @@ export default function App() {
                       data={feedUrlList}
                       onDeleteSelected={deleteSelectedRows}
                       tableName={'List of RSS feeds'}
+                      showGlobalFilter={false}
                     />
                   </CardContent>
                 </Card>
@@ -839,6 +840,7 @@ export default function App() {
                         tableName={'Query results'}
                         isLoading={articlesLoading}
                         reducedSpacing={true}
+                        showGlobalFilter={true}
                       />
                     </CardContent>
                     <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
