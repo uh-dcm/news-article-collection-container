@@ -1,12 +1,21 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Header from '@/components/header';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 test('renders header component', () => {
-  render(<Header />);
+  const mockOnLogout = vi.fn();
+  render(
+    <Router>
+      <TooltipProvider>
+        <Header onLogout={mockOnLogout} />
+      </TooltipProvider>
+    </Router>
+  );
 
-  const heading = screen.getByText(/News article collector/i);
+  const heading = screen.getByText(/News Article Collector/i);
   expect(heading).toBeInTheDocument();
 
   const githubLink = screen.getByRole('link', { name: /GitHub repository/i });
