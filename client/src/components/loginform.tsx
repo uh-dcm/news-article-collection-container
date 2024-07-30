@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, KeyboardEvent  } from 'react';
 import { toast } from 'sonner';
 import { loginUser } from '../services/authfunctions';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -36,23 +38,34 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     }
   };
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleLogin();
+    }
+  };
+
   return (
     <div
       className="flex h-screen flex-col items-center justify-center"
       data-testid="login-view"
     >
-      <h1 className="text-3xl font-semibold">RSS Feed Reader</h1>
-      <p className="mt-4 text-lg">Please log in to use the app.</p>
-      <input
+      <h1 className="text-3xl font-semibold">News Article Collector</h1>
+      <p className="mt-4 text-lg">Please log in to use the app</p>
+      <Input
         type="password"
         placeholder="Enter your password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        className="mt-2"
+        onKeyDown={handleKeyDown}
+        className="mt-2 w-64 bg-background text-foreground border-input"
       />
-      <button className="mt-4" disabled={loading} onClick={handleLogin}>
+      <Button
+        className="mt-4"
+        disabled={loading}
+        onClick={handleLogin}
+      >
         {loading ? 'Logging in...' : 'Log in'}
-      </button>
+      </Button>
     </div>
   );
 };
