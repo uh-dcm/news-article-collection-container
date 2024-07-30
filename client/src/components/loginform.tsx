@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { loginUser } from '../services/authfunctions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -15,6 +16,7 @@ interface LoginResponse {
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     setLoading(true);
@@ -24,6 +26,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         localStorage.setItem('accessToken', response.access_token);
         onLoginSuccess();
         toast.success('Login successful!');
+        navigate('/');
       } else {
         toast.error('Failed to login');
       }
