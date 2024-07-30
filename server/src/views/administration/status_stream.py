@@ -1,5 +1,5 @@
 """
-Handles streaming processing status for frontend. Used by app.py.
+Handles streaming processing status route for frontend. Used by routes.py.
 """
 import time
 from flask import Response, stream_with_context
@@ -9,7 +9,7 @@ from src.utils.processing_status import ProcessingStatus
 def stream():
     """
     Processing status check stream, inactive when client not in use.
-    Used by app.stream_route().
+    Used by routes.init_routes() for route /stream.
     """
     def event_stream():
         last_status = None

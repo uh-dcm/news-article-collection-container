@@ -1,5 +1,5 @@
 """
-Handles register and login. Called by app.py.
+Handles register and login routes. Called by routes.py.
 """
 import os
 from flask import jsonify, request, current_app
@@ -14,7 +14,7 @@ def get_password_file_path():
     return os.path.join(current_app.config['FETCHER_FOLDER'], 'data', 'password.txt')
 
 def register():
-    """Register a new user. Called by app.register_route()."""
+    """Register a new user. Called by routes.init_routes() for route /api/register."""
     password_file_path = get_password_file_path()
 
     if current_app.config['TESTING']:
@@ -39,7 +39,7 @@ def register():
     return jsonify({"msg": "User created"}), 200
 
 def login():
-    """Login a user. Called by app.login_route()."""
+    """Login a user. Called by routes.init_routes() for route /api/login."""
     password_file_path = get_password_file_path()
 
     password = request.json.get('password', None)
@@ -60,6 +60,9 @@ def login():
     return jsonify(access_token=access_token), 200
 
 def get_user_exists():
-    """Check if the user exists. Called by app.get_user_exists_route()."""
+    """
+    Check if the user exists.
+    Called by routes.init_routes() for route /api/get_user_exists.
+    """
     password_file_path = get_password_file_path()
     return jsonify({"exists": os.path.exists(password_file_path)}), 200

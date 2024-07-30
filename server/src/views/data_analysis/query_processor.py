@@ -1,5 +1,5 @@
 """
-This searches db for specific queries. Called by app.py.
+This handles db articles query route. Called by routes.py.
 """
 from datetime import datetime, timedelta
 import re
@@ -12,7 +12,7 @@ from src.utils.resource_management import check_articles_table
 def get_search_results():
     """
     Searches db articles for a custom user query.
-    Called by app.get_search_results_route().
+    Called by routes.init_routes() for route /api/articles/search.
     """
     try:
         # check whether the table exists

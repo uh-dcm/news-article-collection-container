@@ -22,13 +22,14 @@ General project structure in Markdown. Date: July 29, 2024. Intermittently updat
         └── 📁manifests_playground
     └── 📁server
         └── 📁src
-            └── 📁route_modules
+            └── 📁views
                 └── 📁administration
                 └── 📁data_acquisition
                 └── 📁data_analysis
                 └── 📁data_export
             └── 📁utils
         └── 📁tests
+            └── 📁test_views
 ```
 
 ```

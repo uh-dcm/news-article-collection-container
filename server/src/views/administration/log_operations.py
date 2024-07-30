@@ -1,10 +1,12 @@
 """
-Handles log routes. Called by app.py.
+Handles log routes. Called by routes.py.
 """
 from flask import jsonify
 
 def get_error_logs(log_file_path):
-    """Returns jsonified error logs. Called by app.get_error_logs_route()."""
+    """
+    Returns jsonified error logs.
+    Called by routes.init_routes() for route /api/error_logs."""
     try:
         with open(log_file_path, 'r', encoding='utf-8') as log_file:
             log_records = log_file.read()
@@ -13,7 +15,10 @@ def get_error_logs(log_file_path):
         return jsonify({"error": "Failed to fetch logs", "details": str(e)}), 500
 
 def clear_error_logs(log_file_path):
-    """Clears error logs. Called by app.clear_error_logs_route()."""
+    """
+    Clears error logs.
+    Called by routes.init_routes() for route /api/clear_error_logs.
+    """
     try:
         with open(log_file_path, 'w', encoding='utf-8') as log_file:
             log_file.write('')

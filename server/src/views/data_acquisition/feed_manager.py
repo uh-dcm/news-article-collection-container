@@ -1,11 +1,14 @@
 """
-This handles get and set of feeds.txt. Called by app.py.
+This handles get and set routes of feeds.txt. Called by routes.py.
 """
 import os
 from flask import jsonify, request, current_app
 
 def get_feed_urls():
-    """Returns the URLs from feeds.txt. Called by app.get_feed_urls_route()."""
+    """
+    Returns the URLs from feeds.txt.
+    Called by routes.init_routes() for route /api/get_feed_urls.
+    """
     feed_file_path = os.path.join(current_app.config['FETCHER_FOLDER'], 'data', 'feeds.txt')
 
     feeds = []
@@ -20,7 +23,10 @@ def get_feed_urls():
     return jsonify(feeds), 200
 
 def set_feed_urls():
-    """Writes the URLs to feeds.txt. Called by app.set_feed_urls_route()."""
+    """
+    Writes the URLs to feeds.txt.
+    Called by routes.init_routes() for route /api/set_feed_urls.
+    """
     if not request.is_json:
         return jsonify({"status": "error", "message": "Invalid content type, expected JSON"}), 415
 

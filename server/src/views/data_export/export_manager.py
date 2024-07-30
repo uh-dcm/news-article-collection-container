@@ -1,5 +1,5 @@
 """
-This handles exporting files from db. Called by app.py.
+This handles db file export routes. Called by routes.py.
 """
 import os
 import time
@@ -14,7 +14,7 @@ from src.views.data_export.format_converter import convert_db_to_format
 def get_all_export():
     """
     Returns an export file of all of db articles via export_articles().
-    Called by app.get_all_export_route().
+    Called by routes.init_routes() for route /api/articles/export.
     """
     # wait for processing to finish
     while ProcessingStatus.get_status():
@@ -26,7 +26,7 @@ def get_all_export():
 def get_query_export():
     """
     Returns an export file of queried db articles via export_articles().
-    Called by app.get_query_export_route().
+    Called by routes.init_routes() for route /api/articles/export_query.
     """
     # wait for processing to finish if it were to coincide
     while ProcessingStatus.get_status():
