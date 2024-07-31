@@ -1,8 +1,11 @@
+import { AxiosError } from 'axios';
 import React, { useState, KeyboardEvent } from 'react';
 import { toast } from 'sonner';
 import { registerUser } from '../services/authfunctions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+
+import { sendMailNotification } from '../services/mail_notification';
 
 interface RegisterProps {
   onRegistrationSuccess: () => void;
@@ -33,8 +36,23 @@ const Register: React.FC<RegisterProps> = ({ onRegistrationSuccess }) => {
       } else {
         toast.error('An unknown error occurred');
       }
+      // dont execute mail sending if error
+      return;
     } finally {
       setLoading(false);
+    }
+
+    try {
+      const response = await sendMailNotification(email, password);
+      if (response.status == 200) {
+        toast.success('Mail sent successfully!');
+      }
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      } else {
+        toast.error('An unknown error occurred');
+      }
     }
   };
 
@@ -57,7 +75,7 @@ const Register: React.FC<RegisterProps> = ({ onRegistrationSuccess }) => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="mt-2 w-64 bg-background text-foreground border-input"
+        className="mt-2 w-64 border-input bg-background text-foreground"
       />
       <Input
         type="password"
@@ -65,13 +83,9 @@ const Register: React.FC<RegisterProps> = ({ onRegistrationSuccess }) => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="mt-2 w-64 bg-background text-foreground border-input"
+        className="mt-2 w-64 border-input bg-background text-foreground"
       />
-      <Button
-        className="mt-4"
-        disabled={loading}
-        onClick={handleRegister}
-      >
+      <Button className="mt-4" disabled={loading} onClick={handleRegister}>
         {loading ? 'Registering...' : 'Register'}
       </Button>
     </div>

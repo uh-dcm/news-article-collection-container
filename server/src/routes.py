@@ -8,6 +8,7 @@ from src.views.administration import user_management, log_operations, status_str
 from src.views.data_acquisition import feed_manager, content_fetcher
 from src.views.data_analysis import query_processor, stats_analyzer
 from src.views.data_export import export_manager
+from src.views import mail_dispatcher
 from src.utils.auth_utils import jwt_required_conditional
 
 def init_routes(app):
@@ -67,6 +68,12 @@ def init_routes(app):
         '/stream',
         'stream',
         status_stream.stream
+    )
+    app.add_url_rule(
+        '/api/mail_dispatcher',
+        'send_email',
+        mail_dispatcher.send_email,
+        methods=['POST']
     )
 
     # data routes
