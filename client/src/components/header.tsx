@@ -12,6 +12,7 @@ export default function Header({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="fixed left-0 right-0 top-0 z-10 w-full border-b bg-background/95 backdrop-blur-sm">
       <div className="flex items-center justify-between p-3">
+
         {/* logo and title */}
         <div className="flex items-center">
           <img
@@ -86,7 +87,7 @@ export default function Header({ onLogout }: { onLogout: () => void }) {
               <p>GitHub</p>
             </Tooltip.Content>
           </Tooltip.Root>
-          {/*dropdown gets it stuck, I wish there was a "disappear after x time"*/}
+          {/*dropdown gets tooltip stuck, I wish there was a "disappear after x time"*/}
           <Tooltip.Root>
             <Tooltip.Trigger asChild>
               <div className="relative inline-flex">

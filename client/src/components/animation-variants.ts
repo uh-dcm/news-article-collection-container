@@ -1,3 +1,4 @@
+{/* This is its own file because ESLint complained of them being in page-layout. */}
 export const containerVariants = {
   hidden: { opacity: 0 },
   visible: {

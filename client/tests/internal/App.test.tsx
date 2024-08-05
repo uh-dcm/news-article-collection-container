@@ -133,6 +133,11 @@ describe('App component', () => {
     const searchLink = screen.getByText(/Search/i);
     fireEvent.click(searchLink);
 
+    // fails without this wait
+    await waitFor(() => {
+      expect(screen.getByText(/Search articles/i)).toBeInTheDocument();
+    }, { timeout: 5000 });
+
     const searchInput = screen.getByPlaceholderText('Insert text query...');
     const searchButton = screen.getByRole('button', { name: /Search/i });
 

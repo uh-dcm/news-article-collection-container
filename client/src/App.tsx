@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import * as Tooltip from '@radix-ui/react-tooltip';
@@ -7,16 +7,16 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import { ThemeProvider } from './components/ui/theme-provider';
 import { checkUserExists, getIsValidToken } from './services/authfunctions';
 
-{/* main modules */}
+{/* main modules, with 4 dynamic imports */}
 import Header from './components/header';
 import Footer from './components/footer';
 import QuestionsAccordion from './components/questions-accordion';
 import Register from './features/user/Register';
 import Login from './features/user/Login';
-import Dashboard from './features/dashboard/Dashboard';
-import Search from './features/search/Search';
-import Statistics from './features/statistics/Statistics';
-import Errors from './features/errors/Errors';
+const Dashboard = lazy(() => import('./features/dashboard/Dashboard'));
+const Search = lazy(() => import('./features/search/Search'));
+const Statistics = lazy(() => import('./features/statistics/Statistics'));
+const Errors = lazy(() => import('./features/errors/Errors'));
 
 export default function App() {
   const [userExists, setUserExists] = useState<boolean | null>(null);
@@ -88,15 +88,17 @@ export default function App() {
         <div className="flex min-h-screen flex-col">
           {showHeaderAndQA && <Header onLogout={handleLogout} />}
           <main className="flex-grow">
-            <Routes>
-              <Route path="/register" element={<Register onRegistrationSuccess={() => { setUserExists(true); navigate('/login'); }} />} />
-              <Route path="/login" element={<Login onLoginSuccess={() => { setValidToken(true); navigate('/dashboard'); }} />} />
-              <Route path="/dashboard" element={validToken ? <Dashboard /> : <Navigate to="/login" replace />} />
-              <Route path="/search" element={validToken ? <Search /> : <Navigate to="/login" replace />} />
-              <Route path="/statistics" element={validToken ? <Statistics /> : <Navigate to="/login" replace />} />
-              <Route path="/errors" element={validToken ? <Errors /> : <Navigate to="/login" replace />} />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            </Routes>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                <Route path="/register" element={<Register onRegistrationSuccess={() => { setUserExists(true); navigate('/login'); }} />} />
+                <Route path="/login" element={<Login onLoginSuccess={() => { setValidToken(true); navigate('/dashboard'); }} />} />
+                <Route path="/dashboard" element={validToken ? <Dashboard /> : <Navigate to="/login" replace />} />
+                <Route path="/search" element={validToken ? <Search /> : <Navigate to="/login" replace />} />
+                <Route path="/statistics" element={validToken ? <Statistics /> : <Navigate to="/login" replace />} />
+                <Route path="/errors" element={validToken ? <Errors /> : <Navigate to="/login" replace />} />
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </Suspense>
           </main>
           {showHeaderAndQA && <QuestionsAccordion className="w-full max-w-5xl mx-auto px-4 mt-12 mb-20" />}
           <Footer />
