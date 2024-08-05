@@ -1,3 +1,7 @@
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,10 +13,6 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
 
 interface RssInputProps {
   handleFeedAdd: (event: { url: string }) => void;
@@ -55,6 +55,7 @@ export default function RssInput({
             if (isValidUrl(url)) handleFeedAdd({ url });
           });
         }
+        fileInput.value = '';
       };
       reader.readAsText(file);
     }
@@ -86,7 +87,7 @@ export default function RssInput({
   };
 
   return (
-    <div>
+    <div className="mb-8">
       <Label className="text-base">
         Enter RSS feed URL:
         <InfoIcon
@@ -118,19 +119,19 @@ export default function RssInput({
               </FormItem>
             )}
           />
-          <Button disabled={isUrlSetDisabled} type="submit">
-            Add to list
-          </Button>
+          <div className="flex items-center space-x-16">
+            <Button disabled={isUrlSetDisabled} type="submit">
+              Add to list
+            </Button>
 
-          <div className="w-[13.5rem]">
             <FormField
               control={form.control}
               name="file"
               render={() => (
                 <FormItem>
                   <FormControl>
-                    <div className="grid w-full max-w-sm items-center gap-1.5">
-                      <Label>
+                    <div className="flex items-center space-x-2">
+                      <Label className="whitespace-nowrap">
                         Text file
                         <InfoIcon
                           tooltipContent="You can also upload a text file containing RSS feed URLs, one per line."
@@ -140,7 +141,7 @@ export default function RssInput({
                       <Input
                         id="rssFileInput"
                         type="file"
-                        className="cursor-pointer"
+                        className="cursor-pointer w-56"
                       />
                     </div>
                   </FormControl>

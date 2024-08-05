@@ -138,7 +138,18 @@ describe('News Article Collector App', () => {
 
   // Parquet seems to require specific import reader.
 
-  it('should autofill search results with fetched articles', () => {
+  it('should go to search, click search and get fetched articles', () => {
+    cy.wait(1000);
+
+    cy.contains('Search', { timeout: 3000 }).click();
+
+    cy.wait(1000);
+
+    cy.get('button:contains("Search")')
+      .find('svg')
+      .should('have.class', 'mr-3 size-6')
+      .click({ force: true });
+
     cy.wait(1000);
 
     cy.document().then((doc) => {

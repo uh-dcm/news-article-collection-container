@@ -7,10 +7,17 @@ General project structure in Markdown. Date: July 29, 2024. Intermittently updat
     └── 📁.github
         └── 📁workflows
     └── 📁client
+        └── 📁public
+            └── 📁images
         └── 📁src
             └── 📁components
                 └── 📁ui
             └── 📁css
+            └── 📁features
+                └── 📁dashboard
+                └── 📁search
+                └── 📁statistics
+                └── 📁user
             └── 📁lib
             └── 📁services
         └── 📁tests
@@ -45,7 +52,11 @@ General project structure in Markdown. Date: July 29, 2024. Intermittently updat
             └── dev.yml
             └── main.yml
             └── playground.yml
+            └── release.yaml
     └── 📁client
+        └── 📁public
+            └── 📁images
+                └── logo.png
         └── 📁src
             └── 📁components
                 └── 📁ui
@@ -75,25 +86,39 @@ General project structure in Markdown. Date: July 29, 2024. Intermittently updat
                     └── use-toast.ts
                 └── footer.tsx
                 └── header.tsx
-                └── loginform.tsx
-                └── logs.tsx
-                └── piechart.tsx
-                └── registrationform.tsx
                 └── questions-accordion.tsx
-                └── rss-input.tsx
-                └── timeseries.tsx
             └── 📁css
                 └── index.css
+            └── 📁features
+                └── 📁dashboard
+                    └── Dashboard.tsx
+                    └── feed_urls.tsx
+                    └── fetching-news.tsx
+                    └── rss-input.tsx
+                └── 📁errors
+                    └── Errors.tsx
+                    └── log-records.tsx
+                    └── logs.tsx
+                └── 📁search
+                    └── Search.tsx
+                └── 📁statistics
+                    └── piechart.tsx
+                    └── statistics-drawers.tsx
+                    └── Statistics.tsx
+                    └── timeseries.tsx
+                └── 📁user
+                    └── Login.tsx
+                    └── mail_notification.tsx
+                    └── Register.tsx
             └── 📁lib
+                └── articleDownload.tsx
                 └── utils.ts
             └── 📁services
                 └── authclient.tsx
                 └── authfunctions.tsx
                 └── database_queries.tsx
-                └── feed_urls.tsx
-                └── fetching-news.tsx
-                └── log_records.tsx
             └── App.tsx
+            └── config.tsx
             └── main.tsx
             └── vite-env.d.ts
         └── 📁tests

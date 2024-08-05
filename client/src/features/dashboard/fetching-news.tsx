@@ -1,4 +1,4 @@
-import authClient from './authclient';
+import authClient from '@/services/authclient';
 
 const keepFetching = async () => {
   try {

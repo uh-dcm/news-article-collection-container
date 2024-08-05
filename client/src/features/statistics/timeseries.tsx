@@ -36,7 +36,6 @@ type DomainData = {
   count: number
 };
 
-
 const TimeSeries = ({data}: {data: DomainData[]}) => {
 
   const series = 
@@ -62,4 +61,4 @@ const TimeSeries = ({data}: {data: DomainData[]}) => {
     )
 }
 
-export default TimeSeries 
+export default TimeSeries

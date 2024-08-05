@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { getLogRecords, clearLogRecords } from '../services/log_records';
-import * as AlertDialog from '@radix-ui/react-alert-dialog';
+
+import { getLogRecords, clearLogRecords } from './log_records';
 
 export default function Logs() {
   const [logRecords, setLogRecords] = useState<string[]>([]);

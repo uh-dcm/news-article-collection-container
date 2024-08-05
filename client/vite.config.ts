@@ -29,10 +29,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'json'],
       reportsDirectory: './tests/coverage',
-      exclude: [
-        'node_modules/',
-        'tests/',
-      ],
+      include: ['src/**/*']
     },
   },
 });

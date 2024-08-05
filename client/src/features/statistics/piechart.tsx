@@ -1,12 +1,10 @@
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
   
-
 type DomainData = {
   name: string
   count: number
 };
-
 
 export const PieChart = ({data, fnc, filtered}: {data: DomainData[], fnc: (arg: string, f: boolean) => void, filtered: boolean}) => {
 

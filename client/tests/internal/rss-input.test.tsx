@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import RssInput from '@/components/rss-input';
+import RssInput from '@/features/dashboard/rss-input';
 import { expect, test, vi } from 'vitest';
 import * as Tooltip from '@radix-ui/react-tooltip';
 

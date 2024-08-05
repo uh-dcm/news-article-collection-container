@@ -1,5 +1,5 @@
 """
-Tests basic app.py route responses and functions.
+Tests basic index route responses and functions.
 """
 import os
 import shutil

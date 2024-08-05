@@ -8,8 +8,8 @@ from flask_jwt_extended import create_access_token
 
 def get_password_file_path():
     """
-    Shared file path get function for the actual route functions. Needs to be
-    a separate function so the folder isn't checked before it's created.
+    Shared file path get function for the actual route functions. It's a function
+    instead of a shared variable so the folder isn't checked before it's created.
     """
     return os.path.join(current_app.config['FETCHER_FOLDER'], 'data', 'password.txt')
 
