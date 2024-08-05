@@ -1,4 +1,4 @@
-import authClient from './authclient';
+import authClient from '@/services/authclient';
 
 const getAllFeedUrls = async () => {
   const response = await authClient.get('/api/get_feed_urls');

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { serverUrl } from '../config';
 import { toast } from 'sonner';
+import { serverUrl } from '../config';
 
 const authClient = axios.create({
   baseURL: `${serverUrl}`,
@@ -29,7 +29,7 @@ authClient.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('accessToken');
       toast.error('Your session has expired. Please log in again.', {
-        duration: 10000,
+        duration: 5000,
         position: 'top-center',
       });
     }

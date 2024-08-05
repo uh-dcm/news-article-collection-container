@@ -35,6 +35,7 @@ interface DataTableProps<TData, TValue> {
   isLoading?: boolean;
   reducedSpacing?: boolean;
   showGlobalFilter?: boolean;
+  onClear?: number;
 }
 
 export function DataTable<TData, TValue>({
@@ -45,6 +46,7 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   reducedSpacing = false,
   showGlobalFilter = true,
+  onClear,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -75,6 +77,12 @@ export function DataTable<TData, TValue>({
       },
     },
   });
+
+  React.useEffect(() => {
+    if (onClear !== undefined) {
+      table.toggleAllRowsExpanded(false);
+    }
+  }, [onClear, table]);
 
   const handleDeleteSelected = () => {
     if (onDeleteSelected) {

@@ -5,9 +5,13 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
-export default function QuestionsAccordion() {
+interface QuestionsAccordionProps {
+  className?: string;
+}
+
+export default function QuestionsAccordion({ className }: QuestionsAccordionProps) {
   return (
-    <div>
+    <div className={className}>
       <h2 className="scroll-m-20 border-b pb-2 text-2xl font-semibold tracking-tight first:mt-0">
         Q&A
       </h2>

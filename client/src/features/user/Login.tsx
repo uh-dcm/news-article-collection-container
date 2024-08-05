@@ -1,9 +1,8 @@
 import React, { useState, KeyboardEvent  } from 'react';
 import { toast } from 'sonner';
-import { loginUser } from '../services/authfunctions';
+import { loginUser } from '@/services/authfunctions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useNavigate } from 'react-router-dom';
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -16,7 +15,6 @@ interface LoginResponse {
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const navigate = useNavigate();
 
   const handleLogin = async () => {
     setLoading(true);
@@ -24,9 +22,8 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       const response: LoginResponse | null = await loginUser(password);
       if (response && response.access_token) {
         localStorage.setItem('accessToken', response.access_token);
-        onLoginSuccess();
         toast.success('Login successful!');
-        navigate('/');
+        onLoginSuccess();
       } else {
         toast.error('Failed to login');
       }
@@ -52,6 +49,11 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       className="flex h-screen flex-col items-center justify-center"
       data-testid="login-view"
     >
+      <img
+        src="/images/logo.png"
+        alt="News Article Collector Logo"
+        className="mb-8 w-24 h-24"
+      />
       <h1 className="text-3xl font-semibold">News Article Collector</h1>
       <p className="mt-4 text-lg">Please log in to use the app</p>
       <Input

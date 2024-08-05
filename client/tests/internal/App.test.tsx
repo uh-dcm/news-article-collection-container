@@ -45,6 +45,24 @@ describe('App component', () => {
     expect(await screen.findByText(/Enter RSS feed URL/i)).toBeInTheDocument();
   });
 
+  test('submits RSS feed URLs', async () => {
+    const toastSuccessSpy = vi.spyOn(toast, 'success');
+
+    const input = screen.getByPlaceholderText('RSS feed address here...');
+    fireEvent.change(input, { target: { value: 'https://blabla.com/feed' } });
+
+    const addToListButton = screen.getByText(/Add to list/i);
+    fireEvent.click(addToListButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('https://blabla.com/feed')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(toastSuccessSpy).toHaveBeenCalledWith('Feed list updated successfully!');
+    });
+  });
+
   test('starts RSS fetching', async () => {
     const activateFetchButton = await screen.findByText(
       /Activate RSS fetching/i
@@ -62,28 +80,6 @@ describe('App component', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Activate RSS fetching/i)).toBeInTheDocument();
-    });
-  });
-
-  test('submits RSS feed URLs', async () => {
-    const input = screen.getByPlaceholderText('RSS feed address here...');
-    fireEvent.change(input, { target: { value: 'https://blabla.com/feed' } });
-
-    const addToListButton = screen.getByText(/Add to list/i);
-    fireEvent.click(addToListButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('https://blabla.com/feed')).toBeInTheDocument();
-    });
-
-    await waitFor(() => {
-      expect(toast.promise).toHaveBeenCalledWith(
-        expect.any(Function),
-        expect.objectContaining({
-          loading: 'Submitting...',
-          success: expect.any(Function),
-        })
-      );
     });
   });
 
@@ -134,6 +130,9 @@ describe('App component', () => {
 
   // handler at setup is only using textQuery for now
   test('searches articles based on query', async () => {
+    const searchLink = screen.getByText(/Search/i);
+    fireEvent.click(searchLink);
+
     const searchInput = screen.getByPlaceholderText('Insert text query...');
     const searchButton = screen.getByRole('button', { name: /Search/i });
 
