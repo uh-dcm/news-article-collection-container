@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# This is a thorough tests run script that also installs the dependencies
 # Place at project root and run in terminal with "bash runtests.sh" or "./runtests.sh"
 # If "Permission denied", run "chmod +x runtests.sh" once
 

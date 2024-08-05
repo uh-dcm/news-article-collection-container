@@ -3,7 +3,7 @@
 ## Test script
 
 You can run the automated tests script at project root in a terminal with simply:
-`bash runtests.sh`
+`bash runtests.sh`. You can view the coverages via the coverage-reports.html generated in the root.
 
 After running it and installing the dependencies, you can run the frontend and backend tests alone and much more quickly with `bash quicktest.sh`.
 

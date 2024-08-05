@@ -19,6 +19,6 @@ class ProcessingStatus:
     def get_status(cls):
         """
         Gets processing status. Used by content_fetcher.py,
-        export_manager.py and app.py.
+        export_manager.py and status_stream.py.
         """
         return cls._status

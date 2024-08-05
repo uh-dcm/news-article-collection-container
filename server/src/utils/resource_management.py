@@ -1,6 +1,5 @@
 """
-This handles resource management related utilities,
-namely engine and scheduler init, check and teardown.
+This handles resource management related utilities, related to db and scheduling.
 """
 from flask_apscheduler import APScheduler
 from sqlalchemy import create_engine, inspect
