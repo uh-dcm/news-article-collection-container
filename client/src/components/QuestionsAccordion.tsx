@@ -5,6 +5,8 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
+const version = import.meta.env.VITE_RELEASE_VERSION || 'development';
+
 interface QuestionsAccordionProps {
   className?: string;
 }
@@ -49,6 +51,9 @@ export default function QuestionsAccordion({
               Parquet
             </a>{' '}
             file.
+            <p className="mt-2">
+              Current version: {version}
+            </p>
           </AccordionContent>
         </AccordionItem>
 
