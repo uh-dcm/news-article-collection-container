@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -115,7 +116,9 @@ export const articleColumns: ColumnDef<Article>[] = [
       const isExpanded = row.getIsExpanded();
 
       if (!text) {
-        return <div className="italic text-gray-500">No full text available.</div>;
+        return (
+          <div className="italic text-gray-500">No full text available.</div>
+        );
       }
 
       const truncatedText = text.slice(0, 50) + (text.length > 50 ? '...' : '');
@@ -124,16 +127,17 @@ export const articleColumns: ColumnDef<Article>[] = [
         <div className="max-w-2xl">
           {isExpanded ? (
             <div className="flex flex-col">
-              <div className="max-h-96 overflow-y-auto">
+              <ScrollArea className="h-[300px] rounded-md border p-2">
                 {text.split('\n').map((paragraph, index) => (
                   <p key={index} className="mb-2">
                     <HighlightedText text={paragraph} highlight={searchTerm} />
                   </p>
                 ))}
-              </div>
+              </ScrollArea>
+
               <button
                 onClick={() => row.toggleExpanded()}
-                className="mt-2 self-start cursor-pointer text-blue-500 hover:underline"
+                className="mt-2 cursor-pointer self-start text-blue-500 hover:underline"
               >
                 Show less
               </button>

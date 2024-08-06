@@ -2,29 +2,45 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
-{/* custom ui */}
+{
+  /* custom ui */
+}
 import { PageLayout } from '@/components/page-layout';
 import { itemVariants } from '@/components/animation-variants';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { BarsArrowUpIcon, BarsArrowDownIcon, ArrowDownTrayIcon } from '@heroicons/react/24/solid';
+import { ArrowDownTrayIcon } from '@heroicons/react/24/solid';
 import InfoIcon from '@/components/ui/info-icon';
+import { Switch } from '@/components/ui/switch';
 
-{/* feeds and fetching */}
+{
+  /* feeds and fetching */
+}
 import RssInput from './rss-input';
 import { DataTable } from '@/components/ui/data-table';
 import { feedColumns, Feed } from '@/components/ui/feed-columns';
 import { getAllFeedUrls, sendAllFeedUrls } from './feed-urls';
 import { getFetchingStatus, keepFetching, stopFetching } from './fetching-news';
 
-{/* statistics */}
+{
+  /* statistics */
+}
 import { sendStatisticsQuery } from '@/services/database-queries';
 import StatisticsDrawers from '@/features/statistics/statistics-drawers';
 import { DomainData } from '@/components/ui/drawer';
 
-{/* download function */}
+{
+  /* download function */
+}
 import { handleArticleDownload } from '@/services/article-download';
+import { Label } from '@/components/ui/label';
 
 export default function Dashboard() {
   const [feedUrlList, setFeedUrlList] = useState<Feed[]>([]);
@@ -36,12 +52,16 @@ export default function Dashboard() {
   const [subDirectoryData, setSubDirectoryData] = useState<DomainData[]>([]);
   const [isStatisticsDisabled, setIsStatisticsDisabled] = useState(false);
 
-  {/* Feed check at start from backend */}
+  {
+    /* Feed check at start from backend */
+  }
   useEffect(() => {
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
       if (typeof feedUrls === 'string') return;
-      const feedUrlObjArray = feedUrls.map((feedUrl: string) => ({ url: feedUrl.trim() }));
+      const feedUrlObjArray = feedUrls.map((feedUrl: string) => ({
+        url: feedUrl.trim(),
+      }));
       setFeedUrlList(feedUrlObjArray);
     };
 
@@ -56,7 +76,9 @@ export default function Dashboard() {
     checkFetchingStatus();
   }, []);
 
-  {/* Processing status stream */}
+  {
+    /* Processing status stream */
+  }
   useEffect(() => {
     const eventSource = new EventSource('/stream');
     eventSource.addEventListener('processing_status', (event) => {
@@ -65,7 +87,9 @@ export default function Dashboard() {
     return () => eventSource.close();
   }, []);
 
-  {/* Feed add triggered by "Add to list" */}
+  {
+    /* Feed add triggered by "Add to list" */
+  }
   const handleFeedAdd = (feed: Feed) => {
     setFeedUrlList((prevData) => {
       if (!prevData.find((f) => f.url === feed.url)) {
@@ -79,14 +103,16 @@ export default function Dashboard() {
     });
   };
 
-  {/* Feed submit triggered by above */}
+  {
+    /* Feed submit triggered by above */
+  }
   const handleSubmit = async (updatedFeeds: string[]) => {
     setIsUrlSetDisabled(true);
     try {
       const response = await sendAllFeedUrls(updatedFeeds);
       if (response.status === 200) {
-      toast.success('Feed list updated successfully!');
-      console.error('Successfully added feed to list');
+        toast.success('Feed list updated successfully!');
+        console.error('Successfully added feed to list');
       } else {
         throw new Error();
       }
@@ -116,7 +142,9 @@ export default function Dashboard() {
     stopFetching();
   };
 
-  {/* Feed deletion from list */}
+  {
+    /* Feed deletion from list */
+  }
   const deleteSelectedRows = (selectedRows: Feed[]) => {
     const updatedFeeds = feedUrlList
       .filter((item) => !selectedRows.includes(item))
@@ -126,7 +154,9 @@ export default function Dashboard() {
     handleSubmit(updatedFeeds);
   };
 
-  {/* Two const below are stats related */}
+  {
+    /* Two const below are stats related */
+  }
   const handleFetchStatistics = async () => {
     setIsStatisticsDisabled(true);
     try {
@@ -144,10 +174,16 @@ export default function Dashboard() {
     setSubDirectoryData(statisticData[1].filter((x) => x.name.startsWith(url)));
   };
 
+  const handleSwitch = () => {
+    if (isFetching) {
+      handleFetchStop();
+    } else {
+      handleFetchStart();
+    }
+  };
 
   return (
     <PageLayout title="Dashboard">
-
       {/* Feed manager */}
       <motion.div variants={itemVariants}>
         <Card className="mt-6 lg:col-span-3 lg:row-span-3">
@@ -156,7 +192,10 @@ export default function Dashboard() {
             <CardDescription>Add or delete feeds</CardDescription>
           </CardHeader>
           <CardContent>
-            <RssInput handleFeedAdd={handleFeedAdd} isUrlSetDisabled={isUrlSetDisabled} />
+            <RssInput
+              handleFeedAdd={handleFeedAdd}
+              isUrlSetDisabled={isUrlSetDisabled}
+            />
             <DataTable
               columns={feedColumns}
               data={feedUrlList}
@@ -164,55 +203,38 @@ export default function Dashboard() {
               tableName={'List of RSS feeds'}
               showGlobalFilter={false}
             />
-          </CardContent>
-        </Card>
-      </motion.div>
+            <div className="flex">
+              <Card className="rounded-md">
+                <div className="flex items-center px-4 py-2">
+                  <Switch
+                    id="toggleFetching"
+                    data-testid="fetchToggle"
+                    checked={isFetching}
+                    onCheckedChange={handleSwitch}
+                    className="mr-2 data-[state=checked]:bg-green-500"
+                  />
+                  <Label htmlFor="toggleFetching">
+                    Toggle article fetching
+                  </Label>
+                  <InfoIcon
+                    tooltipContent="Collects new article data from feeds every 5 minutes."
+                    ariaLabel="Fetcher info"
+                  />
+                  <div className="mx-2 h-6 w-px bg-gray-200 dark:bg-gray-700" />
 
-      {/* Fetching manager */}
-      <motion.div variants={itemVariants}>
-        <Card className="mt-6 lg:col-span-2 lg:row-span-2">
-          <CardHeader className="relative">
-            <div className="absolute right-4 top-4 flex flex-col items-end text-sm">
-              <span className={isFetching ? 'text-primary' : 'text-muted-foreground'}>
-                {isFetching ? 'Fetching' : 'Not fetching'}
-              </span>
-              <span className={isProcessing ? 'text-primary' : 'text-muted-foreground'}>
-                {isProcessing ? 'Processing' : 'Not processing'}
-              </span>
+                  <div className="text-sm">
+                    <span
+                      className={
+                        isProcessing ? 'text-primary' : 'text-muted-foreground'
+                      }
+                    >
+                      <b>Processing status:</b>
+                      {isProcessing ? ' Processing' : ' Not processing'}
+                    </span>
+                  </div>
+                </div>
+              </Card>
             </div>
-            <CardTitle className="text-lg">Fetcher</CardTitle>
-            <CardDescription>
-              Manage article fetching
-              <InfoIcon
-                tooltipContent="Collects new article data from feeds every 5 minutes."
-                ariaLabel="Fetcher info"
-              />
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Separator />
-            <Button
-              variant="outline"
-              className="mt-10 w-full p-6 text-base"
-              onClick={handleFetchStart}
-              disabled={isFetching}
-            >
-              <div className="flex justify-center">
-                <BarsArrowUpIcon className="mr-3 size-6" />
-                Activate RSS fetching
-              </div>
-            </Button>
-            <Button
-              variant="outline"
-              className="mt-4 w-full p-6 text-base"
-              onClick={handleFetchStop}
-              disabled={!isFetching}
-            >
-              <div className="flex justify-center">
-                <BarsArrowDownIcon className="mr-3 size-6" />
-                Disable RSS fetching
-              </div>
-            </Button>
           </CardContent>
         </Card>
       </motion.div>
@@ -224,24 +246,33 @@ export default function Dashboard() {
             <CardTitle className="text-lg">Export</CardTitle>
             <CardDescription>
               Download all article data in JSON, CSV or Parquet
-              <InfoIcon tooltipContent="See Q&A below for more info." ariaLabel="Download info" />
+              <InfoIcon
+                tooltipContent="See Q&A below for more info."
+                ariaLabel="Download info"
+              />
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-              {['JSON', 'CSV', 'Parquet'].map((format) => (
-                  <Button
-                  key={format.toLowerCase()}
-                  variant="outline"
-                  onClick={() => handleArticleDownload(format.toLowerCase() as 'json' | 'csv' | 'parquet', false, setIsDisabled)}
-                  disabled={isDisabled}
-                  className="w-full p-6 text-base sm:w-[30%]"
-                  >
-                  <div className="flex justify-center">
-                      <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                      {format}
-                  </div>
-                  </Button>
-              ))}
+            {['JSON', 'CSV', 'Parquet'].map((format) => (
+              <Button
+                key={format.toLowerCase()}
+                variant="outline"
+                onClick={() =>
+                  handleArticleDownload(
+                    format.toLowerCase() as 'json' | 'csv' | 'parquet',
+                    false,
+                    setIsDisabled
+                  )
+                }
+                disabled={isDisabled}
+                className="w-full p-6 text-base sm:w-[30%]"
+              >
+                <div className="flex justify-center">
+                  <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                  {format}
+                </div>
+              </Button>
+            ))}
           </CardContent>
         </Card>
       </motion.div>
@@ -251,7 +282,9 @@ export default function Dashboard() {
         <Card className="mt-6">
           <CardHeader>
             <CardTitle className="text-lg">Statistics</CardTitle>
-            <CardDescription>View summary statistics of all articles</CardDescription>
+            <CardDescription>
+              View summary statistics of all articles
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
             <StatisticsDrawers

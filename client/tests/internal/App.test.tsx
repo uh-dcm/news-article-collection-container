@@ -17,7 +17,7 @@ describe('App component', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     vi.spyOn(global, 'EventSource').mockImplementation(
-      (url: string | URL, eventSourceInitDict?: EventSourceInit) => 
+      (url: string | URL, eventSourceInitDict?: EventSourceInit) =>
         new MockEventSource(url, eventSourceInitDict)
     );
     render(
@@ -39,9 +39,12 @@ describe('App component', () => {
       expect(loginView).not.toBeInTheDocument();
     });
 
-    await waitFor(() => {
-      expect(screen.getByText(/Enter RSS feed URL/i)).toBeInTheDocument();
-    }, { timeout: 5000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/Enter RSS feed URL/i)).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
   });
 
   test('renders app component', async () => {
@@ -63,27 +66,28 @@ describe('App component', () => {
     });
 
     await waitFor(() => {
-      expect(toastSuccessSpy).toHaveBeenCalledWith('Feed list updated successfully!');
+      expect(toastSuccessSpy).toHaveBeenCalledWith(
+        'Feed list updated successfully!'
+      );
     });
   });
 
   test('starts RSS fetching', async () => {
-    const activateFetchButton = await screen.findByText(
-      /Activate RSS fetching/i
-    );
-    fireEvent.click(activateFetchButton);
+    const toggleFetchSwitch = await screen.getByTestId('fetchToggle');
+    fireEvent.click(toggleFetchSwitch);
 
     await waitFor(() => {
-      expect(screen.getByText(/Disable RSS fetching/i)).toBeInTheDocument();
+      expect(toggleFetchSwitch).toBeChecked;
     });
   });
 
   test('stops RSS fetching', async () => {
-    const disableFetchButton = await screen.findByText(/Disable RSS fetching/i);
-    fireEvent.click(disableFetchButton);
+    const toggleFetchSwitch = await screen.getByTestId('fetchToggle');
+
+    fireEvent.click(toggleFetchSwitch);
 
     await waitFor(() => {
-      expect(screen.getByText(/Activate RSS fetching/i)).toBeInTheDocument();
+      expect(!toggleFetchSwitch).toBeChecked;
     });
   });
 
@@ -138,9 +142,12 @@ describe('App component', () => {
     fireEvent.click(searchLink);
 
     // fails without this wait
-    await waitFor(() => {
-      expect(screen.getByText(/Search articles/i)).toBeInTheDocument();
-    }, { timeout: 5000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/Search articles/i)).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
 
     const searchInput = screen.getByPlaceholderText('Insert text query...');
     const searchButton = screen.getByRole('button', { name: /Submit search/i });

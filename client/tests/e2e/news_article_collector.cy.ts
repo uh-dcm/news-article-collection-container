@@ -10,8 +10,8 @@ describe('News Article Collector App', () => {
     cy.get('body').then((body) => {
       if (body.find('button:contains("Register")').length > 0) {
         // Write text to email input
-        cy.get('input[type="email"]').type('test.jest@gmail.com');
-        cy.get('input[type="password"]').type('cypresstestpassword42');
+        cy.get('input[type="email"]').type('testi@testi.fi');
+        cy.get('input[type="password"]').type('testi');
 
         cy.wait(500);
 
@@ -28,7 +28,7 @@ describe('News Article Collector App', () => {
     // Next, handle login whether coming from the registration process or directly at login
     cy.get('body').then((body) => {
       if (body.find('button:contains("Log in")').length > 0) {
-        cy.get('input[type="password"]').type('cypresstestpassword42');
+        cy.get('input[type="password"]').type('testi');
 
         cy.contains('Log in').click();
         cy.wait(500);
@@ -76,7 +76,7 @@ describe('News Article Collector App', () => {
   it('should start RSS fetching', () => {
     cy.wait(1000);
 
-    cy.contains('Activate RSS fetching', { timeout: 3000 }).click({
+    cy.get('[id=toggleFetching]', { timeout: 3000 }).click({
       force: true,
     });
     cy.contains('RSS fetching in progress', { timeout: 3000 }).should(
