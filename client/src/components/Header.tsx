@@ -1,6 +1,4 @@
 import React from 'react';
-import { ExitIcon } from '@radix-ui/react-icons';
-import * as Tooltip from '@radix-ui/react-tooltip';
 import { Link, useLocation } from 'react-router-dom';
 import { ModeToggle } from './ui/mode-toggle';
 import { Button } from './ui/button';
@@ -25,7 +23,7 @@ export default function Header({ onLogout }: { onLogout: () => void }) {
         {/* navigation buttons */}
         <nav className="flex flex-grow items-center justify-end">
           {['Dashboard', 'Search', 'Statistics', 'Errors', 'Docs'].map(
-            (item, index) => {
+            (item) => {
               const path = `/${item.toLowerCase()}`;
               const isActive = location.pathname === path;
               return (
