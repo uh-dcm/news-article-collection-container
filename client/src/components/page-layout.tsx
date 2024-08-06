@@ -11,17 +11,20 @@ interface PageLayoutProps {
 
 export function PageLayout({ title, children }: PageLayoutProps) {
   return (
-    <motion.div 
-      className="w-full max-w-5xl mx-auto mt-16 px-4"
+    <motion.div
+      className="mx-auto mt-24 w-full max-w-5xl px-4"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      <motion.h1 className="mb-4 text-3xl font-semibold" variants={itemVariants}>{title}</motion.h1>
-      <Separator className="mb-6" />
-      <motion.div variants={itemVariants}>
-        {children}
-      </motion.div>
+      <motion.h1
+        className="mb-4 text-3xl font-semibold"
+        variants={itemVariants}
+      >
+        {title}
+      </motion.h1>
+      <Separator />
+      <motion.div variants={itemVariants}>{children}</motion.div>
     </motion.div>
   );
 }

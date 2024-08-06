@@ -1,22 +1,35 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import {
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom';
 import { toast } from 'sonner';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
-{/* theme and user validification */}
+{
+  /* theme and user validification */
+}
 import { ThemeProvider } from './components/ui/theme-provider';
 import { checkUserExists, getIsValidToken } from './services/authfunctions';
 
-{/* main modules, with 4 dynamic imports */}
+{
+  /* main modules, with 4 dynamic imports */
+}
 import Header from './components/Header';
 import Footer from './components/Footer';
-import QuestionsAccordion from './components/QuestionsAccordion';
+
 import Register from './features/user/Register';
 import Login from './features/user/Login';
 const Dashboard = lazy(() => import('./features/dashboard/Dashboard'));
 const Search = lazy(() => import('./features/search/Search'));
 const Statistics = lazy(() => import('./features/statistics/Statistics'));
 const Errors = lazy(() => import('./features/errors/Errors'));
+const Documentation = lazy(
+  () => import('./features/documentation/Documentation')
+);
 
 export default function App() {
   const [userExists, setUserExists] = useState<boolean | null>(null);
@@ -25,7 +38,9 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  {/* User and token check */}
+  {
+    /* User and token check */
+  }
   useEffect(() => {
     const checkInitialState = async () => {
       try {
@@ -54,18 +69,25 @@ export default function App() {
     checkInitialState();
   }, []);
 
-  {/* Initial navigation check */}
+  {
+    /* Initial navigation check */
+  }
   useEffect(() => {
     if (!isLoading) {
       if (userExists === false && location.pathname !== '/register') {
         navigate('/register');
-      } else if (validToken === false && !['/login', '/register'].includes(location.pathname)) {
+      } else if (
+        validToken === false &&
+        !['/login', '/register'].includes(location.pathname)
+      ) {
         navigate('/login');
       }
     }
   }, [userExists, validToken, isLoading, navigate, location.pathname]);
 
-  {/* Logout */}
+  {
+    /* Logout */
+  }
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     setValidToken(false);
@@ -78,7 +100,9 @@ export default function App() {
     navigate('/login');
   };
 
-  {/* don't show header and qa for login and register */}
+  {
+    /* don't show header and qa for login and register */
+  }
   const showHeaderAndQA = !['/login', '/register'].includes(location.pathname);
 
   if (isLoading) {
@@ -93,17 +117,77 @@ export default function App() {
           <main className="flex-grow">
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
-                <Route path="/register" element={<Register onRegistrationSuccess={() => { setUserExists(true); navigate('/login'); }} />} />
-                <Route path="/login" element={<Login onLoginSuccess={() => { setValidToken(true); navigate('/dashboard'); }} />} />
-                <Route path="/dashboard" element={validToken ? <Dashboard /> : <Navigate to="/login" replace />} />
-                <Route path="/search" element={validToken ? <Search /> : <Navigate to="/login" replace />} />
-                <Route path="/statistics" element={validToken ? <Statistics /> : <Navigate to="/login" replace />} />
-                <Route path="/errors" element={validToken ? <Errors /> : <Navigate to="/login" replace />} />
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route
+                  path="/register"
+                  element={
+                    <Register
+                      onRegistrationSuccess={() => {
+                        setUserExists(true);
+                        navigate('/login');
+                      }}
+                    />
+                  }
+                />
+                <Route
+                  path="/login"
+                  element={
+                    <Login
+                      onLoginSuccess={() => {
+                        setValidToken(true);
+                        navigate('/dashboard');
+                      }}
+                    />
+                  }
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    validToken ? (
+                      <Dashboard />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  }
+                />
+                <Route
+                  path="/search"
+                  element={
+                    validToken ? <Search /> : <Navigate to="/login" replace />
+                  }
+                />
+                <Route
+                  path="/statistics"
+                  element={
+                    validToken ? (
+                      <Statistics />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  }
+                />
+                <Route
+                  path="/errors"
+                  element={
+                    validToken ? <Errors /> : <Navigate to="/login" replace />
+                  }
+                />
+                <Route
+                  path="/docs"
+                  element={
+                    validToken ? (
+                      <Documentation />
+                    ) : (
+                      <Navigate to="/docs" replace />
+                    )
+                  }
+                />
+                <Route
+                  path="/"
+                  element={<Navigate to="/dashboard" replace />}
+                />
               </Routes>
             </Suspense>
           </main>
-          {showHeaderAndQA && <QuestionsAccordion className="w-full max-w-5xl mx-auto px-4 mt-12 mb-20" />}
           <Footer />
         </div>
       </Tooltip.Provider>
