@@ -10,10 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 {/* search, its results and download function */}
-import { sendSearchQuery, SearchParams } from '@/services/database_queries';
+import { sendSearchQuery, SearchParams } from '@/services/database-queries';
 import { DataTable } from '@/components/ui/data-table';
 import { articleColumns, Article } from '@/components/ui/article-columns';
-import { handleArticleDownload } from '@/lib/articleDownload';
+import { handleArticleDownload } from '@/services/article-download';
 
 export default function Search() {
   const [searchData, setSearchData] = useState<Article[]>([]);
@@ -25,6 +25,7 @@ export default function Search() {
   const [endTime, setEndTime] = useState('');
   const [htmlQuery, setHtmlQuery] = useState('');
 
+  {/* Search function */}
   const handleSearchQuery = async () => {
     setArticlesLoading(true);
     try {
@@ -38,6 +39,7 @@ export default function Search() {
     }
   };
 
+  {/* Two const below are Clear button related */}
   const [clearTrigger, setClearTrigger] = useState(0);
 
   const handleClear = () => {

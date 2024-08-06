@@ -1,4 +1,4 @@
-General project structure in Markdown. Date: July 29, 2024. Intermittently updated.
+General project structure in Markdown. Date: August 6, 2024. Intermittently updated.
 
 1. Directory structure
 
@@ -84,21 +84,22 @@ General project structure in Markdown. Date: July 29, 2024. Intermittently updat
                     └── toast.tsx
                     └── toaster.tsx
                     └── use-toast.ts
-                └── footer.tsx
-                └── header.tsx
-                └── questions-accordion.tsx
+                └── animation-variants.ts
+                └── Footer.tsx
+                └── Header.tsx
+                └── page-layout.tsx
+                └── QuestionsAccordion.tsx
             └── 📁css
                 └── index.css
             └── 📁features
                 └── 📁dashboard
                     └── Dashboard.tsx
-                    └── feed_urls.tsx
+                    └── feed-urls.tsx
                     └── fetching-news.tsx
                     └── rss-input.tsx
                 └── 📁errors
                     └── Errors.tsx
                     └── log-records.tsx
-                    └── logs.tsx
                 └── 📁search
                     └── Search.tsx
                 └── 📁statistics
@@ -108,15 +109,16 @@ General project structure in Markdown. Date: July 29, 2024. Intermittently updat
                     └── timeseries.tsx
                 └── 📁user
                     └── Login.tsx
-                    └── mail_notification.tsx
+                    └── mail-notification.tsx
                     └── Register.tsx
             └── 📁lib
-                └── articleDownload.tsx
+                └── svg-paths.ts
                 └── utils.ts
             └── 📁services
+                └── article-download.tsx
                 └── authclient.tsx
                 └── authfunctions.tsx
-                └── database_queries.tsx
+                └── database-queries.tsx
             └── App.tsx
             └── config.tsx
             └── main.tsx
@@ -129,11 +131,11 @@ General project structure in Markdown. Date: July 29, 2024. Intermittently updat
                 └── button.test.tsx
                 └── card.test.tsx
                 └── data-table.test.tsx
-                └── footer.test.tsx
-                └── header.test.tsx
+                └── Footer.test.tsx
+                └── Header.test.tsx
                 └── input.test.tsx
                 └── label.test.tsx
-                └── questions-accordion.test.tsx
+                └── QuestionsAccordion.test.tsx
                 └── rss-input.test.tsx
                 └── setupTests.ts
                 └── sonner.test.tsx
@@ -205,8 +207,8 @@ General project structure in Markdown. Date: July 29, 2024. Intermittently updat
                 └── test_user_management.py
             └── conftest.py
             └── database_filler.py
-            └── test_app.py
             └── test_auth_utils.py
+            └── test_index.py
         └── Dockerfile
         └── Dockerfile.dev
         └── pytest.ini

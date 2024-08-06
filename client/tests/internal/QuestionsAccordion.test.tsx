@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import QuestionsAccordion from '@/components/questions-accordion';
+import QuestionsAccordion from '@/components/QuestionsAccordion';
 import { expect, test } from 'vitest';
 
 test('renders QuestionsAccordion component and toggles content', () => {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { toast } from 'sonner';
-import { serverUrl } from '../config';
+import { serverUrl } from '@/config';
 
 const authClient = axios.create({
   baseURL: `${serverUrl}`,

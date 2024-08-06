@@ -8,9 +8,9 @@ import { ThemeProvider } from './components/ui/theme-provider';
 import { checkUserExists, getIsValidToken } from './services/authfunctions';
 
 {/* main modules, with 4 dynamic imports */}
-import Header from './components/header';
-import Footer from './components/footer';
-import QuestionsAccordion from './components/questions-accordion';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import QuestionsAccordion from './components/QuestionsAccordion';
 import Register from './features/user/Register';
 import Login from './features/user/Login';
 const Dashboard = lazy(() => import('./features/dashboard/Dashboard'));
@@ -25,6 +25,7 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  {/* User and token check */}
   useEffect(() => {
     const checkInitialState = async () => {
       try {
@@ -53,6 +54,7 @@ export default function App() {
     checkInitialState();
   }, []);
 
+  {/* Initial navigation check */}
   useEffect(() => {
     if (!isLoading) {
       if (userExists === false && location.pathname !== '/register') {
@@ -63,6 +65,7 @@ export default function App() {
     }
   }, [userExists, validToken, isLoading, navigate, location.pathname]);
 
+  {/* Logout */}
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     setValidToken(false);

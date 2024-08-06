@@ -5,7 +5,7 @@ import { registerUser } from '@/services/authfunctions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-import { sendMailNotification } from './mail_notification';
+import { sendMailNotification } from './mail-notification';
 
 interface RegisterProps {
   onRegistrationSuccess: () => void;
@@ -49,6 +49,7 @@ const Register: React.FC<RegisterProps> = ({ onRegistrationSuccess }) => {
       }
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
+      // return this if notification working
       //  toast.error(error.response?.data.message);
       } else {
         toast.error('An unknown error occurred');
