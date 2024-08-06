@@ -18,6 +18,9 @@ import { Button } from '@/components/ui/button';
 import { ArrowDownTrayIcon } from '@heroicons/react/24/solid';
 import InfoIcon from '@/components/ui/info-icon';
 import { Switch } from '@/components/ui/switch';
+import { Bar, BarChart, CartesianGrid, Pie, PieChart, XAxis } from 'recharts';
+import { schemeSet2 } from 'd3-scale-chromatic';
+import { scaleOrdinal } from 'd3-scale';
 
 {
   /* feeds and fetching */
@@ -32,7 +35,6 @@ import { getFetchingStatus, keepFetching, stopFetching } from './fetching-news';
   /* statistics */
 }
 import { sendStatisticsQuery } from '@/services/database-queries';
-import StatisticsDrawers from '@/features/statistics/statistics-drawers';
 import { DomainData } from '@/components/ui/drawer';
 
 {
@@ -40,6 +42,13 @@ import { DomainData } from '@/components/ui/drawer';
 }
 import { handleArticleDownload } from '@/services/article-download';
 import { Label } from '@/components/ui/label';
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart';
+import { Separator } from '@/components/ui/separator';
 
 export default function Dashboard() {
   const [feedUrlList, setFeedUrlList] = useState<Feed[]>([]);
@@ -47,9 +56,8 @@ export default function Dashboard() {
   const [isUrlSetDisabled, setIsUrlSetDisabled] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [statisticData, setStatisticsData] = useState<DomainData[][]>([]);
-  const [subDirectoryData, setSubDirectoryData] = useState<DomainData[]>([]);
-  const [isStatisticsDisabled, setIsStatisticsDisabled] = useState(false);
+  const [timeSeriesData, setTimeSeriesData] = useState<DomainData[]>([]);
+  const [pieData, setPieData] = useState<DomainData[]>([]);
 
   {
     /* Feed check at start from backend */
@@ -71,8 +79,13 @@ export default function Dashboard() {
       }
     };
 
+    const getStats = async () => {
+      await handleFetchStatistics();
+    };
+
     fetchFeedUrls();
     checkFetchingStatus();
+    getStats();
   }, []);
 
   {
@@ -157,20 +170,15 @@ export default function Dashboard() {
     /* Two const below are stats related */
   }
   const handleFetchStatistics = async () => {
-    setIsStatisticsDisabled(true);
     try {
       const data = await sendStatisticsQuery(false);
-      setStatisticsData(data);
+      setTimeSeriesData(data[2]);
+      setPieData(data[0]);
+      console.log(data);
     } catch (error) {
       console.error('Failed to fetch statistics:', error);
       toast.error('Failed to get statistics. Have you fetched yet?');
-    } finally {
-      setIsStatisticsDisabled(false);
     }
-  };
-
-  const formSubDirectoryData = async (url: string) => {
-    setSubDirectoryData(statisticData[1].filter((x) => x.name.startsWith(url)));
   };
 
   const handleSwitch = () => {
@@ -181,14 +189,43 @@ export default function Dashboard() {
     }
   };
 
+  const barConfig = {
+    articles: {
+      label: 'Articles',
+    },
+    desktop: {
+      label: 'Desktop',
+      color: 'hsl(var(--chart-1))',
+    },
+  } satisfies ChartConfig;
+
+  // Create a color scale
+  const colorScale = scaleOrdinal(schemeSet2).domain(
+    pieData.map((d) => d.name)
+  );
+
+  // Update piechart with dynamic colors
+  const chartDataWithColors = pieData.map((item) => ({
+    ...item,
+    fill: colorScale(item.name),
+  }));
+
+  const chartConfig = {
+    count: {
+      label: 'Count',
+    },
+  } as ChartConfig;
+
   return (
     <PageLayout title="Dashboard">
       {/* Feed manager */}
-      <motion.div variants={itemVariants}>
-        <Card className="mt-6 lg:col-span-3 lg:row-span-3">
+      <motion.div variants={itemVariants} className="">
+        <Card className="mt-6">
           <CardHeader>
             <CardTitle className="text-lg">RSS feed manager</CardTitle>
-            <CardDescription>Add or delete feeds</CardDescription>
+            <CardDescription>
+              Add or delete feeds, fetch articles and download data.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <RssInput
@@ -212,7 +249,7 @@ export default function Dashboard() {
                     onCheckedChange={handleSwitch}
                     className="mr-2 data-[state=checked]:bg-green-500"
                   />
-                  <Label htmlFor="toggleFetching">
+                  <Label htmlFor="toggleFetching" className="font-semibold">
                     Toggle article fetching
                   </Label>
                   <InfoIcon
@@ -222,56 +259,45 @@ export default function Dashboard() {
                   <div className="mx-2 h-6 w-px bg-gray-200 dark:bg-gray-700" />
 
                   <div className="text-sm">
-                    <span
-                      className={
-                        isProcessing ? 'text-primary' : 'text-muted-foreground'
-                      }
-                    >
-                      <b>Processing status:</b>
+                    <span>
+                      <b className="font-semibold">Processing status:</b>
                       {isProcessing ? ' Processing' : ' Not processing'}
                     </span>
                   </div>
                 </div>
               </Card>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+            <div className="mt-4">
+              <Separator />
+              <CardDescription className="my-4 font-medium">
+                Download all article data in JSON, CSV or Parquet
+                <InfoIcon
+                  tooltipContent="See Q&A below for more info."
+                  ariaLabel="Download info"
+                />
+              </CardDescription>
 
-      {/* Download for all articles, not just filtered */}
-      <motion.div variants={itemVariants}>
-        <Card className="mt-6 lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-lg">Export</CardTitle>
-            <CardDescription>
-              Download all article data in JSON, CSV or Parquet
-              <InfoIcon
-                tooltipContent="See Q&A below for more info."
-                ariaLabel="Download info"
-              />
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-            {['JSON', 'CSV', 'Parquet'].map((format) => (
-              <Button
-                key={format.toLowerCase()}
-                variant="outline"
-                onClick={() =>
-                  handleArticleDownload(
-                    format.toLowerCase() as 'json' | 'csv' | 'parquet',
-                    false,
-                    setIsDisabled
-                  )
-                }
-                disabled={isDisabled}
-                className="w-full p-6 text-base sm:w-[30%]"
-              >
-                <div className="flex justify-center">
-                  <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                  {format}
-                </div>
-              </Button>
-            ))}
+              {['JSON', 'CSV', 'Parquet'].map((format) => (
+                <Button
+                  key={format.toLowerCase()}
+                  variant="outline"
+                  onClick={() =>
+                    handleArticleDownload(
+                      format.toLowerCase() as 'json' | 'csv' | 'parquet',
+                      false,
+                      setIsDisabled
+                    )
+                  }
+                  disabled={isDisabled}
+                  className="mb-3 mr-4 w-full p-6 text-base sm:w-[30%]"
+                >
+                  <div className="flex justify-center">
+                    <ArrowDownTrayIcon className="mr-1.5 size-6" />
+                    {format}
+                  </div>
+                </Button>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </motion.div>
@@ -285,15 +311,83 @@ export default function Dashboard() {
               View summary statistics of all articles
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-            <StatisticsDrawers
-              statisticData={statisticData}
-              subDirectoryData={subDirectoryData}
-              isDisabled={isStatisticsDisabled}
-              handleFetchStatistics={handleFetchStatistics}
-              formSubDirectoryData={formSubDirectoryData}
-              isFiltered={false}
-            />
+          <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-around">
+            <Card className="flex flex-col">
+              <CardHeader className="items-center pb-0">
+                <CardTitle>Timeline distribution</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 pb-0">
+                <ChartContainer
+                  config={barConfig}
+                  className="h-full max-h-[300px]"
+                >
+                  <BarChart accessibilityLayer data={timeSeriesData}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="name"
+                      tickLine={false}
+                      tickMargin={5}
+                      axisLine={false}
+                      tickFormatter={(value) => {
+                        const date = new Date(value);
+                        return date.toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                        });
+                      }}
+                    />
+                    <ChartTooltip
+                      content={
+                        <ChartTooltipContent
+                          className="w-[150px]"
+                          nameKey="articles"
+                          labelFormatter={(value) => {
+                            return new Date(value).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            });
+                          }}
+                        />
+                      }
+                    />
+
+                    <Bar
+                      dataKey="count"
+                      fill="var(--color-desktop)"
+                      radius={4}
+                    />
+                  </BarChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            {/*Pie chart*/}
+
+            <Card className="flex w-2/6 flex-col">
+              <CardHeader className="items-center pb-0">
+                <CardTitle>Domain distribution</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 pb-0">
+                <ChartContainer
+                  config={chartConfig}
+                  className="mx-auto aspect-square max-h-[300px]"
+                >
+                  <PieChart>
+                    <ChartTooltip
+                      cursor={false}
+                      content={<ChartTooltipContent hideLabel />}
+                    />
+                    <Pie
+                      data={chartDataWithColors}
+                      dataKey="count"
+                      nameKey="name"
+                      strokeWidth={5}
+                    ></Pie>
+                  </PieChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
           </CardContent>
         </Card>
       </motion.div>

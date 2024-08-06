@@ -3,13 +3,24 @@ import { motion } from 'framer-motion';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import { toast } from 'sonner';
 
-{/* custom ui */}
+{
+  /* custom ui */
+}
 import { PageLayout } from '@/components/page-layout';
 import { itemVariants } from '@/components/animation-variants';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
-{/* Logs api calls */}
+{
+  /* Logs api calls */
+}
 import { getLogRecords, clearLogRecords } from './log-records';
 
 export default function Errors() {
@@ -50,23 +61,29 @@ export default function Errors() {
   return (
     <PageLayout title="Errors">
       <motion.div variants={itemVariants}>
-        <Card>
+        <Card className="mt-6">
           <CardHeader>
             <CardTitle className="text-lg">Error logs</CardTitle>
             <CardDescription>View and manage error logs</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="max-h-[60vh] overflow-y-auto text-xs">
+            <ScrollArea className="h-[60vh] rounded-md border p-2 text-xs">
               {logRecords.length > 0 ? (
                 logRecords.map((record, index) => (
-                  <div key={index} className="mb-1 border-b border-gray-100 pb-1">
-                    <pre className="whitespace-pre-wrap break-words font-mono">{record}</pre>
+                  <div
+                    key={index}
+                    className="mb-1 border-b border-gray-100 pb-1"
+                  >
+                    <pre className="whitespace-pre-wrap break-words font-mono">
+                      {record}
+                    </pre>
                   </div>
                 ))
               ) : (
                 <p className="text-center text-gray-500">No error logs.</p>
               )}
-            </div>
+            </ScrollArea>
+
             {logRecords.length > 0 && (
               <div className="mt-4 flex justify-end space-x-2">
                 <Button onClick={handleDownloadLogs}>Download Logs</Button>
@@ -75,20 +92,24 @@ export default function Errors() {
                     <Button variant="destructive">Clear Logs</Button>
                   </AlertDialog.Trigger>
                   <AlertDialog.Portal>
-                    <AlertDialog.Overlay className="bg-background/80 fixed inset-0" />
-                    <AlertDialog.Content className="fixed top-1/2 left-1/2 max-h-[85vh] w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-background p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none">
+                    <AlertDialog.Overlay className="fixed inset-0 bg-background/80" />
+                    <AlertDialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-background p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none">
                       <AlertDialog.Title className="text-lg font-medium text-foreground">
                         Are you sure?
                       </AlertDialog.Title>
-                      <AlertDialog.Description className="mt-2 mb-5 text-sm text-muted-foreground">
-                        This action cannot be undone. This will delete all the error logs.
+                      <AlertDialog.Description className="mb-5 mt-2 text-sm text-muted-foreground">
+                        This action cannot be undone. This will delete all the
+                        error logs.
                       </AlertDialog.Description>
                       <div className="flex justify-end gap-[15px]">
                         <AlertDialog.Cancel asChild>
                           <Button variant="outline">Cancel</Button>
                         </AlertDialog.Cancel>
                         <AlertDialog.Action asChild>
-                          <Button variant="destructive" onClick={handleClearLogs}>
+                          <Button
+                            variant="destructive"
+                            onClick={handleClearLogs}
+                          >
                             Clear Logs
                           </Button>
                         </AlertDialog.Action>
