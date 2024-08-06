@@ -73,6 +73,8 @@ export default function Header({ onLogout }: { onLogout: () => void }) {
                 <a
                   href="https://github.com/uh-dcm/news-article-collection-container"
                   aria-label="GitHub repository"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   {/*github icon by Free Icons (https://free-icons.github.io/free-icons/)*/}
                   <svg

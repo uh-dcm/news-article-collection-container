@@ -51,7 +51,7 @@ def run_collect_and_process():
     """
     Runs collect.py and process.py of the original 
     news_article_container repo on feeds from feeds.txt.
-    The lock file is to make exporting wait. Called by start_fetch().
+    The processing status is to make exporting wait. Called by start_fetch().
     """
     if ProcessingStatus.get_status():
         current_app.logger.info("Processing is already active.")

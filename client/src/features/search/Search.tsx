@@ -77,7 +77,7 @@ export default function Search() {
             <Input className="w-full p-6" type="text" placeholder="Insert start time... (YYYY-MM-DD HH:MM:SS)" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
             <Input className="w-full p-6" type="text" placeholder="Insert end time... (YYYY-MM-DD HH:MM:SS)" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
             <Input className="w-full p-6" type="text" placeholder="Insert HTML query..." value={htmlQuery} onChange={(e) => setHtmlQuery(e.target.value)} />
-            <Button className="w-full p-6 text-base" variant="outline" onClick={handleSearchQuery}>
+            <Button className="w-full p-6 text-base" variant="outline" onClick={handleSearchQuery} aria-label="Submit search">
               <div className="flex justify-center">
                 <MagnifyingGlassIcon className="mr-3 size-6" />
                 Search
