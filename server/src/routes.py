@@ -2,14 +2,14 @@
 This defines the routes used in app.py. The route functionalities are in src.views.
 """
 import os
-from flask import send_from_directory
+from flask import send_from_directory, jsonify
 
 from src.views.administration import user_management, log_operations, status_stream
 from src.views.data_acquisition import feed_manager, content_fetcher
 from src.views.data_analysis import query_processor, stats_analyzer
 from src.views.data_export import export_manager
 from src.views import mail_dispatcher
-from src.utils.auth_utils import jwt_required_conditional, validate_token
+from src.utils.auth_utils import jwt_required_conditional
 
 def init_routes(app):
     """
@@ -49,7 +49,7 @@ def init_routes(app):
     app.add_url_rule(
         '/api/get_is_valid_token',
         'get_is_valid_token',
-        validate_token,
+        jwt_required_conditional(lambda: jsonify({"valid": True})),
         methods=['GET']
     )
     app.add_url_rule(

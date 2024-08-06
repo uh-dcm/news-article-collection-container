@@ -8,7 +8,7 @@ import { itemVariants } from '@/components/animation-variants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 {/* stats modules */}
-import { sendStatisticsQuery } from '@/services/database_queries';
+import { sendStatisticsQuery } from '@/services/database-queries';
 import { DomainData } from '@/components/ui/drawer';
 import StatisticsDrawers from './statistics-drawers';
 

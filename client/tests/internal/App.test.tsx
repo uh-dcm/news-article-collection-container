@@ -38,11 +38,15 @@ describe('App component', () => {
       // Ensure the Login view is not present
       expect(loginView).not.toBeInTheDocument();
     });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Enter RSS feed URL/i)).toBeInTheDocument();
+    }, { timeout: 5000 });
   });
 
   test('renders app component', async () => {
     expect(screen.getByText(/News Article Collector/i)).toBeInTheDocument();
-    expect(await screen.findByText(/Enter RSS feed URL/i)).toBeInTheDocument();
+    expect(await screen.findByText(/List of RSS feeds/i)).toBeInTheDocument();
   });
 
   test('submits RSS feed URLs', async () => {
@@ -130,7 +134,7 @@ describe('App component', () => {
 
   // handler at setup is only using textQuery for now
   test('searches articles based on query', async () => {
-    const searchLink = screen.getByText(/Search/i);
+    const searchLink = screen.getByRole('link', { name: /^Search$/ });
     fireEvent.click(searchLink);
 
     // fails without this wait
@@ -139,7 +143,7 @@ describe('App component', () => {
     }, { timeout: 5000 });
 
     const searchInput = screen.getByPlaceholderText('Insert text query...');
-    const searchButton = screen.getByRole('button', { name: /Search/i });
+    const searchButton = screen.getByRole('button', { name: /Submit search/i });
 
     await act(async () => {
       fireEvent.change(searchInput, { target: { value: 'Full text 1' } });

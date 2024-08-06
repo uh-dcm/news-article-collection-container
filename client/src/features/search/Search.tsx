@@ -10,10 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 {/* search, its results and download function */}
-import { sendSearchQuery, SearchParams } from '@/services/database_queries';
+import { sendSearchQuery, SearchParams } from '@/services/database-queries';
 import { DataTable } from '@/components/ui/data-table';
 import { articleColumns, Article } from '@/components/ui/article-columns';
-import { handleArticleDownload } from '@/lib/articleDownload';
+import { handleArticleDownload } from '@/services/article-download';
 
 export default function Search() {
   const [searchData, setSearchData] = useState<Article[]>([]);
@@ -25,6 +25,7 @@ export default function Search() {
   const [endTime, setEndTime] = useState('');
   const [htmlQuery, setHtmlQuery] = useState('');
 
+  {/* Search function */}
   const handleSearchQuery = async () => {
     setArticlesLoading(true);
     try {
@@ -38,6 +39,7 @@ export default function Search() {
     }
   };
 
+  {/* Two const below are Clear button related */}
   const [clearTrigger, setClearTrigger] = useState(0);
 
   const handleClear = () => {
@@ -75,7 +77,7 @@ export default function Search() {
             <Input className="w-full p-6" type="text" placeholder="Insert start time... (YYYY-MM-DD HH:MM:SS)" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
             <Input className="w-full p-6" type="text" placeholder="Insert end time... (YYYY-MM-DD HH:MM:SS)" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
             <Input className="w-full p-6" type="text" placeholder="Insert HTML query..." value={htmlQuery} onChange={(e) => setHtmlQuery(e.target.value)} />
-            <Button className="w-full p-6 text-base" variant="outline" onClick={handleSearchQuery}>
+            <Button className="w-full p-6 text-base" variant="outline" onClick={handleSearchQuery} aria-label="Submit search">
               <div className="flex justify-center">
                 <MagnifyingGlassIcon className="mr-3 size-6" />
                 Search

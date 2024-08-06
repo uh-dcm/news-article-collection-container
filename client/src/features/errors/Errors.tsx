@@ -9,7 +9,8 @@ import { itemVariants } from '@/components/animation-variants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-import { getLogRecords, clearLogRecords } from './log_records';
+{/* Logs api calls */}
+import { getLogRecords, clearLogRecords } from './log-records';
 
 export default function Errors() {
   const [logRecords, setLogRecords] = useState<string[]>([]);

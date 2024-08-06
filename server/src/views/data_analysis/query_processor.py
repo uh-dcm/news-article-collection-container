@@ -110,45 +110,6 @@ def build_search_query(search_params):
 
     return query, sql_params
 
-def parse_operators(query, column):
-    """
-    Parses operators AND, OR and NOT in full text, URL
-    and HTML queries. ESC enables escaping % and _. Also uses
-    special query NOTEXT for articles without full text.
-    Used by build_search_query().
-    """
-    parts = re.split(r'\b(AND|OR|NOT)\b', query)
-    sql_parts = []
-    search_params = {}
-    negate_next = False
-    for i, part in enumerate(parts):
-        if part == "AND":
-            sql_parts.append('AND')
-        elif part == "OR":
-            sql_parts.append('OR')
-        elif part == "NOT":
-            negate_next = True
-        else:
-            part = part.strip()
-            if part:
-                if part == "NOTEXT":
-                    condition = f"({column} IS NULL OR {column} = '')"
-                else:
-                    param_name = f'{column}_query_{i}'
-                    if 'ESC' in part:
-                        condition = f"{column} LIKE :{param_name} ESCAPE '\\'"
-                        esc_part = part.replace('ESC%', r'\%').replace('ESC_', r'\_')
-                    else:
-                        condition = f"{column} LIKE :{param_name}"
-                        esc_part = part
-                    search_params[param_name] = f'%{esc_part}%'
-                if negate_next:
-                    sql_parts.append(f"NOT ({condition})")
-                    negate_next = False
-                else:
-                    sql_parts.append(condition)
-    return ' '.join(sql_parts) if sql_parts else "1=1", search_params
-
 def parse_input_date(date_string, is_end_date=False):
     """
     Checking the inputted time formatting and converting it to datetime.
@@ -171,3 +132,64 @@ def parse_input_date(date_string, is_end_date=False):
         except ValueError:
             pass
     return None
+
+def parse_operators(query, column):
+    """
+    Parses operators AND, OR and NOT in full text, URL
+    and HTML queries. Used by build_search_query().
+    """
+    or_groups = []
+    current_group = []
+    search_params = {}
+    negate_next = False
+
+    parts = re.findall(r'"[^"]*"|\S+', query)
+
+    for i, part in enumerate(parts):
+        if part.upper() == "AND":
+            continue
+        elif part.upper() == "OR":
+            if current_group:
+                or_groups.append(current_group)
+                current_group = []
+        elif part.upper() == "NOT":
+            negate_next = True
+        else:
+            condition, param = create_term_sql_condition(part, column, i, negate_next)
+            current_group.append(condition)
+            if param:
+                search_params.update(param)
+            negate_next = False
+
+    if current_group:
+        or_groups.append(current_group)
+
+    sql_parts = ['(' + ' AND '.join(group) + ')' for group in or_groups]
+    return ' OR '.join(sql_parts) if sql_parts else "1=1", search_params
+
+def create_term_sql_condition(term, column, index, negate=False):
+    """
+    Creates detailed SQL condition for a term. Used by parse_operators().
+    """
+    term = term.strip('"')
+    if not term:
+        return None, None
+
+    if term == "NOTEXT":
+        condition = f"({column} IS NULL OR {column} = '')"
+        param = None
+    else:
+        param_name = f'{column}_query_{index}'
+        if 'ESC' in term:
+            condition = f"{column} LIKE :{param_name} ESCAPE '\\'"
+            esc_part = term.replace('ESC%', r'\%').replace('ESC_', r'\_')
+        else:
+            condition = f"{column} LIKE :{param_name}"
+            esc_part = term if term.startswith('"') and term.endswith('"') else f'%{term}%'
+
+        param = {param_name: esc_part}
+
+    if negate:
+        condition = f"NOT ({condition})"
+
+    return condition, param

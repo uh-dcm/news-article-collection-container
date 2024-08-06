@@ -64,7 +64,6 @@ run_cypress_tests() {
     docker compose down --rmi all
 }
 
-
 generate_coverage_report_html() {
     if [ ! -f "coverage-reports.html" ]; then
         cat > coverage-reports.html << EOL

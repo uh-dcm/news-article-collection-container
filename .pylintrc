@@ -7,5 +7,5 @@ init-hook='import sys; sys.path.extend([".", "./server", "./server/src"])'
 
 [MESSAGES CONTROL]
 # broad exception isn't really an issue, certainly not worthy of a yellow warning
-# else-returns make the many possible returns easier to read
-disable=broad-exception-caught,no-else-return
+# and elses make the many possible returns easier to read
+disable=broad-exception-caught,no-else-return,no-else-continue

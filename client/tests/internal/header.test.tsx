@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Header from '@/components/header';
+import Header from '@/components/Header';
 import { expect, test, vi } from 'vitest';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { TooltipProvider } from '@radix-ui/react-tooltip';

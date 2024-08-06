@@ -15,16 +15,16 @@ import InfoIcon from '@/components/ui/info-icon';
 import RssInput from './rss-input';
 import { DataTable } from '@/components/ui/data-table';
 import { feedColumns, Feed } from '@/components/ui/feed-columns';
-import { getAllFeedUrls, sendAllFeedUrls } from './feed_urls';
+import { getAllFeedUrls, sendAllFeedUrls } from './feed-urls';
 import { getFetchingStatus, keepFetching, stopFetching } from './fetching-news';
 
 {/* statistics */}
-import { sendStatisticsQuery } from '@/services/database_queries';
+import { sendStatisticsQuery } from '@/services/database-queries';
 import StatisticsDrawers from '@/features/statistics/statistics-drawers';
 import { DomainData } from '@/components/ui/drawer';
 
 {/* download function */}
-import { handleArticleDownload } from '@/lib/articleDownload';
+import { handleArticleDownload } from '@/services/article-download';
 
 export default function Dashboard() {
   const [feedUrlList, setFeedUrlList] = useState<Feed[]>([]);
@@ -36,6 +36,7 @@ export default function Dashboard() {
   const [subDirectoryData, setSubDirectoryData] = useState<DomainData[]>([]);
   const [isStatisticsDisabled, setIsStatisticsDisabled] = useState(false);
 
+  {/* Feed check at start from backend */}
   useEffect(() => {
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
@@ -55,6 +56,7 @@ export default function Dashboard() {
     checkFetchingStatus();
   }, []);
 
+  {/* Processing status stream */}
   useEffect(() => {
     const eventSource = new EventSource('/stream');
     eventSource.addEventListener('processing_status', (event) => {
@@ -63,6 +65,7 @@ export default function Dashboard() {
     return () => eventSource.close();
   }, []);
 
+  {/* Feed add triggered by "Add to list" */}
   const handleFeedAdd = (feed: Feed) => {
     setFeedUrlList((prevData) => {
       if (!prevData.find((f) => f.url === feed.url)) {
@@ -76,6 +79,7 @@ export default function Dashboard() {
     });
   };
 
+  {/* Feed submit triggered by above */}
   const handleSubmit = async (updatedFeeds: string[]) => {
     setIsUrlSetDisabled(true);
     try {
@@ -102,7 +106,7 @@ export default function Dashboard() {
     setIsFetching(true);
     const response = await keepFetching();
     if (response.status === 'started') {
-      // Implement handleSearchQuery or remove if not needed
+      // Implement handleSearchQuery etc. or remove if not needed
     }
   };
 
@@ -112,6 +116,7 @@ export default function Dashboard() {
     stopFetching();
   };
 
+  {/* Feed deletion from list */}
   const deleteSelectedRows = (selectedRows: Feed[]) => {
     const updatedFeeds = feedUrlList
       .filter((item) => !selectedRows.includes(item))
@@ -121,6 +126,7 @@ export default function Dashboard() {
     handleSubmit(updatedFeeds);
   };
 
+  {/* Two const below are stats related */}
   const handleFetchStatistics = async () => {
     setIsStatisticsDisabled(true);
     try {
@@ -141,6 +147,7 @@ export default function Dashboard() {
 
   return (
     <PageLayout title="Dashboard">
+
       {/* Feed manager */}
       <motion.div variants={itemVariants}>
         <Card className="mt-6 lg:col-span-3 lg:row-span-3">
