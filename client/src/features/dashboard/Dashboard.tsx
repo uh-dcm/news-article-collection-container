@@ -15,7 +15,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { ArrowDownTrayIcon } from '@heroicons/react/24/solid';
 import InfoIcon from '@/components/ui/info-icon';
 import { Switch } from '@/components/ui/switch';
