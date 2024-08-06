@@ -1,5 +1,5 @@
 """
-Tests basic index route responses and functions.
+Tests basic index route responses and functions in routes.py.
 """
 import os
 import shutil
