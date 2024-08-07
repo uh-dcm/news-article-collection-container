@@ -23,7 +23,7 @@ export default function Header({ onLogout }: { onLogout: () => void }) {
 
         {/* navigation buttons */}
         <nav className="flex flex-grow items-center justify-end">
-          {['Dashboard', 'Search', 'Statistics', 'Errors', 'Docs'].map(
+          {['Dashboard', 'Search', 'Statistics', 'Errors', 'Info'].map(
             (item) => {
               const path = `/${item.toLowerCase()}`;
               const isActive = location.pathname === path;
