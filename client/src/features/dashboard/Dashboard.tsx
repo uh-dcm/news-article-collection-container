@@ -135,6 +135,21 @@ export default function Dashboard() {
     }
   };
 
+  {
+    /* Feed deletion from list */
+  }
+  const deleteSelectedRows = (selectedRows: Feed[]) => {
+    const updatedFeeds = feedUrlList
+      .filter((item) => !selectedRows.includes(item))
+      .map((feed) => feed.url);
+    setFeedUrlList(feedUrlList.filter((item) => !selectedRows.includes(item)));
+    sendAllFeedUrls(updatedFeeds);
+    handleSubmit(updatedFeeds);
+  };
+
+  {
+    /* Next 3 const are fetch related */
+  }
   const handleFetchStart = async () => {
     toast.info('RSS fetching in progress', {
       description: 'Gathering articles...',
@@ -154,16 +169,12 @@ export default function Dashboard() {
     stopFetching();
   };
 
-  {
-    /* Feed deletion from list */
-  }
-  const deleteSelectedRows = (selectedRows: Feed[]) => {
-    const updatedFeeds = feedUrlList
-      .filter((item) => !selectedRows.includes(item))
-      .map((feed) => feed.url);
-    setFeedUrlList(feedUrlList.filter((item) => !selectedRows.includes(item)));
-    sendAllFeedUrls(updatedFeeds);
-    handleSubmit(updatedFeeds);
+  const handleSwitch = () => {
+    if (isFetching) {
+      handleFetchStop();
+    } else {
+      handleFetchStart();
+    }
   };
 
   {

@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
 import { PageLayout } from '@/components/page-layout';
 import { itemVariants } from '@/components/animation-variants';
-import QuestionsAccordion from '@/components/QuestionsAccordion';
+import InfoAccordion from './info-accordion';
 
-export default function Documentation() {
+export default function Info() {
   return (
-    <PageLayout title="Documentation">
+    <PageLayout title="Info">
       <motion.div variants={itemVariants}>
-        <QuestionsAccordion className="mb-20w-full mx-auto max-w-5xl" />
+        <InfoAccordion className="mb-20 w-full mx-auto max-w-5xl" />
       </motion.div>
     </PageLayout>
   );

@@ -7,9 +7,11 @@ FROM node:22.5.1-bookworm-slim AS build-stage
 
 # Define build arguments for environment variables
 ARG VITE_API_BASE_URL=" "
+ARG VITE_RELEASE_VERSION
 
 # Set environment variables during the build process
 ENV VITE_WEBPAGE_URL=${VITE_API_BASE_URL}
+ENV VITE_RELEASE_VERSION=${VITE_RELEASE_VERSION}
 
 WORKDIR /app
 

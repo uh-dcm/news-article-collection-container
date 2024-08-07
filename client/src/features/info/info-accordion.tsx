@@ -5,13 +5,15 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
-interface QuestionsAccordionProps {
+const version = import.meta.env.VITE_RELEASE_VERSION || 'development';
+
+interface InfoAccordionProps {
   className?: string;
 }
 
-export default function QuestionsAccordion({
+export default function InfoAccordion({
   className,
-}: QuestionsAccordionProps) {
+}: InfoAccordionProps) {
   return (
     <div className={className}>
       <Accordion type="multiple">
@@ -49,6 +51,9 @@ export default function QuestionsAccordion({
               Parquet
             </a>{' '}
             file.
+            <p className="mt-2">
+              Current version: {version}
+            </p>
           </AccordionContent>
         </AccordionItem>
 

@@ -7,6 +7,8 @@ spec:
   selector:
     matchLabels:
       name: news-collection-prod
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -14,7 +16,7 @@ spec:
         app.kubernetes.io/part-of: news-collection-app
     spec:
       containers:
-        - image: docker.io/ohtukontitus/news-collection@sha256:5e6ae7ebb00b853c6d7501bdedd89f0a520cbbce12b8854bf7732fb37bca8195
+        - image: docker.io/ohtukontitus/news-collection:latest
           imagePullPolicy: Always
           name: news-collection
           env:

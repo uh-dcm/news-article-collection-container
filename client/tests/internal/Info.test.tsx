@@ -1,10 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import QuestionsAccordion from '@/components/QuestionsAccordion';
+import Info from '@/features/info/Info';
 import { expect, test } from 'vitest';
 
 test('renders QuestionsAccordion component and toggles content', () => {
-  render(<QuestionsAccordion />);
+  render(<Info />);
 
   const heading = screen.getByText(/How does the collector work?/i);
   expect(heading).toBeInTheDocument();
