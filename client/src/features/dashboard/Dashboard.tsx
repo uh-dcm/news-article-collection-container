@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
-{
-  /* custom ui */
-}
+{/* custom ui */}
 import { PageLayout } from '@/components/page-layout';
 import { itemVariants } from '@/components/animation-variants';
 import {
@@ -19,25 +17,19 @@ import { ArrowDownTrayIcon } from '@heroicons/react/24/solid';
 import InfoIcon from '@/components/ui/info-icon';
 import { Switch } from '@/components/ui/switch';
 
-{
-  /* feeds and fetching */
-}
+{/* feeds and fetching */}
 import RssInput from './rss-input';
 import { DataTable } from '@/components/ui/data-table';
 import { feedColumns, Feed } from '@/components/ui/feed-columns';
 import { getAllFeedUrls, sendAllFeedUrls } from './feed-urls';
 import { getFetchingStatus, keepFetching, stopFetching } from './fetching-news';
 
-{
-  /* statistics */
-}
+{/* statistics */}
 import { sendStatisticsQuery } from '@/services/database-queries';
 import StatisticsDrawers from '@/features/statistics/statistics-drawers';
 import { DomainData } from '@/components/ui/drawer';
 
-{
-  /* download function */
-}
+{/* download function */}
 import { handleArticleDownload } from '@/services/article-download';
 import { Label } from '@/components/ui/label';
 
@@ -51,9 +43,7 @@ export default function Dashboard() {
   const [subDirectoryData, setSubDirectoryData] = useState<DomainData[]>([]);
   const [isStatisticsDisabled, setIsStatisticsDisabled] = useState(false);
 
-  {
-    /* Feed check at start from backend */
-  }
+  {/* Feed check at start from backend */}
   useEffect(() => {
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
@@ -75,9 +65,7 @@ export default function Dashboard() {
     checkFetchingStatus();
   }, []);
 
-  {
-    /* Processing status stream */
-  }
+  {/* Processing status stream */}
   useEffect(() => {
     const eventSource = new EventSource('/stream');
     eventSource.addEventListener('processing_status', (event) => {
@@ -86,9 +74,7 @@ export default function Dashboard() {
     return () => eventSource.close();
   }, []);
 
-  {
-    /* Feed add triggered by "Add to list" */
-  }
+  {/* Feed add triggered by "Add to list" */}
   const handleFeedAdd = (feed: Feed) => {
     setFeedUrlList((prevData) => {
       if (!prevData.find((f) => f.url === feed.url)) {
@@ -102,9 +88,7 @@ export default function Dashboard() {
     });
   };
 
-  {
-    /* Feed submit triggered by above */
-  }
+  {/* Feed submit triggered by above */}
   const handleSubmit = async (updatedFeeds: string[]) => {
     setIsUrlSetDisabled(true);
     try {
@@ -122,6 +106,17 @@ export default function Dashboard() {
     }
   };
 
+  {/* Feed deletion from list */}
+  const deleteSelectedRows = (selectedRows: Feed[]) => {
+    const updatedFeeds = feedUrlList
+      .filter((item) => !selectedRows.includes(item))
+      .map((feed) => feed.url);
+    setFeedUrlList(feedUrlList.filter((item) => !selectedRows.includes(item)));
+    sendAllFeedUrls(updatedFeeds);
+    handleSubmit(updatedFeeds);
+  };
+
+  {/* Next 3 const are fetch related */}
   const handleFetchStart = async () => {
     toast.info('RSS fetching in progress', {
       description: 'Gathering articles...',
@@ -141,21 +136,15 @@ export default function Dashboard() {
     stopFetching();
   };
 
-  {
-    /* Feed deletion from list */
-  }
-  const deleteSelectedRows = (selectedRows: Feed[]) => {
-    const updatedFeeds = feedUrlList
-      .filter((item) => !selectedRows.includes(item))
-      .map((feed) => feed.url);
-    setFeedUrlList(feedUrlList.filter((item) => !selectedRows.includes(item)));
-    sendAllFeedUrls(updatedFeeds);
-    handleSubmit(updatedFeeds);
+  const handleSwitch = () => {
+    if (isFetching) {
+      handleFetchStop();
+    } else {
+      handleFetchStart();
+    }
   };
 
-  {
-    /* Two const below are stats related */
-  }
+  {/* Two const below are stats related */}
   const handleFetchStatistics = async () => {
     setIsStatisticsDisabled(true);
     try {
@@ -173,16 +162,9 @@ export default function Dashboard() {
     setSubDirectoryData(statisticData[1].filter((x) => x.name.startsWith(url)));
   };
 
-  const handleSwitch = () => {
-    if (isFetching) {
-      handleFetchStop();
-    } else {
-      handleFetchStart();
-    }
-  };
-
   return (
     <PageLayout title="Dashboard">
+
       {/* Feed manager */}
       <motion.div variants={itemVariants}>
         <Card className="mt-6 lg:col-span-3 lg:row-span-3">
@@ -297,6 +279,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </motion.div>
+
     </PageLayout>
   );
 }

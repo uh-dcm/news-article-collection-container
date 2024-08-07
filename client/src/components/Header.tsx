@@ -11,6 +11,7 @@ export default function Header({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="fixed left-0 right-0 top-0 z-10 w-full border-b bg-background/95 backdrop-blur-sm">
       <div className="flex items-center justify-between p-3">
+
         {/* logo and title */}
         <div className="flex items-center">
           <img className="mx-2" width="30" src="/images/logo.png" alt="Logo" />
@@ -46,7 +47,7 @@ export default function Header({ onLogout }: { onLogout: () => void }) {
         </nav>
         <div className="mx-2 h-5 w-px bg-gray-200 dark:bg-gray-700" />
 
-        {/* logout, github and theme */}
+        {/* github, theme and logout */}
         <div className="flex items-center">
           <Button asChild variant="ghost" className="mr-1" size="icon">
             <a
@@ -76,6 +77,7 @@ export default function Header({ onLogout }: { onLogout: () => void }) {
           </Button>
         </div>
       </div>
+
     </div>
   );
 }
