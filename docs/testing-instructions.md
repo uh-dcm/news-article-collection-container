@@ -48,6 +48,6 @@ After running it and installing the dependencies, you can run the frontend and b
 
 - `npx cypress run` (run Cypress tests)
 
-- When the test finishes, you can run in the other window:
+- When the test finishes, in the other window:
 
-- `docker compose down --rmi all` (removes what was built, besides some cache)
+- press CTRL together with C then `docker compose down --rmi all` (removes what was built, besides some cache)

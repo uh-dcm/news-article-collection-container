@@ -5,7 +5,7 @@
 # If "Permission denied", run "chmod +x runtests.sh" once
 
 # Things that may help in rare non-code related issues:
-# 1. npm depency discrepancy issue: 
+# 1. npm dependency discrepancy issue: 
 # delete node_modules folder, let it get reinstalled by this script fresh
 # 2. docker build not starting:
 # restart your system's Docker (Docker Desktop etc.)
@@ -44,9 +44,9 @@ run_vitests() {
 run_eslint() {
     echo "Running ESLint check"
     if npm run lint --silent; then
-        echo "ESLint: OK! Everything looks fine."
+        echo -e "\033[0;32mESLint: OK! Everything looks fine.\033[0m"
     else
-        echo "ESLint: Problems found!"
+        echo -e "\033[0;31mESLint: Problems found!\033[0m"
     fi
     echo "ESLint check done"
     cd ..

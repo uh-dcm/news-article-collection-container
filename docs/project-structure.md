@@ -15,6 +15,8 @@ General project structure in Markdown. Date: August 6, 2024. Intermittently upda
             └── 📁css
             └── 📁features
                 └── 📁dashboard
+                └── 📁errors
+                └── 📁info
                 └── 📁search
                 └── 📁statistics
                 └── 📁user
@@ -75,9 +77,11 @@ General project structure in Markdown. Date: August 6, 2024. Intermittently upda
                     └── input.tsx
                     └── label.tsx
                     └── mode-toggle.tsx
+                    └── scroll-area.tsx
                     └── separator.tsx
                     └── skeleton.tsx
                     └── sonner.tsx
+                    └── switch.tsx
                     └── table.tsx
                     └── textarea.tsx
                     └── theme-provider.tsx
@@ -88,7 +92,6 @@ General project structure in Markdown. Date: August 6, 2024. Intermittently upda
                 └── Footer.tsx
                 └── Header.tsx
                 └── page-layout.tsx
-                └── QuestionsAccordion.tsx
             └── 📁css
                 └── index.css
             └── 📁features
@@ -100,6 +103,9 @@ General project structure in Markdown. Date: August 6, 2024. Intermittently upda
                 └── 📁errors
                     └── Errors.tsx
                     └── log-records.tsx
+                └── 📁info
+                    └── Info.tsx
+                    └── info-accordion.tsx
                 └── 📁search
                     └── Search.tsx
                 └── 📁statistics
