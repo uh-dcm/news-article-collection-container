@@ -19,7 +19,7 @@ If you'd like to setup the environment using the graphical UI, you can do the fo
 5. Go to "Topology", click the newly created deployment and click "Add storage".
     1. Choose "Create new claim"
     2. Choose a name for your `PersistentVolumeClaim` manifest
-    3. In "Size", choose a capcity of `1 GiB`
+    3. In "Size", choose a capacity, e.g.,`10 GiB`
     4. In "Mount path" type `/app/server/rss-fetcher/data`
     5. Click "Save"
 6. Go back to "Topology". You should be able to access the app by left clicking the deployment and going to the URL under "Location".
@@ -34,15 +34,13 @@ Alternatively, you can use the CLI tool to setup the environment by doing the fo
 4. Update the `sha`-identifier to `spec.spec.containers[0]` of `deployment-prod.yaml` in order to get the latest build from the image stream.
 5. Run `oc apply -f <cfg_file>.yaml` for each of the remaining config files in `../manifests`.
 6. The app should now be accessable in the URL defined by the `spec.host` field in `service-route-prod.yaml`.
-
-Sometimes, e.g., when fetching a new image from ImageStream, an already claimed PVC might get stuck in a deadlock. This happens
-between an earlier pod that it was attached to and a new pod trying to claim it. To resolve this, run the following `oc` commands which that should resolve it by restarting the pod:
-```
-oc scale deployment news-collection-prod --replicas=0
-oc scale deployment news-collection-prod --replicas=1
-```
-
 ## Updating the image with current deployment strategy
+
+The current deployment strategy specified in `../manifests/deployment-prod.yaml` and `../manifests/image-stream-prod.yaml` should automatically 
+fetch the latest Docker hub image from `ohtukontitus/news-collection` repository and then deploy via a [https://docs.openshift.com/container-platform/3.11/dev_guide/builds/triggering_builds.html](build trigger).
+These are specified by the `metadata.annotations` and `spec.template.spec` fields in `deployment-prod.yaml`.
+
+In case this does not work, you can also force a manual deployment rollout by doing the following:
 
 1. Build and push latest Docker image to `ohtukontitus/news-collection`
 2. Fetch (or wait for automatic fetch) latest image from ImageStream via using `oc import-image news-collection`
@@ -54,3 +52,25 @@ oc scale deployment news-collection-prod --replicas=0
 oc scale deployment news-collection-prod --replicas=1
 ```
 6. The latest image should now be accessible via the URL defined in `service-route-prod.yaml`.
+
+## Troubleshooting
+
+*   Sometimes, e.g., when fetching a new image from ImageStream, an already claimed PVC might get stuck in a deadlock. This happens
+    between an earlier pod that it was attached to and a new pod trying to claim it. The error manifests by the following error message:
+    ```
+    Multi-Attach error for volume "<pvc-name>" Volume is already used by pod(s) <pod-name>"
+    ```
+    To resolve this, run the following `oc` commands which that should resolve it by restarting the pod:
+    ```
+    oc scale deployment news-collection-prod --replicas=0
+    oc scale deployment news-collection-prod --replicas=1
+    ```
+*   The mounted volume storage is exceeded and the application no longer works. This happens because the storage capacity allocated to the
+    PVC is not enough and could be manifested by the following error message:
+    ```
+        RuntimeError: can't start new thread
+    ```
+    or it might be observed by going to the topology view in Rahti, clicking your deployed pod and going to "Memory usage" in the "Observe" view. 
+    To resolve this, you need to increase your PVC storage size in `../manifests/pvc-prod.yaml`. See [https://docs.csc.fi/cloud/rahti2/storage/expand-volumes/](Rahti 2 documentation)
+    for possible issues related to this.
+
