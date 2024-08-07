@@ -37,7 +37,7 @@ Alternatively, you can use the CLI tool to setup the environment by doing the fo
 ## Updating the image with current deployment strategy
 
 The current deployment strategy specified in `../manifests/deployment-prod.yaml` and `../manifests/image-stream-prod.yaml` should automatically 
-fetch the latest Docker hub image from `ohtukontitus/news-collection` repository and then deploy via a [https://docs.openshift.com/container-platform/3.11/dev_guide/builds/triggering_builds.html](build trigger).
+fetch the latest Docker hub image from `ohtukontitus/news-collection` repository and then deploy via a [build trigger](https://docs.openshift.com/container-platform/3.11/dev_guide/builds/triggering_builds.html).
 These are specified by the `metadata.annotations` and `spec.template.spec` fields in `deployment-prod.yaml`.
 
 In case this does not work, you can also force a manual deployment rollout by doing the following:
@@ -71,6 +71,6 @@ oc scale deployment news-collection-prod --replicas=1
         RuntimeError: can't start new thread
     ```
     or it might be observed by going to the topology view in Rahti, clicking your deployed pod and going to "Memory usage" in the "Observe" view. 
-    To resolve this, you need to increase your PVC storage size in `../manifests/pvc-prod.yaml`. See [https://docs.csc.fi/cloud/rahti2/storage/expand-volumes/](Rahti 2 documentation)
+    To resolve this, you need to increase your PVC storage size in `../manifests/pvc-prod.yaml`. See [Rahti 2 documentation](https://docs.csc.fi/cloud/rahti2/storage/expand-volumes/)
     for possible issues related to this.
 
