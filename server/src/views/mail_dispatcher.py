@@ -47,6 +47,6 @@ def send_email():
     except smtplib.SMTPConnectError:
         return jsonify({"message": "Connection to the email service provider failed"}), 503
     except Exception:
-        return jsonify({"message": "Email was not send successfully"}), 500
+        return jsonify({"message": "Email was not sent successfully"}), 500
 
-    return jsonify({"message": "Email send successfully"}), 200
+    return jsonify({"message": "Email sent successfully"}), 200
