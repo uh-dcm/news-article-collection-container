@@ -68,9 +68,10 @@ oc scale deployment news-collection-prod --replicas=1
 *   The mounted volume storage is exceeded and the application no longer works. This happens because the storage capacity allocated to the
     PVC is not enough and could be manifested by the following error message:
     ```
-        RuntimeError: can't start new thread
+    RuntimeError: can't start new thread
     ```
     or it might be observed by going to the topology view in Rahti, clicking your deployed pod and going to "Memory usage" in the "Observe" view. 
+    
     To resolve this, you need to increase your PVC storage size in `../manifests/pvc-prod.yaml`. See [Rahti 2 documentation](https://docs.csc.fi/cloud/rahti2/storage/expand-volumes/)
     for possible issues related to this.
 
