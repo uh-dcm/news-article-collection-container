@@ -51,4 +51,44 @@ const loginUser = async (password: string) => {
   }
 };
 
-export { checkUserExists, registerUser, getIsValidToken, loginUser };
+const sendResetPasswordLink = async () => {
+  try {
+    let modified_webpage = window.location.href;
+    // remove /login from end of webpage
+    if (modified_webpage.endsWith('/login')) {
+      modified_webpage = modified_webpage.slice(0, -6);
+    }
+    const response = await axios.post(
+      `${serverUrl}/api/send_reset_password_link`,
+      {
+        webpage: modified_webpage + '/reset-password',
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log('Error in sendResetPasswordEmail: ', error);
+    return false;
+  }
+};
+
+const resetUserPassword = async (password: string, reset_token: string) => {
+  try {
+    const response = await axios.post(`${serverUrl}/api/reset_password`, {
+      password,
+      reset_token,
+    });
+    return response.data;
+  } catch (error) {
+    console.log('Error in resetUserPassword: ', error);
+    return false;
+  }
+};
+
+export {
+  checkUserExists,
+  registerUser,
+  getIsValidToken,
+  loginUser,
+  sendResetPasswordLink,
+  resetUserPassword,
+};

@@ -21,6 +21,8 @@ def create_app(testing=False):
     app = Flask(__name__, static_folder=os.path.join(Config.SERVER_ROOT, 'static'))
     CORS(app, resources={r"/*": {"origins": "*"}})
 
+    print("I am being tested or not: ", testing)
+
     # testing check
     app.config.from_object(TestConfig if testing else Config)
 

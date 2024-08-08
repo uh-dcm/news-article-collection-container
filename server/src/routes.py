@@ -14,7 +14,7 @@ from src.utils.auth_utils import jwt_required_conditional
 def init_routes(app):
     """
     Configures the basic routes for the app. Used by create_app().
-    17 in total.
+    19 in total.
     """
     log_file_path = app.config['LOG_FILE_PATH']
 
@@ -130,4 +130,16 @@ def init_routes(app):
         'get_query_export',
         jwt_required_conditional(export_manager.get_query_export),
         methods=['GET']
+    )
+    app.add_url_rule(
+        '/api/send_reset_password_link',
+        'send_reset_password_link',
+        user_management.send_reset_password_link,
+        methods=['POST']
+    )
+    app.add_url_rule(
+        '/api/reset_password',
+        'reset_password',
+        user_management.reset_password,
+        methods=['POST']
     )
