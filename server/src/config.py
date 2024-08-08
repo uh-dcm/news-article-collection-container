@@ -5,7 +5,6 @@ Sets basic or testing config for the app.
 import os
 from datetime import timedelta
 from dataclasses import dataclass
-import secrets
 
 @dataclass
 class Config:
@@ -15,31 +14,11 @@ class Config:
     FETCHER_FOLDER: str = os.path.join(SERVER_ROOT, 'rss-fetcher')
     DATABASE_URL: str = f'sqlite:///{FETCHER_FOLDER}/data/data.db'
 
-    # TODO: fix it so it works with tests
-    # WARNING: breaks for tests because path is not set correctly
-    
-    # get the secret key from a file if it exists
-    if os.path.exists(os.path.join(FETCHER_FOLDER, 'data', 'secret_key.txt')):
-        with open(os.path.join(FETCHER_FOLDER, 'data', 'secret_key.txt'), 'r', encoding='utf-8') as f:
-            SECRET_KEY: str = f.read().strip()
-    else:
-        # make a key!
-        SECRET_KEY: str = secrets.token_hex(32)
-        # write it to a file
-        with open(os.path.join(FETCHER_FOLDER, 'data', 'secret_key.txt'), 'w', encoding='utf-8') as f:
-            f.write(SECRET_KEY)
+    SECRET_KEY: str = 'f3b256e9f5be4b5eaafe4b6e2f71c37120ab7c5b34c9d2d1f96e2ff6e3779184' # NOT RANDOM! these are just placeholders,
+    # replaced with random values in app.py
+    JWT_SECRET_KEY: str = '06d491bc8b8a46d1b34b3e743c2a91d4ec90d8b56b71f70c68a5d48a873ca0ad' # NOT RANDOM! these are just placeholders,
+    # replaced with random values in app.py
 
-    # get the JWT secret key from a file if it exists
-    if os.path.exists(os.path.join(FETCHER_FOLDER, 'data', 'jwt_secret_key.txt')):
-        with open(os.path.join(FETCHER_FOLDER, 'data', 'jwt_secret_key.txt'), 'r', encoding='utf-8') as f:
-            JWT_SECRET_KEY: str = f.read().strip()
-    else:
-        # make a key!
-        JWT_SECRET_KEY: str = secrets.token_hex(32)
-        # write it to a file
-        with open(os.path.join(FETCHER_FOLDER, 'data', 'jwt_secret_key.txt'), 'w', encoding='utf-8') as f:
-            f.write(JWT_SECRET_KEY)
-    
     JWT_ACCESS_TOKEN_EXPIRES: timedelta = timedelta(minutes=60)
 
 @dataclass
