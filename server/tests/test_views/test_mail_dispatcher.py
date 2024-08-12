@@ -22,13 +22,14 @@ def test_create_email():
     """Test the creation of an email message."""
     password = 'test_password'
     email = 'test@test.com'
-    email_message = create_email(password, email)
+    host_url = 'http://localhost:5000'
+    email_message = create_email(host_url, password, email)
 
     assert email_message['From'] == ''  # This should match SERVER_EMAIL in mail_dispatcher.
     assert email_message['To'] == email
     assert email_message['Subject'] == 'Password for the News Article Collector'
 
-    expected_body = f'Here is your password ({password}) for the app (link to be here)'
+    expected_body = f'Here is your password ({password}) for the app ({host_url})'
 
     # Remove line breaks added by EmailMessage's set_content() with strip().
     assert email_message.get_payload().strip() == expected_body
