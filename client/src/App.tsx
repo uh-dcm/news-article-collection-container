@@ -18,7 +18,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Register from './features/user/Register';
 import Login from './features/user/Login';
-import ResetPassword from './features/user/ResetPassword';
+import ReregisterValidator from './features/user/ReregisterValidator';
 const Dashboard = lazy(() => import('./features/dashboard/Dashboard'));
 const Search = lazy(() => import('./features/search/Search'));
 const Statistics = lazy(() => import('./features/statistics/Statistics'));
@@ -32,7 +32,7 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // User and token check
+  // User and access token check
   useEffect(() => {
     const checkInitialState = async () => {
       try {
@@ -68,12 +68,7 @@ export default function App() {
         navigate('/register');
       } else if (
         validToken === false &&
-        ![
-          '/login',
-          '/register',
-          '/reset-password/',
-          '/reset-password', // not required, but just in case
-        ].includes(location.pathname)
+        !['/login', '/register', '/reregister'].includes(location.pathname)
       ) {
         navigate('/login');
       }
@@ -93,10 +88,17 @@ export default function App() {
     navigate('/login');
   };
 
-  // don't show header for login, register and reset password pages
-  const showHeader = !['/login', '/register', '/reset-password/'].includes(
-    location.pathname
-  );
+  // Reregistration token validation check
+  const handleReregisterValidation = (isValid: boolean) => {
+    if (isValid) {
+      navigate('/register', { state: { isReregistering: true } });
+    } else {
+      navigate('/login');
+    }
+  };
+
+  // don't show header for login and register
+  const showHeader = !['/login', '/register'].includes(location.pathname);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -133,14 +135,8 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/reset-password"
-                  element={
-                    <ResetPassword
-                      onResetSuccess={() => {
-                        navigate('/login');
-                      }}
-                    />
-                  }
+                  path="/reregister/:token"
+                  element={<ReregisterValidator onValidationComplete={handleReregisterValidation} />}
                 />
                 <Route
                   path="/dashboard"

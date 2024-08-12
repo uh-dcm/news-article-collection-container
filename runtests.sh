@@ -3,6 +3,7 @@
 # This is a thorough tests run script that also installs the dependencies
 # Place at project root and run in terminal with "bash runtests.sh" or "./runtests.sh"
 # If "Permission denied", run "chmod +x runtests.sh" once
+# On Windows the script should work with WSL
 
 # Things that may help in rare non-code related issues:
 # 1. npm dependency discrepancy issue: 

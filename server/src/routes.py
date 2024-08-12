@@ -4,17 +4,22 @@ This defines the routes used in app.py. The route functionalities are in src.vie
 import os
 from flask import send_from_directory, jsonify
 
-from src.views.administration import user_management, log_operations, status_stream
+from src.utils.auth_utils import jwt_required_conditional, get_user_data
+from src.views.administration import (
+    user_management,
+    log_operations,
+    mail_dispatcher,
+    reregistration,
+    status_stream
+)
 from src.views.data_acquisition import feed_manager, content_fetcher
 from src.views.data_analysis import query_processor, stats_analyzer
 from src.views.data_export import export_manager
-from src.views import mail_dispatcher
-from src.utils.auth_utils import jwt_required_conditional
 
 def init_routes(app):
     """
     Configures the basic routes for the app. Used by create_app().
-    19 in total.
+    20 in total.
     """
     log_file_path = app.config['LOG_FILE_PATH']
 
@@ -27,7 +32,7 @@ def init_routes(app):
         else:
             return send_from_directory(app.static_folder, 'index.html')
 
-    # basic routes
+    # administration routes
     app.add_url_rule(
         '/api/register',
         'register',
@@ -43,13 +48,31 @@ def init_routes(app):
     app.add_url_rule(
         '/api/get_user_exists',
         'get_user_exists',
-        user_management.get_user_exists,
+        lambda: jsonify({"exists": bool(get_user_data())}),
         methods=['GET']
     )
     app.add_url_rule(
         '/api/get_is_valid_token',
         'get_is_valid_token',
         jwt_required_conditional(lambda: jsonify({"valid": True})),
+        methods=['GET']
+    )
+    app.add_url_rule(
+        '/api/mail_dispatcher',
+        'send_email',
+        mail_dispatcher.send_email,
+        methods=['POST']
+    )
+    app.add_url_rule(
+        '/api/request_reregister',
+        'request_reregister',
+        reregistration.request_reregister,
+        methods=['POST']
+    )
+    app.add_url_rule(
+        '/api/validate_reregister_token/<token>',
+        'validate_reregister_token',
+        reregistration.validate_reregister_token,
         methods=['GET']
     )
     app.add_url_rule(
@@ -69,14 +92,8 @@ def init_routes(app):
         'stream',
         status_stream.stream
     )
-    app.add_url_rule(
-        '/api/mail_dispatcher',
-        'send_email',
-        mail_dispatcher.send_email,
-        methods=['POST']
-    )
 
-    # data routes
+    # article data routes
     app.add_url_rule(
         '/api/get_feed_urls',
         'get_feed_urls',
@@ -130,16 +147,4 @@ def init_routes(app):
         'get_query_export',
         jwt_required_conditional(export_manager.get_query_export),
         methods=['GET']
-    )
-    app.add_url_rule(
-        '/api/send_reset_password_link',
-        'send_reset_password_link',
-        user_management.send_reset_password_link,
-        methods=['POST']
-    )
-    app.add_url_rule(
-        '/api/reset_password',
-        'reset_password',
-        user_management.reset_password,
-        methods=['POST']
     )

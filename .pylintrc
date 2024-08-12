@@ -9,3 +9,7 @@ init-hook='import sys; sys.path.extend([".", "./server", "./server/src"])'
 # broad exception isn't really an issue, certainly not worthy of a yellow warning
 # and elses make the many possible returns easier to read
 disable=broad-exception-caught,no-else-return,no-else-continue
+
+[DESIGN]
+# 7 was a bit too strict
+max-attributes=10
