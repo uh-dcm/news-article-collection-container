@@ -49,3 +49,53 @@ def test_jwt_required_conditional_testing(mock_auth_utils):
 
     assert result == "Function called"
     mock_jwt_required.assert_not_called()
+
+# Test that the jwt_required_conditional decorator can handle 
+# roles, exceptions, and token expiration.
+
+# Test for a function that requires a specific role:
+def test_jwt_required_conditional_with_role(mock_auth_utils):
+    #Tests jwt_required_conditional() with a specific role.
+    jwt_required_conditional, config, mock_jwt_required = mock_auth_utils
+    config['TESTING'] = False
+
+    @jwt_required_conditional(roles=['admin'])
+    def test_func():
+        return "Admin function called"
+
+    test_func()
+
+    mock_jwt_required.assert_called_once()
+
+# Test for a function that handles exceptions:
+def test_jwt_required_conditional_exception(mock_auth_utils):
+    # Tests jwt_required_conditional() handling exceptions.
+    jwt_required_conditional, config, mock_jwt_required = mock_auth_utils
+    config['TESTING'] = False
+
+    @jwt_required_conditional
+    def test_func():
+        raise Exception("Test exception")
+
+    with pytest.raises(Exception, match="Test exception"):
+        test_func()
+
+    mock_jwt_required.assert_called_once()
+
+# Test for a function that checks token expiration:
+def test_jwt_required_conditional_token_expired(mock_auth_utils):
+    # Tests jwt_required_conditional() with an expired token.
+    jwt_required_conditional, config, mock_jwt_required = mock_auth_utils
+    config['TESTING'] = False
+
+    @jwt_required_conditional
+    def test_func():
+        return "Function called"
+
+    # Simulate token expiration
+    mock_jwt_required.side_effect = Exception("Token has expired")
+
+    with pytest.raises(Exception, match="Token has expired"):
+        test_func()
+
+    mock_jwt_required.assert_called_once()

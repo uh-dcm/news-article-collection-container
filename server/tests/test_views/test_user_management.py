@@ -50,3 +50,29 @@ def test_get_user_exists_true(client, app_config):
     assert response.json['exists'] is True, "API should report that user exists"
 
     assert os.path.exists(password_file_path), "Password file should exist after registration"
+
+# Ensure the system handles attempts to register a user that already exists.
+@pytest.mark.usefixtures("setup_and_teardown")
+def test_register_duplicate_user(client):
+    """Tests registering a user that already exists."""
+    client.post('/api/register', json={'password': 'testpassword'})
+    response = client.post('/api/register', json={'password': 'testpassword'})
+    assert response.status_code == 400
+    assert response.json['msg'] == "User already exists"
+
+# Verify the behavior when an invalid password format is provided during registration.
+@pytest.mark.usefixtures("setup_and_teardown")
+def test_register_invalid_password_format(client):
+    """Tests registering with an invalid password format."""
+    response = client.post('/api/register', json={'password': ''})
+    assert response.status_code == 400
+    assert response.json['msg'] == "Invalid password format"
+
+# Ensure the system handles login attempts with incorrect passwords.
+@pytest.mark.usefixtures("setup_and_teardown")
+def test_login_incorrect_password(client):
+    """Tests logging in with an incorrect password."""
+    client.post('/api/register', json={'password': 'testpassword'})
+    response = client.post('/api/login', json={'password': 'wrongpassword'})
+    assert response.status_code == 401
+    assert response.json['msg'] == "Incorrect password"

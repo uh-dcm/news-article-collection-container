@@ -1,6 +1,7 @@
-"""
-Tests format_converter.py functions.
-"""
+
+# Added new test cases:
+# Test for Empty DataFrame: Verify the behavior when the DataFrame is empty.
+
 import os
 import json
 import csv
@@ -110,9 +111,28 @@ def test_convert_db_to_parquet(app_config):
     assert os.path.exists(file_path), "The articles.parquet file was not created."
     verify_parquet_data(file_path, expected_data)
 
+# Verifies the behavior when the DataFrame is empty.
 @pytest.mark.usefixtures("setup_and_teardown")
-def test_convert_db_to_invalid_format():
-    """Tests conversion of invalid format."""
+def test_convert_db_to_json_empty(app_config):
+    """
+    Tests conversion of an empty db to export JSON.
+    Uses db setup fixture.
+    """
+    df = pd.DataFrame([])
+    convert_db_to_format(df, 'json', 'articles')
+    file_path = os.path.join(app_config['FETCHER_FOLDER'], 'data', 'articles.json')
+    assert os.path.exists(file_path), "The articles.json file was not created."
+    with open(file_path, 'r', encoding='utf-8') as file:
+        json_data = json.load(file)
+    assert json_data == [], "The articles.json file is not empty."
+
+# Ensures the function handles invalid formats.
+@pytest.mark.usefixtures("setup_and_teardown")
+def test_convert_db_to_invalid_format(app_config):
+    """
+    Tests conversion of db articles to an invalid format.
+    Uses db setup fixture.
+    """
     df = pd.DataFrame(expected_data)
     with pytest.raises(ValueError):
-        convert_db_to_format(df, 'invalid_format', 'articles')
+        convert_db_to_format(df, 'invalid', 'articles')
