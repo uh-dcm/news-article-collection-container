@@ -1,3 +1,4 @@
+
 import {
   render,
   screen,
@@ -72,12 +73,80 @@ describe('App component', () => {
     });
   });
 
+  test('removes RSS feed URLs', async () => {
+    const toastSuccessSpy = vi.spyOn(toast, 'success');
+
+    // Add a feed URL first
+    const input = screen.getByPlaceholderText('RSS feed address here...');
+    fireEvent.change(input, { target: { value: 'https://blabla.com/feed' } });
+    const addToListButton = screen.getByText(/Add to list/i);
+    fireEvent.click(addToListButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('https://blabla.com/feed')).toBeInTheDocument();
+    });
+
+    // Remove the feed URL
+    const removeButton = screen.getByText(/Remove/i);
+    fireEvent.click(removeButton);
+
+    await waitFor(() => {
+      expect(screen.queryByText('https://blabla.com/feed')).not.toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(toastSuccessSpy).toHaveBeenCalledWith(
+        'Feed list updated successfully!'
+      );
+    });
+  });
+
+  test('submits invalid RSS feed URL', async () => {
+    const toastErrorSpy = vi.spyOn(toast, 'error');
+
+    const input = screen.getByPlaceholderText('RSS feed address here...');
+    fireEvent.change(input, { target: { value: 'invalid-url' } });
+
+    const addToListButton = screen.getByText(/Add to list/i);
+    fireEvent.click(addToListButton);
+
+    await waitFor(() => {
+      expect(toastErrorSpy).toHaveBeenCalledWith(
+        'Invalid RSS feed URL!'
+      );
+    });
+  });
+
+  test('navigates between views', async () => {
+    const homeLink = screen.getByText(/Home/i);
+    const aboutLink = screen.getByText(/About/i);
+
+    fireEvent.click(aboutLink);
+    await waitFor(() => {
+      expect(screen.getByText(/About Us/i)).toBeInTheDocument();
+    });
+
+    fireEvent.click(homeLink);
+    await waitFor(() => {
+      expect(screen.getByText(/News Article Collector/i)).toBeInTheDocument();
+    });
+  });
+
+  test('displays tooltips correctly', async () => {
+    const tooltipTrigger = screen.getByText(/Hover me/i);
+    fireEvent.mouseOver(tooltipTrigger);
+
+    await waitFor(() => {
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    });
+  });
+
   test('starts RSS fetching', async () => {
     const toggleFetchSwitch = await screen.getByTestId('fetchToggle');
     fireEvent.click(toggleFetchSwitch);
 
     await waitFor(() => {
-      expect(toggleFetchSwitch).toBeChecked;
+      expect(toggleFetchSwitch).toBeChecked();
     });
   });
 
@@ -87,7 +156,7 @@ describe('App component', () => {
     fireEvent.click(toggleFetchSwitch);
 
     await waitFor(() => {
-      expect(!toggleFetchSwitch).toBeChecked;
+      expect(toggleFetchSwitch).not.toBeChecked();
     });
   });
 
@@ -136,6 +205,20 @@ describe('App component', () => {
     });
   });
 
+  test('handles download error', async () => {
+    const toastErrorSpy = vi.spyOn(toast, 'error');
+    vi.spyOn(global, 'fetch').mockImplementation(() =>
+      Promise.reject(new Error('Download failed'))
+    );
+
+    const downloadButton = screen.getByRole('button', { name: /^JSON$/i });
+    fireEvent.click(downloadButton);
+
+    await waitFor(() => {
+      expect(toastErrorSpy).toHaveBeenCalledWith('Download failed');
+    });
+  });
+  
   // handler at setup is only using textQuery for now
   test('searches articles based on query', async () => {
     const searchLink = screen.getByRole('link', { name: /^Search$/ });
@@ -162,5 +245,28 @@ describe('App component', () => {
 
     const fullText2 = screen.queryByText('Full text 2', { exact: false });
     expect(fullText2).not.toBeInTheDocument();
+  });
+
+  test('handles no articles found during search', async () => {
+    const searchLink = screen.getByRole('link', { name: /^Search$/ });
+    fireEvent.click(searchLink);
+
+    await waitFor(
+      () => {
+        expect(screen.getByText(/Search articles/i)).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
+
+    const searchInput = screen.getByPlaceholderText('Insert text query...');
+    const searchButton = screen.getByRole('button', { name: /Submit search/i });
+
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: 'Nonexistent text' } });
+      fireEvent.click(searchButton);
+    });
+
+    const noArticlesMessage = screen.getByText(/No articles found/i);
+    expect(noArticlesMessage).toBeInTheDocument();
   });
 });

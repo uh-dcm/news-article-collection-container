@@ -1,7 +1,8 @@
+
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { Toaster, toast } from 'sonner';
 
 const SonnerComponent: React.FC = () => {
@@ -22,6 +23,11 @@ vi.mock('sonner', () => ({
   Toaster: () => <div>Test</div>,
 }));
 
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
+
 describe('Sonner component', () => {
   it('renders sonner component and shows toast', () => {
     render(<SonnerComponent />);
@@ -30,5 +36,42 @@ describe('Sonner component', () => {
     fireEvent.click(buttonElement);
     
     expect(toast).toHaveBeenCalledWith('Bla bla');
+  });
+
+  it('shows success toast', () => {
+    toast.success = vi.fn();
+    render(<SonnerComponent />);
+    
+    toast.success('Success message');
+    
+    expect(toast.success).toHaveBeenCalledWith('Success message');
+  });
+
+  it('shows error toast', () => {
+    toast.error = vi.fn();
+    render(<SonnerComponent />);
+    
+    toast.error('Error message');
+    
+    expect(toast.error).toHaveBeenCalledWith('Error message');
+  });
+
+  it('shows multiple toasts', () => {
+    render(<SonnerComponent />);
+    
+    toast('First message');
+    toast('Second message');
+    
+    expect(toast).toHaveBeenCalledTimes(2);
+    expect(toast).toHaveBeenCalledWith('First message');
+    expect(toast).toHaveBeenCalledWith('Second message');
+  });
+
+  it('handles empty toast message', () => {
+    render(<SonnerComponent />);
+    
+    toast('');
+    
+    expect(toast).toHaveBeenCalledWith('');
   });
 });

@@ -8,7 +8,8 @@ from flask_jwt_extended import create_access_token
 
 @pytest.fixture
 def auth_headers(client):
-    """Fixture for token use in testing. Only used by test_get_is_valid_token()."""
+    """Fixture for token use in testing. 
+    Only used by test_get_is_valid_token()."""
     with client.application.app_context():
         access_token = create_access_token(identity='testuser')
     client.auth_headers = {'Authorization': f'Bearer {access_token}'}
