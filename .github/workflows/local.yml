@@ -1,15 +1,15 @@
 # Important:
 # Meant to be ran locally for example with 'act'
 # to run work flow input the following command (assuming act is installed):
-# act -j dev
+# act -j local
 
-name: dev build
+name: local build
 
 on:
   workflow_dispatch:
 
 jobs:
-  dev:
+  local:
     runs-on: ubuntu-latest
 
     steps:
