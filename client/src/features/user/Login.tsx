@@ -3,7 +3,8 @@ import { toast } from 'sonner';
 import { loginUser } from '@/services/authfunctions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { sendResetPasswordLink } from '@/services/authfunctions';
+
+import ReregisterButton from './reregister-button';
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -11,10 +12,6 @@ interface LoginProps {
 
 interface LoginResponse {
   access_token: string;
-}
-
-interface PasswordResetSendResponse {
-  msg: string;
 }
 
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
@@ -40,18 +37,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       }
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleResetPassword = async () => {
-    if (window.confirm('Send a reset password link?')) {
-      const response: PasswordResetSendResponse | null =
-        await sendResetPasswordLink();
-      if (response && response.msg === 'Reset email sent successfully') {
-        toast.success('Reset email sent!');
-      } else {
-        toast.error('Failed to send reset email');
-      }
     }
   };
 
@@ -84,9 +69,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       <Button className="mt-4" disabled={loading} onClick={handleLogin}>
         {loading ? 'Logging in...' : 'Log in'}
       </Button>
-      <Button className="mt-4" disabled={loading} onClick={handleResetPassword}>
-        Forgot password?
-      </Button>
+      <ReregisterButton />
     </div>
   );
 };

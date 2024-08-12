@@ -12,15 +12,16 @@ const checkUserExists = async () => {
   }
 };
 
-const registerUser = async (email: string, password: string) => {
+const registerUser = async (email: string, password: string, isReregistering: boolean = false) => {
   try {
     const response = await axios.post(`${serverUrl}/api/register`, {
       email,
       password,
+      isReregistering
     });
     return response.data;
   } catch (error) {
-    console.log('Error in createUser: ', error);
+    console.log('Error in registerUser: ', error);
     return false;
   }
 };
@@ -51,36 +52,29 @@ const loginUser = async (password: string) => {
   }
 };
 
-const sendResetPasswordLink = async () => {
+const requestReregister = async () => {
   try {
-    let modified_webpage = window.location.href;
-    // remove /login from end of webpage
-    if (modified_webpage.endsWith('/login')) {
-      modified_webpage = modified_webpage.slice(0, -6);
+    const response = await axios.post(`${serverUrl}/api/request_reregister`);
+
+    // TODO: this is a development version to print link to console, remove in prod
+    if (response.data.reregister_link) {
+      console.log('REREGISTRATION LINK:', response.data.reregister_link);
     }
-    const response = await axios.post(
-      `${serverUrl}/api/send_reset_password_link`,
-      {
-        webpage: modified_webpage + '/reset-password',
-      }
-    );
+
     return response.data;
   } catch (error) {
-    console.log('Error in sendResetPasswordEmail: ', error);
-    return false;
+    console.log('Error in requestReregister: ', error);
+    throw error;
   }
 };
 
-const resetUserPassword = async (password: string, reset_token: string) => {
+const validateReregisterToken = async (token: string) => {
   try {
-    const response = await axios.post(`${serverUrl}/api/reset_password`, {
-      password,
-      reset_token,
-    });
+    const response = await axios.get(`${serverUrl}/api/validate_reregister_token/${token}`);
     return response.data;
   } catch (error) {
-    console.log('Error in resetUserPassword: ', error);
-    return false;
+    console.log('Error in validateReregisterToken: ', error);
+    throw error;
   }
 };
 
@@ -89,6 +83,6 @@ export {
   registerUser,
   getIsValidToken,
   loginUser,
-  sendResetPasswordLink,
-  resetUserPassword,
+  requestReregister,
+  validateReregisterToken
 };

@@ -6,9 +6,8 @@ import ssl
 from email.message import EmailMessage
 from flask import jsonify, request
 
-
-SMTP_SERVER = 'smtp.gmail.com'
-SMTP_PORT = 465
+SMTP_SERVER = '' # 'smtp.gmail.com'
+SMTP_PORT = '' # 465
 SERVER_EMAIL = ''  # Replace with gmail address
 SERVER_PASSWORD = ''  # Replace with gmail app password
 
