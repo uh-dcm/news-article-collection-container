@@ -48,6 +48,9 @@ RUN cp -r client/build server/static
 # Create directory for data
 RUN mkdir server/rss-fetcher/data
 
+# Solve Rahti cache issue by setting caches to a specific writable directory
+ENV XDG_CACHE_HOME=/app/server/rss-fetcher/data/.cache
+
 # Install dependencies of flask backend, but do not cache them
 RUN pip install --no-cache-dir -r server/requirements.txt
 
