@@ -37,10 +37,13 @@ WORKDIR /app
 # Copy backend files to container
 COPY server /app/server
 
-# Clone another repository into a subdirectory of /server
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* \
-    && rm -rf server/rss-fetcher && mkdir server/rss-fetcher && \
-    git clone https://github.com/ayriainen/news-article-collection server/rss-fetcher
+# Remove existing rss-fetcher if it exists, create a new empty one
+RUN rm -rf /app/server/rss-fetcher && mkdir -p /app/server/rss-fetcher
+
+# Download and extract the original tool into rss-fetcher
+ADD https://github.com/ayriainen/news-article-collection/archive/main.tar.gz /tmp/
+RUN tar -xzf /tmp/main.tar.gz -C /app/server/rss-fetcher --strip-components=1 && \
+    rm /tmp/main.tar.gz
 
 # Copy frontend build to static folder
 RUN cp -r client/build server/static

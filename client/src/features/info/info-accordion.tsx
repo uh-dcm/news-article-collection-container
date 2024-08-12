@@ -67,9 +67,9 @@ export default function InfoAccordion({
                 line.
               </li>
               <li>
-                <strong>Fetcher:</strong> Activate the RSS fetching of the list.
-                The backend will check for new articles every 5 minutes, even
-                when not using the site.
+                <strong>Toggle article fetching:</strong> Activate the RSS
+                fetching of the list. The backend will check for new articles
+                every 5 minutes, even when not using the site.
               </li>
               <li>
                 <strong>Results:</strong> After fetching, you can:

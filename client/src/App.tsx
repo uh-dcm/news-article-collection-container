@@ -88,7 +88,7 @@ export default function App() {
     navigate('/login');
   };
 
-  // Reregistration token validation check
+  // Reregistration token (not access token) validity dependant navigation check
   const handleReregisterValidation = (isValid: boolean) => {
     if (isValid) {
       navigate('/register', { state: { isReregistering: true } });
