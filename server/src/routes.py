@@ -32,7 +32,7 @@ def init_routes(app):
         else:
             return send_from_directory(app.static_folder, 'index.html')
 
-    # administration routes
+    # administration or user control related routes
     app.add_url_rule(
         '/api/register',
         'register',
