@@ -4,7 +4,7 @@ Configures settings for gmail, creates and sends email.
 import smtplib
 import ssl
 from email.message import EmailMessage
-from flask import jsonify, request
+from flask import current_app
 
 SMTP_SERVER = '' # 'smtp.gmail.com'
 SMTP_PORT = '' # 465
@@ -29,7 +29,7 @@ def create_email(host_url, password, username):
 
     return em
 
-def send_email():
+def send_email(request):
     """
     Sends email with SMTP-server and SSL.
     """
@@ -43,10 +43,16 @@ def send_email():
             smtp.login(SERVER_EMAIL, SERVER_PASSWORD)
             smtp.sendmail(SERVER_EMAIL, username, email_message.as_string())
     except smtplib.SMTPAuthenticationError:
-        return jsonify({"message": "Authentication to the email service provider failed"}), 401
+        msg = 'Authentication to the email server failed'
+        current_app.logger.error(msg)
+        return msg
     except smtplib.SMTPConnectError:
-        return jsonify({"message": "Connection to the email service provider failed"}), 503
+        msg = 'Connection to the email server failed'
+        current_app.logger.error(msg)
+        return msg
     except Exception:
-        return jsonify({"message": "Email was not sent successfully"}), 500
+        msg = 'Failed to send email for an unknown reason'
+        current_app.logger.error(msg)
+        return msg
 
-    return jsonify({"message": "Email sent successfully"}), 200
+    return 'Email sent successfully'

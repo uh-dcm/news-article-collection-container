@@ -8,7 +8,6 @@ from src.utils.auth_utils import jwt_required_conditional, get_user_data
 from src.views.administration import (
     user_management,
     log_operations,
-    mail_dispatcher,
     reregistration,
     status_stream
 )
@@ -56,12 +55,6 @@ def init_routes(app):
         'get_is_valid_token',
         jwt_required_conditional(lambda: jsonify({"valid": True})),
         methods=['GET']
-    )
-    app.add_url_rule(
-        '/api/mail_dispatcher',
-        'send_email',
-        mail_dispatcher.send_email,
-        methods=['POST']
     )
     app.add_url_rule(
         '/api/request_reregister',

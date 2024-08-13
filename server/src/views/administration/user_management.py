@@ -1,11 +1,12 @@
 """
 Handles register and login routes. Called by routes.py.
 """
-from flask import jsonify, request
+from flask import current_app, jsonify, request
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import create_access_token
 
 from src.utils.auth_utils import get_user_data, set_user_data
+from src.views.administration.mail_dispatcher import send_email
 
 def register():
     """Register a new user. Called by routes.init_routes() for route /api/register."""
@@ -22,6 +23,9 @@ def register():
 
     new_user_data = {"email": email, "password": generate_password_hash(password)}
     set_user_data(new_user_data)
+
+    if not current_app.config['TESTING']:
+        send_email(request)
 
     if is_reregistering:
         return jsonify({"msg": "User updated"}), 200

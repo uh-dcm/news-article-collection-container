@@ -1,11 +1,9 @@
-import { AxiosError } from 'axios';
 import React, { useState, KeyboardEvent } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-import { sendMailNotification } from './mail-notification';
 import { registerUser } from '@/services/authfunctions';
 
 interface RegisterProps {
@@ -39,24 +37,8 @@ const Register: React.FC<RegisterProps> = ({ onRegistrationSuccess }) => {
       } else {
         toast.error('An unknown error occurred');
       }
-      // dont execute mail sending if error (probably needs setLoading too here)
-      return;
     } finally {
       setLoading(false);
-    }
-
-    try {
-      const response = await sendMailNotification(email, password);
-      if (response.status == 200) {
-        toast.success('Mail sent successfully!');
-      }
-    } catch (error: unknown) {
-      if (error instanceof AxiosError) {
-      // return this if notification working
-      //  toast.error(error.response?.data.message);
-      } else {
-        toast.error('An unknown error occurred');
-      }
     }
   };
 
