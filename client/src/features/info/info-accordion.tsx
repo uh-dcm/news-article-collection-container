@@ -66,9 +66,9 @@ export default function InfoAccordion({
                 URLs individually or upload a text file with one URL per line.
               </li>
               <li>
-                <strong>Toggle fetching:</strong> Activate the fetching
-                of the articles in the added feeds. The backend will check
-                for new articles every 5 minutes, even when not using the site.
+                <strong>Toggle fetching:</strong> Activate fetching of articles
+                in the added feeds. The backend will check for new articles every
+                5 minutes, even when not using the site.
               </li>
               <li>
                 <strong>Results:</strong> After fetching, you can:

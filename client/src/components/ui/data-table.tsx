@@ -128,7 +128,7 @@ export function DataTable<TData, TValue>({
     return (
       <TableRow>
         <TableCell colSpan={columns.length} className="text-center">
-          No results.
+          No items to display.
         </TableCell>
       </TableRow>
     );

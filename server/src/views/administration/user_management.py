@@ -27,8 +27,9 @@ def register():
     new_user_data = {"email": email, "password": generate_password_hash(password)}
     set_user_data(new_user_data)
 
-    if not current_app.config['TESTING']:
-        send_email(request)
+    # return this when mailing functioning
+    # if not current_app.config['TESTING']:
+    #    send_email(request)
 
     if is_reregistering:
         return jsonify({"msg": "User updated"}), 200
