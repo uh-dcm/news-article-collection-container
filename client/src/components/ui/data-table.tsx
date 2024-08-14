@@ -36,6 +36,7 @@ interface DataTableProps<TData, TValue> {
   reducedSpacing?: boolean;
   showGlobalFilter?: boolean;
   onClear?: number;
+  hideTitle?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -47,6 +48,7 @@ export function DataTable<TData, TValue>({
   reducedSpacing = false,
   showGlobalFilter = true,
   onClear,
+  hideTitle = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -134,15 +136,11 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className={`flex h-8 items-center justify-between ${reducedSpacing ? 'mb-2' : 'mb-4'}`}>
-        <Label className="text-base font-medium">{tableName}</Label>
-
-        {onDeleteSelected && table.getSelectedRowModel().rows.length > 0 && (
-          <Button onClick={handleDeleteSelected} variant="destructive">
-            Delete Selected Rows
-          </Button>
-        )}
-      </div>
+      {!hideTitle && (
+        <div className={`flex h-8 items-center justify-between ${reducedSpacing ? 'mb-2' : 'mb-4'}`}>
+          <Label className="text-base font-medium">{tableName}</Label>
+        </div>
+      )}
       {showGlobalFilter && table.getAllColumns().some(column => column.getCanFilter()) && (
         <div className={`flex items-center ${reducedSpacing ? 'py-2' : 'py-4'}`}>
           <Input
@@ -175,24 +173,35 @@ export function DataTable<TData, TValue>({
           <TableBody>{renderTableContent()}</TableBody>
         </Table>
       </div>
-      {(table.getCanNextPage() || table.getCanPreviousPage()) && (
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+      {(table.getCanPreviousPage() || table.getCanNextPage() || (onDeleteSelected && table.getSelectedRowModel().rows.length > 0)) && (
+        <div className="flex items-center justify-between mt-4">
+          <div>
+            {onDeleteSelected && table.getSelectedRowModel().rows.length > 0 && (
+              <Button onClick={handleDeleteSelected} variant="destructive" size="sm">
+                Delete Selected
+              </Button>
+            )}
+          </div>
+          {(table.getCanPreviousPage() || table.getCanNextPage()) && (
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

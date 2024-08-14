@@ -8,11 +8,15 @@ test('renders RSS Input component and handles URL submission', async () => {
   const handleFeedAdd = vi.fn();
   render(
     <Tooltip.Provider>
-      <RssInput handleFeedAdd={handleFeedAdd} isUrlSetDisabled={false} />
+      <RssInput 
+        handleFeedAdd={handleFeedAdd} 
+        isUrlSetDisabled={false} 
+        downloadButton={<div>Mock Download Button</div>}
+      />
     </Tooltip.Provider>
   );
 
-  const input = screen.getByPlaceholderText('RSS feed address here...');
+  const input = screen.getByPlaceholderText('Input RSS feed address here...');
   expect(input).toBeInTheDocument();
 
   const submitButton = screen.getByText(/Add to list/i);
