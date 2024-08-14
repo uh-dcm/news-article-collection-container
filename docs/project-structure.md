@@ -1,6 +1,46 @@
-General project structure in Markdown. Date: August 6, 2024. Intermittently updated.
+General project structure in Markdown. Date: August 14, 2024. Intermittently updated.
 
-1. Directory structure
+1. Mermaid graph of the directories of the main functionalities
+
+```mermaid
+graph TD
+    A[news-article-collection-container] --> C[client]
+    A --> F[server]
+    
+    C --> C1[public]
+    C --> C2[src]
+    C --> C3[tests]
+    
+    C2 --> C2A[components]
+    C2 --> C2B[css]
+    C2 --> C2C[features]
+    C2 --> C2D[lib]
+    C2 --> C2E[services]
+    
+    C2C --> C2C1[dashboard]
+    C2C --> C2C2[errors]
+    C2C --> C2C3[info]
+    C2C --> C2C4[search]
+    C2C --> C2C5[statistics]
+    C2C --> C2C6[user]
+    
+    F --> F1[src]
+    F --> F2[tests]
+    
+    F1 --> F1A[views]
+    F1 --> F1B[utils]
+    
+    F1A --> F1A1[administration]
+    F1A --> F1A2[data_acquisition]
+    F1A --> F1A3[data_analysis]
+    F1A --> F1A4[data_export]
+    
+    G[news-article-collection] --> G1[collect.py]
+    G --> G2[database.py]
+    G --> G3[process.py]
+```
+
+2. Whole directory structure in ASCII tree style
 
 ```
 └── 📁news-article-collection-container
@@ -45,16 +85,17 @@ General project structure in Markdown. Date: August 6, 2024. Intermittently upda
 └── 📁news-article-collection
 ```
 
-2. Whole structure including files
+3. Whole structure including files in ASCII tree style
 
 ```
 └── 📁news-article-collection-container
     └── 📁.github
         └── 📁workflows
-            └── dev.yml
+            └── local.yml
             └── main.yml
             └── playground.yml
             └── release.yaml
+        └── README-WORKFLOW.md
     └── 📁client
         └── 📁public
             └── 📁images
@@ -68,6 +109,7 @@ General project structure in Markdown. Date: August 6, 2024. Intermittently upda
                     └── card.tsx
                     └── checkbox.tsx
                     └── data-table.tsx
+                    └── download-button.tsx
                     └── drawer.tsx
                     └── dropdown-menu.tsx
                     └── feed-columns.tsx
@@ -115,8 +157,9 @@ General project structure in Markdown. Date: August 6, 2024. Intermittently upda
                     └── timeseries.tsx
                 └── 📁user
                     └── Login.tsx
-                    └── mail-notification.tsx
                     └── Register.tsx
+                    └── reregister-button.tsx
+                    └── ReregisterValidator.tsx
             └── 📁lib
                 └── svg-paths.ts
                 └── utils.ts
@@ -176,12 +219,15 @@ General project structure in Markdown. Date: August 6, 2024. Intermittently upda
         └── deployment-prod.yaml
         └── image-stream.yaml
         └── pvc-prod.yaml
+        └── README.md
         └── service-route-prod.yaml
     └── 📁server
         └── 📁src
             └── 📁views
                 └── 📁administration
                     └── log_operations.py
+                    └── mail_dispatcher.py
+                    └── reregistration.py
                     └── status_stream.py
                     └── user_management.py
                 └── 📁data_acquisition
@@ -208,6 +254,7 @@ General project structure in Markdown. Date: August 6, 2024. Intermittently upda
                 └── test_feed_manager.py
                 └── test_format_converter.py
                 └── test_log_operations.py
+                └── test_mail_dispatcher.py
                 └── test_query_processor.py
                 └── test_stats_analyzer.py
                 └── test_user_management.py
@@ -218,6 +265,7 @@ General project structure in Markdown. Date: August 6, 2024. Intermittently upda
         └── Dockerfile
         └── Dockerfile.dev
         └── pytest.ini
+        └── README.md
         └── requirements.txt
         └── requirements-dev.txt
     └── .pylintrc

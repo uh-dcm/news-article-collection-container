@@ -62,14 +62,13 @@ export default function InfoAccordion({
           <AccordionContent>
             <ol className="list-inside list-decimal space-y-2">
               <li>
-                <strong>RSS feed manager:</strong> On the Dashboard, add RSS
-                feed URLs individually or upload a text file with one URL per
-                line.
+                <strong>RSS feeds:</strong> On the Dashboard, add RSS feed
+                URLs individually or upload a text file with one URL per line.
               </li>
               <li>
-                <strong>Toggle article fetching:</strong> Activate the RSS
-                fetching of the list. The backend will check for new articles
-                every 5 minutes, even when not using the site.
+                <strong>Toggle fetching:</strong> Activate fetching of articles
+                in the added feeds. The backend will check for new articles every
+                5 minutes, even when not using the site.
               </li>
               <li>
                 <strong>Results:</strong> After fetching, you can:

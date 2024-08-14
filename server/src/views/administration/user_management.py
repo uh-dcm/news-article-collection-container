@@ -9,7 +9,10 @@ from src.utils.auth_utils import get_user_data, set_user_data
 from src.views.administration.mail_dispatcher import send_email
 
 def register():
-    """Register a new user. Called by routes.init_routes() for route /api/register."""
+    """
+    Register a new user. Checks isReregistering whether to allow registering again.
+    Called by routes.init_routes() for route /api/register.
+    """
     email = request.json.get('email', None)
     password = request.json.get('password', None)
     is_reregistering = request.json.get('isReregistering', False)
@@ -24,8 +27,9 @@ def register():
     new_user_data = {"email": email, "password": generate_password_hash(password)}
     set_user_data(new_user_data)
 
-    if not current_app.config['TESTING']:
-        send_email(request)
+    # return this when mailing functioning
+    # if not current_app.config['TESTING']:
+    #    send_email(request)
 
     if is_reregistering:
         return jsonify({"msg": "User updated"}), 200

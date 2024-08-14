@@ -17,6 +17,7 @@ import {
 interface RssInputProps {
   handleFeedAdd: (event: { url: string }) => void;
   isUrlSetDisabled: boolean;
+  downloadButton: React.ReactNode;
 }
 
 const formSchema = z.object({
@@ -27,6 +28,7 @@ const formSchema = z.object({
 export default function RssInput({
   handleFeedAdd,
   isUrlSetDisabled,
+  downloadButton,
 }: RssInputProps): JSX.Element {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -87,17 +89,9 @@ export default function RssInput({
   };
 
   return (
-    <div className="mb-8">
-      <Label className="text-base">
-        Enter RSS feed URL:
-        <InfoIcon
-          tooltipContent="Addresses that often end in .rss, .xml or /feed/."
-          ariaLabel="RSS feed URL info"
-          verticalOffset="-0.2em"
-        />
-      </Label>
+    <div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
           <FormField
             control={form.control}
             name="url"
@@ -105,7 +99,7 @@ export default function RssInput({
               <FormItem>
                 <FormControl>
                   <Input
-                    placeholder="RSS feed address here..."
+                    placeholder="Input RSS feed address here..."
                     {...field}
                     className={`${!isUrlValid ? 'border-red-500' : ''}`}
                     onChange={handleUrlChange}
@@ -119,36 +113,41 @@ export default function RssInput({
               </FormItem>
             )}
           />
-          <div className="flex items-center space-x-16">
-            <Button disabled={isUrlSetDisabled} type="submit">
-              Add to list
-            </Button>
 
-            <FormField
-              control={form.control}
-              name="file"
-              render={() => (
-                <FormItem>
-                  <FormControl>
-                    <div className="flex items-center space-x-2">
-                      <Label className="whitespace-nowrap">
-                        Text file
-                        <InfoIcon
-                          tooltipContent="You can also upload a text file containing RSS feed URLs, one per line."
-                          ariaLabel="RSS feed file info"
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-16">
+              <Button disabled={isUrlSetDisabled} type="submit">
+                Add to list
+              </Button>
+
+              <FormField
+                control={form.control}
+                name="file"
+                render={() => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center space-x-2">
+                        <Label className="whitespace-nowrap">
+                          Text file
+                          <InfoIcon
+                            tooltipContent="You can also upload a text file containing RSS feed URLs, one per line."
+                            ariaLabel="RSS feed file info"
+                            verticalOffset = '-0.2em'
+                          />
+                        </Label>
+                        <Input
+                          id="rssFileInput"
+                          type="file"
+                          className="cursor-pointer w-56"
                         />
-                      </Label>
-                      <Input
-                        id="rssFileInput"
-                        type="file"
-                        className="cursor-pointer w-56"
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div>{downloadButton}</div>
           </div>
         </form>
       </Form>

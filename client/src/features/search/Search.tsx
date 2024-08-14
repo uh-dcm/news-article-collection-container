@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MagnifyingGlassIcon, ArrowDownTrayIcon } from '@heroicons/react/24/solid';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 
-{/* custom ui */}
+// custom ui
 import { PageLayout } from '@/components/page-layout';
 import { itemVariants } from '@/components/animation-variants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { DownloadButton } from '@/components/ui/download-button';
 import { Input } from '@/components/ui/input';
 
-{/* search, its results and download function */}
+// search, its results and download function
 import { sendSearchQuery, SearchParams } from '@/services/database-queries';
 import { DataTable } from '@/components/ui/data-table';
 import { articleColumns, Article } from '@/components/ui/article-columns';
@@ -25,7 +26,7 @@ export default function Search() {
   const [endTime, setEndTime] = useState('');
   const [htmlQuery, setHtmlQuery] = useState('');
 
-  {/* Search function */}
+  // Search function
   const handleSearchQuery = async () => {
     setArticlesLoading(true);
     try {
@@ -39,7 +40,12 @@ export default function Search() {
     }
   };
 
-  {/* Two const below are Clear button related */}
+  // Download function
+  const handleDownload = (format: 'json' | 'csv' | 'parquet') => {
+    handleArticleDownload(format, true, setIsDisabled);
+  };
+
+  // Two const below are Clear button related
   const [clearTrigger, setClearTrigger] = useState(0);
 
   const handleClear = () => {
@@ -52,7 +58,7 @@ export default function Search() {
     setClearTrigger(prev => prev + 1);
   };
 
-  {/* remove this and the useeffect import to disable autosearch */}
+  // remove this and the useeffect import to disable autosearch
   useEffect(() => {
     handleSearchQuery();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,6 +72,12 @@ export default function Search() {
             <CardTitle className="text-lg">Search articles</CardTitle>
             <CardDescription>Query and export articles with matching data</CardDescription>
             <div className="absolute right-4 top-4 flex items-center space-x-4">
+              <DownloadButton
+                onDownload={handleDownload}
+                isDisabled={isDisabled || searchData.length === 0}
+                buttonText="Download Results"
+                className="w-[205px]"
+              />
               <Button variant="outline" size="sm" onClick={handleClear} className="h-8 px-2 text-xs">
                 Clear
               </Button>
@@ -85,31 +97,15 @@ export default function Search() {
             </Button>
           </CardContent>
           <CardContent>
-              <DataTable
-                  columns={articleColumns}
-                  data={searchData}
-                  tableName={'Query results'}
-                  isLoading={articlesLoading}
-                  reducedSpacing={true}
-                  showGlobalFilter={true}
-                  onClear={clearTrigger}
-                  />
-              </CardContent>
-          <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-              {['JSON', 'CSV', 'Parquet'].map((format) => (
-                  <Button
-                  key={format.toLowerCase()}
-                  variant="outline"
-                  onClick={() => handleArticleDownload(format.toLowerCase() as 'json' | 'csv' | 'parquet', true, setIsDisabled)}
-                  disabled={isDisabled || searchData.length === 0}
-                  className="w-full p-6 text-base sm:w-[30%]"
-                  >
-                  <div className="flex justify-center">
-                      <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                      {`${format} (Query)`}
-                  </div>
-                  </Button>
-              ))}
+            <DataTable
+              columns={articleColumns}
+              data={searchData}
+              tableName={'Query results'}
+              isLoading={articlesLoading}
+              reducedSpacing={true}
+              showGlobalFilter={true}
+              onClear={clearTrigger}
+            />
           </CardContent>
         </Card>
       </motion.div>

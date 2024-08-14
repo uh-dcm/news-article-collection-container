@@ -5,6 +5,7 @@ import {
   waitFor,
   act,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import App from '@/App';
 import '@testing-library/jest-dom';
 import { expect, test, vi, describe, beforeEach } from 'vitest';
@@ -12,6 +13,11 @@ import { toast } from 'sonner';
 import { MockEventSource } from './setupTests';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
+import { handleArticleDownload } from '@/services/article-download';
+
+vi.mock('@/services/article-download', () => ({
+  handleArticleDownload: vi.fn(),
+}));
 
 describe('App component', () => {
   beforeEach(async () => {
@@ -41,21 +47,21 @@ describe('App component', () => {
 
     await waitFor(
       () => {
-        expect(screen.getByText(/Enter RSS feed URL/i)).toBeInTheDocument();
+        expect(screen.getByText(/RSS feeds/i)).toBeInTheDocument();
       },
-      { timeout: 5000 }
+      { timeout: 3000 }
     );
   });
 
   test('renders app component', async () => {
     expect(screen.getByText(/News Article Collector/i)).toBeInTheDocument();
-    expect(await screen.findByText(/List of RSS feeds/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Add or delete feeds/i)).toBeInTheDocument();
   });
 
   test('submits RSS feed URLs', async () => {
     const toastSuccessSpy = vi.spyOn(toast, 'success');
 
-    const input = screen.getByPlaceholderText('RSS feed address here...');
+    const input = screen.getByPlaceholderText('Input RSS feed address here...');
     fireEvent.change(input, { target: { value: 'https://blabla.com/feed' } });
 
     const addToListButton = screen.getByText(/Add to list/i);
@@ -73,7 +79,7 @@ describe('App component', () => {
   });
 
   test('starts RSS fetching', async () => {
-    const toggleFetchSwitch = await screen.getByTestId('fetchToggle');
+    const toggleFetchSwitch = screen.getByTestId('fetchToggle');
     fireEvent.click(toggleFetchSwitch);
 
     await waitFor(() => {
@@ -82,7 +88,7 @@ describe('App component', () => {
   });
 
   test('stops RSS fetching', async () => {
-    const toggleFetchSwitch = await screen.getByTestId('fetchToggle');
+    const toggleFetchSwitch = screen.getByTestId('fetchToggle');
 
     fireEvent.click(toggleFetchSwitch);
 
@@ -91,49 +97,41 @@ describe('App component', () => {
     });
   });
 
-  test('downloads articles in JSON format', async () => {
-    const downloadButton = screen.getByRole('button', { name: /^JSON$/i });
-    fireEvent.click(downloadButton);
+  // note the use of userEvent which solved issues with dropdown menu
+  const testDownloadOption = async (format: 'JSON' | 'CSV' | 'Parquet') => {
+    const user = userEvent.setup();
+
+    const downloadButton = screen.getByText('Download All Articles');
+    expect(downloadButton).toBeInTheDocument();
+
+    await user.click(downloadButton);
 
     await waitFor(() => {
-      expect(toast.promise).toHaveBeenCalledWith(
-        expect.any(Function),
-        expect.objectContaining({
-          loading: 'Downloading...',
-          success: expect.any(Function),
-        })
+      expect(screen.getByText(format)).toBeInTheDocument();
+    }, { timeout: 1000 });
+
+    const formatOption = screen.getByText(format);
+    await user.click(formatOption);
+
+    await waitFor(() => {
+      expect(handleArticleDownload).toHaveBeenCalledWith(
+        format.toLowerCase() as 'json' | 'csv' | 'parquet',
+        false,
+        expect.any(Function)
       );
-    });
+    }, { timeout: 1000 });
+  };
+
+  test('clicks JSON download option', async () => {
+    await testDownloadOption('JSON');
   });
 
-  test('downloads articles in CSV format', async () => {
-    const downloadButton = screen.getByRole('button', { name: /^CSV$/i });
-    fireEvent.click(downloadButton);
-
-    await waitFor(() => {
-      expect(toast.promise).toHaveBeenCalledWith(
-        expect.any(Function),
-        expect.objectContaining({
-          loading: 'Downloading...',
-          success: expect.any(Function),
-        })
-      );
-    });
+  test('clicks CSV download option', async () => {
+    await testDownloadOption('CSV');
   });
 
-  test('downloads articles in Parquet format', async () => {
-    const downloadButton = screen.getByRole('button', { name: /^Parquet$/i });
-    fireEvent.click(downloadButton);
-
-    await waitFor(() => {
-      expect(toast.promise).toHaveBeenCalledWith(
-        expect.any(Function),
-        expect.objectContaining({
-          loading: 'Downloading...',
-          success: expect.any(Function),
-        })
-      );
-    });
+  test('clicks Parquet download option', async () => {
+    await testDownloadOption('Parquet');
   });
 
   // handler at setup is only using textQuery for now

@@ -57,7 +57,7 @@ describe('News Article Collector App', () => {
   it('should add an RSS feed URL to the list', () => {
     cy.wait(1000);
 
-    cy.get('input[placeholder="RSS feed address here..."]').type(
+    cy.get('input[placeholder="Input RSS feed address here..."]').type(
       'https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss'
     );
     cy.contains('Add to list', { timeout: 3000 }).click();
@@ -89,8 +89,10 @@ describe('News Article Collector App', () => {
 
   it('should download filled articles.json', () => {
     cy.wait(1000);
+    cy.get('button').contains('Download All Articles').click({ force: true });
 
-    cy.get('button').contains('JSON', { timeout: 3000 }).click({ force: true });
+    cy.wait(500);
+    cy.contains('JSON', { timeout: 3000 }).click({ force: true });
 
     cy.contains('Downloading...', { timeout: 3000 }).should('exist');
     cy.contains('Please note that the process might take some time.', {
@@ -109,15 +111,18 @@ describe('News Article Collector App', () => {
 
   it('should download filled articles.csv', () => {
     cy.wait(1000);
-    cy.get('button').contains('CSV', { timeout: 3000 }).click({ force: true });
+    cy.get('button').contains('Download All Articles').click({ force: true });
 
-    cy.wait(3000);
-    cy.contains('Download successful!', { timeout: 3000 }).should(
+    cy.wait(500);
+    cy.contains('CSV', { timeout: 3000 }).click({ force: true });
+
+    cy.wait(1000);
+    cy.contains('Download successful!', { timeout: 10000 }).should(
       'be.visible',
       { timeout: 3000 }
     );
 
-    cy.readFile(`${downloadsFolder}/articles.csv`, 'utf-8')
+    cy.readFile(`${downloadsFolder}/articles.csv`, 'utf-8', { timeout: 10000 })
       .should('exist')
       .then((content: string) => {
         const rows = content.split('\n');
@@ -137,6 +142,22 @@ describe('News Article Collector App', () => {
   });
 
   // Parquet seems to require specific import reader.
+  it('should download articles.parquet', () => {
+    cy.wait(1000);
+    cy.get('button').contains('Download All Articles').click({ force: true });
+  
+    cy.wait(500);
+    cy.contains('Parquet', { timeout: 3000 }).click({ force: true });
+
+    cy.wait(1000);
+    cy.contains('Download successful!', { timeout: 10000 }).should(
+      'be.visible',
+      { timeout: 3000 }
+    );
+
+    cy.readFile(`${downloadsFolder}/articles.parquet`, { timeout: 10000 })
+      .should('exist');
+  });
 
   it('should go to search, click search and get fetched articles', () => {
     cy.wait(1000);

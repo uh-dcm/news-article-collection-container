@@ -18,7 +18,7 @@ from src.views.data_export import export_manager
 def init_routes(app):
     """
     Configures the basic routes for the app. Used by create_app().
-    20 in total.
+    The index, 9 admin/user and 9 article data related.
     """
     log_file_path = app.config['LOG_FILE_PATH']
 
@@ -69,15 +69,15 @@ def init_routes(app):
         methods=['GET']
     )
     app.add_url_rule(
-        '/api/error_logs',
-        'get_error_logs',
-        jwt_required_conditional(lambda: log_operations.get_error_logs(log_file_path)),
+        '/api/error_log',
+        'get_error_log',
+        jwt_required_conditional(lambda: log_operations.get_error_log(log_file_path)),
         methods=['GET']
     )
     app.add_url_rule(
-        '/api/clear_error_logs',
-        'clear_error_logs',
-        jwt_required_conditional(lambda: log_operations.clear_error_logs(log_file_path)),
+        '/api/clear_error_log',
+        'clear_error_log',
+        jwt_required_conditional(lambda: log_operations.clear_error_log(log_file_path)),
         methods=['POST']
     )
     app.add_url_rule(
