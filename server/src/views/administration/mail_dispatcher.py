@@ -5,11 +5,11 @@ import smtplib
 import ssl
 from email.message import EmailMessage
 from flask import current_app
+from src.config import Config
 
-SMTP_SERVER = '' # 'smtp.gmail.com'
-SMTP_PORT = '' # 465
-SERVER_EMAIL = ''  # Replace with gmail address
-SERVER_PASSWORD = ''  # Replace with gmail app password
+SMTP_SERVER = 'smtp.pouta.csc.fi'
+SMTP_PORT = 25
+SERVER_EMAIL = Config.MAIL_SENDER
 
 # Create a single SSL context for reuse
 ssl_context = ssl.create_default_context()
@@ -40,7 +40,6 @@ def send_email(request):
 
     try:
         with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, context=ssl_context) as smtp:
-            smtp.login(SERVER_EMAIL, SERVER_PASSWORD)
             smtp.sendmail(SERVER_EMAIL, username, email_message.as_string())
     except smtplib.SMTPAuthenticationError:
         msg = 'Authentication to the email server failed'

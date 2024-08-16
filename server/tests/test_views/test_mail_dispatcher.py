@@ -29,7 +29,8 @@ def test_create_email():
     host_url = 'http://localhost:5000'
     email_message = create_email(host_url, password, email)
 
-    assert email_message['From'] == ''  # This should match SERVER_EMAIL in mail_dispatcher.
+    # EmailMessage converts None to string
+    assert email_message['From'] == 'None'
     assert email_message['To'] == email
     assert email_message['Subject'] == 'Password for the News Article Collector'
 

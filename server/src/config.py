@@ -19,6 +19,7 @@ class Config:
     REREGISTER_SECRET_KEY: str = secrets.token_hex(32)
     REREGISTER_SALT: str = secrets.token_hex(16)
     REREGISTER_EXPIRATION: int = 3600
+    MAIL_SENDER = os.environ.get('SMTP_SENDER', None)
 
 @dataclass
 class TestConfig(Config):
