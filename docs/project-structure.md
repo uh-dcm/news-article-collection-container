@@ -6,35 +6,37 @@ General project structure in Markdown. Date: August 14, 2024. Intermittently upd
 graph TD
     A[news-article-collection-container] --> C[client]
     A --> F[server]
-    
+
     C --> C1[public]
     C --> C2[src]
     C --> C3[tests]
-    
+
+    C2A --> C2A1[ui]
+
     C2 --> C2A[components]
     C2 --> C2B[css]
     C2 --> C2C[features]
     C2 --> C2D[lib]
     C2 --> C2E[services]
-    
+
     C2C --> C2C1[dashboard]
     C2C --> C2C2[errors]
     C2C --> C2C3[info]
     C2C --> C2C4[search]
     C2C --> C2C5[statistics]
     C2C --> C2C6[user]
-    
+
     F --> F1[src]
     F --> F2[tests]
-    
+
     F1 --> F1A[views]
     F1 --> F1B[utils]
-    
+
     F1A --> F1A1[administration]
     F1A --> F1A2[data_acquisition]
     F1A --> F1A3[data_analysis]
     F1A --> F1A4[data_export]
-    
+
     G[news-article-collection] --> G1[collect.py]
     G --> G2[database.py]
     G --> G3[process.py]
@@ -68,6 +70,7 @@ graph TD
     └── 📁docs
         └── 📁assets
     └── 📁manifests
+        └── 📁manifests_components
         └── 📁manifests_playground
     └── 📁server
         └── 📁src
@@ -206,21 +209,26 @@ graph TD
     └── 📁docs
         └── 📁assets
             └── rahti
+        └── authentication.md
         └── dod-practices.md
-        └── rahti.md
+        └── rahti-guide.md
+        └── rahti-manual-deployment.md
         └── testing-instructions.md
         └── project-structure.md
     └── 📁manifests
+        └── 📁manifests_components
+            └── build-prod.yaml
+            └── deployment-prod.yaml
+            └── image-stream.yaml
+            └── pvc-prod.yaml
+            └── service-route-prod.yaml
         └── 📁manifests_playground
             └── deployment.yaml
             └── imagestream.yaml
             └── route.yaml
-        └── build-prod.yaml
-        └── deployment-prod.yaml
-        └── image-stream.yaml
-        └── pvc-prod.yaml
+        └── guest.yaml
+        └── news-collection-complete.yaml
         └── README.md
-        └── service-route-prod.yaml
     └── 📁server
         └── 📁src
             └── 📁views

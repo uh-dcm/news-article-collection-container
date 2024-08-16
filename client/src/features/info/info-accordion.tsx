@@ -85,7 +85,10 @@ export default function InfoAccordion({
                     View detailed statistics of specific articles on the
                     Statistics page.
                   </li>
-                  <li>Check for any fetching errors on the Errors page.</li>
+                  <li>
+                    Check for any fetching errors on the Errors page. Note that
+                    missing text is common.
+                  </li>
                 </ul>
               </li>
             </ol>

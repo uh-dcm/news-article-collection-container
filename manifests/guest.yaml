@@ -1,37 +1,26 @@
-# Complete Rahti yaml for https://github.com/uh-dcm/news-article-collection-container
-# You need to specify your own host (URL address) for the route at the bottom where it reads IMPORTANT
-# Press the + at the top right in Rahti and paste this in that field to implement this there
+# Don't bother with this yaml unless you're interesting in handing out apps for other people in Rahti
+# This is an example of a guest yaml that can be replicated 4 times (max 5 PVC) after initiating the news-collection-complete.yaml
+# For versions 2-4: just replace the number in all "news-collection-guest-1"
+# The news-collection-guest-1 in the address news-collection-guest-1.2.rahtiapp.fi can and should be unique as before
+# Storage max is 100 shared so in news-collection-complete.yaml it should be 80, read rahti-guide.md if you had 100
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: news-collection-data
+  name: news-collection-guest-1-data
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 100Gi  # CUSTOMIZE: Adjust size as needed, 100 Gi max
+      storage: 5Gi  # CUSTOMIZE: Adjust size as needed, as 100 is max for all not just one
   storageClassName: standard-csi
   volumeMode: Filesystem
----
-apiVersion: image.openshift.io/v1
-kind: ImageStream
-metadata:
-  name: news-collection
-spec:
-  tags:
-    - from:
-        kind: DockerImage
-        name: docker.io/ohtukontitus/news-collection:latest
-      importPolicy:
-        scheduled: true
-      name: latest
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: news-collection
+  name: news-collection-guest-1
   annotations:
     image.openshift.io/triggers: |-
       [
@@ -47,30 +36,30 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: news-collection
+      app: news-collection-guest-1
   strategy:
-    type: Recreate  # RollingUpdate would sometimes get stuck, plus updates are rare anyway
+    type: Recreate
   template:
     metadata:
       labels:
-        app: news-collection
+        app: news-collection-guest-1
     spec:
       volumes:
-        - name: news-collection-data
+        - name: news-collection-guest-1-data
           persistentVolumeClaim:
-            claimName: news-collection-data
+            claimName: news-collection-guest-1-data
       containers:
-        - name: news-collection
+        - name: news-collection-guest-1
           image: news-collection:latest
           resources:
             requests:
-              cpu: 100m  # CUSTOMIZE: Adjust size as needed
-              memory: 1Gi  # CUSTOMIZE: Adjust size as needed
+              cpu: 100m
+              memory: 1Gi
             limits:
-              cpu: 500m  # CUSTOMIZE: Adjust size as needed, max 4000m not recommended
-              memory: 2Gi  # CUSTOMIZE: Adjust size as needed, max 16gi not recommended
+              cpu: 500m
+              memory: 2Gi
           volumeMounts:
-            - name: news-collection-data
+            - name: news-collection-guest-1-data
               mountPath: /app/server/rss-fetcher/data
           ports:
             - containerPort: 5000
@@ -78,7 +67,7 @@ spec:
           imagePullPolicy: Always
           readinessProbe:
             httpGet:
-              path: /health  # Appears to automatically work without it being defined
+              path: /health
               port: 5000
             periodSeconds: 300
             timeoutSeconds: 3
@@ -95,25 +84,25 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: news-collection-service
+  name: news-collection-guest-1-service
 spec:
+  selector:
+    app: news-collection-guest-1
   ports:
     - protocol: TCP
       port: 5000
-      targetPort: 5000  # Rahti may complain of targetPort: 5000 but it fails without this
-  selector:
-    app: news-collection
+      targetPort: 5000
   type: ClusterIP
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: news-collection-route
+  name: news-collection-guest-1-route
 spec:
-  host: your-app-name.2.rahtiapp.fi  # IMPORTANT: Replace 'your-app-name' with your own app name
+  host: news-collection-guest-1.2.rahtiapp.fi  # IMPORTANT: replace news-collection-guest-1 with your own name
   to:
     kind: Service
-    name: news-collection-service
+    name: news-collection-guest-1-service
     weight: 100
   port:
     targetPort: 5000
