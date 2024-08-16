@@ -30,7 +30,7 @@ def get_text():
         # base query to be built upon
         base_query = "FROM articles"
 
-        text_query = text(f"SELECT full_articles FROM {base_query}")
+        text_query = text(f"SELECT full_text {base_query}")
 
         # if filtered and searched, use searched ids
         if filtered and last_search_ids:
@@ -39,7 +39,7 @@ def get_text():
         with current_app.db_engine.connect() as connection:
             text_query = connection.execute(text_query).fetchall()
 
-        text_data = [{"full_text": full_text for full_text in text_query}]
+        text_data = [{"full_text": full_text[0]} for full_text in text_query]
         return jsonify(text_data), 200
 
     except SQLAlchemyError as e:

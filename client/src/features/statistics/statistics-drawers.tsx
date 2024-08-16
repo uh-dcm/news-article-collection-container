@@ -129,17 +129,16 @@ export default function StatisticsDrawers({
           <div className="mx-auto w-full max-w-sm">
             <DrawerHeader>
               <DrawerTitle>Word cloud for collected articles</DrawerTitle>
-              <DrawerDescription>Word cloud of articles text</DrawerDescription>
+              <DrawerDescription>Word cloud on 100 most frequent words in the articles</DrawerDescription>
             </DrawerHeader>
             <WordCloud
-              width={400}
-              height={200}
-              showControls={true}
-              words={textData.flat().join(' ')}
+              width={500}
+              height={400}
+              words={ textData.map( (x: any ) => Object.values(x)[0] as string)  }
             />
             <DrawerFooter>
               <DrawerClose asChild>
-                <Button variant="outline">Close</Button>
+                <Button variant="outline">Close</Button> 
               </DrawerClose>
             </DrawerFooter>
           </div>

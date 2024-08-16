@@ -170,8 +170,9 @@ export default function Dashboard() {
   const handleFetchText = async () => {
     setIsDisabled(true);
     try {
-      const data = await sendTextQuery(true);
-      setTextData(data);
+      const data = await sendTextQuery(false);
+      console.log(data.map( (x: any ) => Object.values(x)[0] ) )
+      setTextData(data)
     } catch (error) {
       console.error('Failed to fetch filtered statistics:', error);
       toast.error('Failed to get full text. Have you fetched yet?');
