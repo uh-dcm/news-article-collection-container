@@ -7,14 +7,10 @@ services:
     ports:
       - "4000:5000"
     environment:
-      - VITE_WEBPAGE_URL=http://localhost:4000
-      - FLASK_ENV=development
-      - FLASK_APP=app.py
-      - FLASK_DEBUG=1
-      - PYTHONDONTWRITEBYTECODE=1
+      VITE_WEBPAGE_URL: http://localhost:4000
+      FLASK_ENV: development
+      FLASK_APP: src.app
+      FLASK_DEBUG: 1
+      PYTHONDONTWRITEBYTECODE: 1
     tty: true
     stdin_open: true
-    # Mount the local app.py (flask server) file to the container
-    # Mount also the frontend js files
-    volumes:
-      - ./server/src/app.py:/app/server/src/app.py
