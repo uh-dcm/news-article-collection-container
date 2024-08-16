@@ -8,13 +8,14 @@ import { itemVariants } from '@/components/animation-variants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 {/* stats modules */}
-import { sendStatisticsQuery } from '@/services/database-queries';
+import { sendStatisticsQuery, sendTextQuery } from '@/services/database-queries';
 import { DomainData } from '@/components/ui/drawer';
 import StatisticsDrawers from './statistics-drawers';
 
 export default function Statistics() {
   const [filteredStatisticData, setFilteredStatisticsData] = useState<DomainData[][]>([]);
   const [filteredSubDirectoryData, setFilteredSubDirectoryData] = useState<DomainData[]>([]);
+  const [filteredTextData, setTextData] = useState<string[]>([]);
   const [isDisabled, setIsDisabled] = useState(false);
 
   const handleFetchStatistics = async () => {
@@ -25,6 +26,19 @@ export default function Statistics() {
     } catch (error) {
       console.error('Failed to fetch filtered statistics:', error);
       toast.error('Failed to get statistics. Have you fetched yet?');
+    } finally {
+      setIsDisabled(false);
+    }
+  };
+
+  const handleFetchText = async () => {
+    setIsDisabled(true);
+    try {
+      const data = await sendTextQuery(true);
+      setTextData(data);
+    } catch (error) {
+      console.error('Failed to fetch filtered text fields:', error);
+      toast.error('Failed to get full text. Have you fetched yet?');
     } finally {
       setIsDisabled(false);
     }
@@ -46,8 +60,10 @@ export default function Statistics() {
             <StatisticsDrawers
               statisticData={filteredStatisticData}
               subDirectoryData={filteredSubDirectoryData}
+              textData={filteredTextData}
               isDisabled={isDisabled}
               handleFetchStatistics={handleFetchStatistics}
+              handleFetchText={handleFetchText}
               formSubDirectoryData={formSubDirectoryData}
               isFiltered={true}
             />

@@ -6,12 +6,15 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, D
 import { DomainData } from '@/components/ui/drawer';
 import { PieChart, SubPieChart } from './piechart';
 import TimeSeries from './timeseries';
+import { WordCloud } from './wordcloud';
 
 interface StatisticsDrawersProps {
   statisticData: DomainData[][];
   subDirectoryData: DomainData[];
+  textData: string[];
   isDisabled: boolean;
   handleFetchStatistics: () => void;
+  handleFetchText: () => void;
   formSubDirectoryData: (url: string) => void;
   isFiltered: boolean;
 }
@@ -19,8 +22,10 @@ interface StatisticsDrawersProps {
 export default function StatisticsDrawers({
   statisticData,
   subDirectoryData,
+  textData,
   isDisabled,
   handleFetchStatistics,
+  handleFetchText,
   formSubDirectoryData,
   isFiltered
 }: StatisticsDrawersProps) {
@@ -32,7 +37,7 @@ export default function StatisticsDrawers({
             variant="outline"
             onClick={handleFetchStatistics}
             disabled={isDisabled}
-            className="w-full p-6 text-base sm:w-[45%]"
+            className="w-full p-6 text-base sm:w-[30%]"
           >
             <div className="flex justify-center">
               <ChartPieIcon className="mr-1.5 size-6" />
@@ -83,7 +88,7 @@ export default function StatisticsDrawers({
             variant="outline"
             onClick={handleFetchStatistics}
             disabled={isDisabled}
-            className="w-full p-6 text-base sm:w-[45%]"
+            className="w-full p-6 text-base sm:w-[30%]"
           >
             <div className="flex justify-center">
               <ChartBarSquareIcon className="mr-1.5 size-6" />
@@ -98,6 +103,40 @@ export default function StatisticsDrawers({
               <DrawerDescription>Number of articles collected per day</DrawerDescription>
             </DrawerHeader>
             <TimeSeries data={statisticData[2]} />
+            <DrawerFooter>
+              <DrawerClose asChild>
+                <Button variant="outline">Close</Button>
+              </DrawerClose>
+            </DrawerFooter>
+          </div>
+        </DrawerContent>
+      </Drawer>
+      <Drawer>
+        <DrawerTrigger asChild>
+          <Button
+            variant="outline"
+            onClick={handleFetchText}
+            disabled={isDisabled}
+            className="w-full p-6 text-base sm:w-[30%]"
+          >
+            <div className="flex justify-center">
+              <ChartBarSquareIcon className="mr-1.5 size-6" />
+              Word cloud
+            </div>
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent>
+          <div className="mx-auto w-full max-w-sm">
+            <DrawerHeader>
+              <DrawerTitle>Word cloud for collected articles</DrawerTitle>
+              <DrawerDescription>Word cloud of articles text</DrawerDescription>
+            </DrawerHeader>
+            <WordCloud
+              width={400}
+              height={200}
+              showControls={true}
+              words={textData.flat().join(' ')}
+            />
             <DrawerFooter>
               <DrawerClose asChild>
                 <Button variant="outline">Close</Button>

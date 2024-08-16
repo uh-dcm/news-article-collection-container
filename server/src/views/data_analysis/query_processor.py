@@ -112,7 +112,7 @@ def build_search_query(search_params):
 
 def parse_input_date(date_string, is_end_date=False):
     """
-    Checking the inputted time formatting and converting it to datetime.
+    Checking the input time formatting and converting it to datetime.
     Used by build_search_query().
     """
     formats = ["%Y", "%Y-%m", "%Y-%m-%d", "%Y-%m-%d %H", "%Y-%m-%d %H:%M", "%Y-%m-%d %H:%M:%S"]

@@ -29,3 +29,15 @@ export const sendStatisticsQuery = async (filtered: boolean) => {
     throw error;
   }
 };
+
+export const sendTextQuery = async (filtered: boolean) => {
+  try {
+    const response = await authClient.get('/api/articles/full_text', {
+      params: { filtered: filtered }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error in sendTextQuery:', error);
+    throw error;
+  }
+};

@@ -130,6 +130,12 @@ def init_routes(app):
         methods=['GET']
     )
     app.add_url_rule(
+        '/api/articles/full_text',
+        'get_full_texts',
+        jwt_required_conditional(stats_analyzer.get_text),
+        methods=['GET']
+    )
+    app.add_url_rule(
         '/api/articles/export',
         'get_all_export',
         jwt_required_conditional(export_manager.get_all_export),
