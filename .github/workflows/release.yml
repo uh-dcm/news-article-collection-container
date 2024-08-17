@@ -35,3 +35,4 @@ jobs:
           tags: ohtukontitus/news-collection:latest,ohtukontitus/news-collection:${{ steps.get_version.outputs.RELEASE_VERSION }}
           build-args: |
             VITE_RELEASE_VERSION=${{ steps.get_version.outputs.RELEASE_VERSION }}
+            SMTP_SENDER$={{ secrets.SMTP_SENDER }}
