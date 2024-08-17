@@ -36,6 +36,12 @@ spec:
           volumeMounts:
             - mountPath: /app/server/rss-fetcher/data
               name: news-collection-data-prod
+          env:
+            - name: SMTP_SENDER
+              valueFrom:
+                secretKeyRef:
+                  name: smtp-sender-address
+                  key: SMTP_SENDER
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
