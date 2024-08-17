@@ -2,7 +2,6 @@
 Configures settings for gmail, creates and sends email.
 """
 import smtplib
-import ssl
 from email.message import EmailMessage
 from flask import current_app
 from src.config import Config
@@ -11,8 +10,6 @@ SMTP_SERVER = 'smtp.pouta.csc.fi'
 SMTP_PORT = 25
 SERVER_EMAIL = Config.MAIL_SENDER
 
-# Create a single SSL context for reuse
-ssl_context = ssl.create_default_context()
 
 def create_email(host_url, password, username):
     """
@@ -39,8 +36,9 @@ def send_email(request):
     email_message = create_email(host_url, password, username)
 
     try:
-        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, context=ssl_context) as smtp:
-            smtp.sendmail(SERVER_EMAIL, username, email_message.as_string())
+        smtpObj = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        smtpObj.sendmail(SERVER_EMAIL, username, email_message.as_string())
+        smtpObj.quit()
     except smtplib.SMTPAuthenticationError:
         msg = 'Authentication to the email server failed'
         current_app.logger.error(msg)

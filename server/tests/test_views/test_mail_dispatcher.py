@@ -39,7 +39,7 @@ def test_create_email():
     # Remove line breaks added by EmailMessage's set_content() with strip().
     assert email_message.get_payload().strip() == expected_body
 
-@patch('src.views.administration.mail_dispatcher.smtplib.SMTP_SSL')
+@patch('src.views.administration.mail_dispatcher.smtplib')
 def test_send_email_success(mock_smtp, app, mock_request):
     """Test successful email sending."""
     mock_instance = Mock()
@@ -51,7 +51,7 @@ def test_send_email_success(mock_smtp, app, mock_request):
     assert response == 'Email sent successfully'
 
 @pytest.mark.usefixtures("setup_and_teardown")
-@patch('src.views.administration.mail_dispatcher.smtplib.SMTP_SSL')
+@patch('src.views.administration.mail_dispatcher.smtplib.SMTP')
 def test_send_email_auth_error(mock_smtp, app, mock_request):
     """Test email sending with authentication error."""
     mock_smtp.side_effect = SMTPAuthenticationError(1, 'Authentication failed')
@@ -62,7 +62,7 @@ def test_send_email_auth_error(mock_smtp, app, mock_request):
     assert response == 'Authentication to the email server failed'
 
 @pytest.mark.usefixtures("setup_and_teardown")
-@patch('src.views.administration.mail_dispatcher.smtplib.SMTP_SSL')
+@patch('src.views.administration.mail_dispatcher.smtplib.SMTP')
 def test_send_email_connection_error(mock_smtp, app, mock_request):
     """Test email sending with connection error."""
     mock_smtp.side_effect = SMTPConnectError(1, 'Connection failed')
@@ -73,7 +73,7 @@ def test_send_email_connection_error(mock_smtp, app, mock_request):
     assert response == 'Connection to the email server failed'
 
 @pytest.mark.usefixtures("setup_and_teardown")
-@patch('src.views.administration.mail_dispatcher.smtplib.SMTP_SSL')
+@patch('src.views.administration.mail_dispatcher.smtplib.SMTP')
 def test_send_email_general_error(mock_smtp, app, mock_request):
     """Test email sending with a general error."""
     mock_smtp.side_effect = Exception('General error')
