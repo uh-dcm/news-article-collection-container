@@ -28,7 +28,7 @@ def register():
     new_user_data = {"email": email, "password": generate_password_hash(password)}
     set_user_data(new_user_data)
 
-    if not current_app.config['TESTING'] and Config.MAIL_SENDER is not None:
+    if not current_app.config['TESTING'] and Config.MAIL_SENDER:
         send_email(request)
 
     if is_reregistering:
