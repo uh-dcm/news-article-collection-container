@@ -54,6 +54,10 @@ RUN mkdir -p /app/server/rss-fetcher/data
 # Solve Rahti cache issue by setting caches to a specific writable directory
 ENV XDG_CACHE_HOME=/app/server/rss-fetcher/data/.cache
 
+# Fix sudden nltk bug by using a specific version of it, can possibly be removed later
+# It's used in process.py as part of newspaper4k
+RUN pip install --no-cache-dir nltk==3.9b1
+
 # Install dependencies of flask backend and rss-fetcher, but do not cache them
 RUN pip install --no-cache-dir -r server/requirements.txt && \
     pip install --no-cache-dir -r server/rss-fetcher/requirements.txt
