@@ -36,9 +36,9 @@ def send_email(request):
     email_message = create_email(host_url, password, username)
 
     try:
-        smtpObj = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        smtpObj.sendmail(SERVER_EMAIL, username, email_message.as_string())
-        smtpObj.quit()
+        smtp_obj = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        smtp_obj.sendmail(SERVER_EMAIL, username, email_message.as_string())
+        smtp_obj.quit()
     except smtplib.SMTPAuthenticationError:
         msg = 'Authentication to the email server failed'
         current_app.logger.error(msg)
