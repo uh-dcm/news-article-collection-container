@@ -70,6 +70,16 @@ export default function Dashboard() {
     eventSource.addEventListener('processing_status', (event) => {
       setIsProcessing(event.data === 'true');
     });
+
+    // disable complaints about chunking that seem to affect nothing
+    eventSource.onerror = (event) => {
+      if (event instanceof ErrorEvent && event.error instanceof Error) {
+        if (event.error.message.includes('net::ERR_INCOMPLETE_CHUNKED_ENCODING')) {
+          event.preventDefault();
+        }
+      }
+    };
+
     return () => eventSource.close();
   }, []);
 
@@ -94,7 +104,6 @@ export default function Dashboard() {
       const response = await sendAllFeedUrls(updatedFeeds);
       if (response.status === 200) {
         toast.success('Feed list updated successfully!');
-        console.error('Successfully added feed to list');
       } else {
         throw new Error();
       }

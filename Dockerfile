@@ -31,6 +31,8 @@ RUN npm run build
 FROM python:3.12-slim-bookworm
 
 WORKDIR /app
+
+# Define SMTP sender env variable, none in development but in release the GitHub secret
 ARG SMTP_SENDER
 ENV SMTP_SENDER=${SMTP_SENDER}
 
