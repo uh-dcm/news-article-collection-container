@@ -1,5 +1,47 @@
 # Client or frontend structure
 
+```mermaid
+graph TB
+    Client[Client]
+    Client --> SRC[src]
+    Client --> Public[public]
+    Client --> Tests[tests]
+    Client --> PackageJson[package.json]
+    Client --> IndexHtml[index.html]
+
+    Public --> Images[images]
+    Images --> Logo[logo.png]
+
+    SRC --> MainTSX[main.tsx]
+    SRC --> AppTSX[App.tsx]
+    SRC --> Components[components]
+    SRC --> CSS[css]
+    SRC --> Features[features]
+    SRC --> Lib[lib]
+    SRC --> Services[services]
+
+    CSS --> IndexCSS[index.css]
+
+    Components --> UI[UI]
+
+    Features --> Dashboard[dashboard]
+    Features --> Errors[errors]
+    Features --> Info[info]
+    Features --> Search[search]
+    Features --> Statistics[statistics]
+    Features --> User[user]
+
+    Tests --> Internal[internal]
+    Tests --> E2E[e2e]
+
+    Internal --> SetupTests[setupTests.ts]
+
+    classDef folder fill:#f0f0f0,stroke:#333,stroke-width:1px;
+    classDef file fill:#fff,stroke:#333,stroke-width:1px;
+    class SRC,Public,Tests,Components,CSS,Features,Lib,Services,Internal,E2E,Images folder;
+    class MainTSX,AppTSX,ConfigTSX,ViteEnv,PackageJson file;
+```
+
 The client uses React on TypeScript, utilizing Tailwind CSS, and with Vite supporting development. Tests are Vitest and linting is done with ESLint and Prettier.
 
 The main frontend application is in the `src` folder, with its starting point being in the index.html in this folder. The `public` folder contains static assets, such as the logo.png in /images. The package.json is the dependency configuration file for the npm package manager. The Dockerfile in this folder is just used for development, to run the client separately. The `tests` folder has, as it says, tests.

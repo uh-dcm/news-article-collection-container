@@ -1,5 +1,43 @@
 # Simple guide for setting up the app on Rahti
 
+```mermaid
+graph TB
+    Start([Start]) --> A1
+
+    subgraph "Rahti Access"
+        A1[Go to my.csc.fi] --> A2[Select Projects]
+        A2 --> A3{Project exists?}
+        A3 -->|No| A4[Create project]
+        A3 -->|Yes| A5[Click on existing project]
+        A4 --> A5
+        A5 --> A6[Find Services section]
+        A6 --> A7[Click on Rahti option]
+        A7 --> A8[Apply for access]
+        A8 --> A9[Access granted]
+        A9 --> A10[Go to rahti.csc.fi]
+        A10 --> A11[Click Login page for RAHTI-2]
+    end
+
+    subgraph "Register Project on Rahti"
+        B1[Click Create Project] --> B2[Fill in Name]
+        B2 --> B3[Fill in Display name]
+        B3 --> B4[Enter Description with project ID, read below]
+    end
+
+    subgraph "Set Up Site on Rahti"
+        C1[Click + top right, or +Add and then Import YAML] --> C2[Upload or paste news-collection-complete.yaml]
+        C2 --> C3[Change 'your-app-name' in the yaml URL]
+        C3 --> C4[Click Create]
+    end
+
+    A11 --> B1
+    B4 --> C1
+    C4 --> Finish([Finish])
+
+    style Start fill:#4CAF50,stroke:#333,stroke-width:2px
+    style Finish fill:#4CAF50,stroke:#333,stroke-width:2px
+```
+
 ### Rahti access
 
 1. Go to https://my.csc.fi/
@@ -44,13 +82,7 @@ There is an auto-update system (the imagestream) that checks every 15 minutes fo
 
 If you're interested in the customizable storage, cpu and memory fields in the yaml, we recommend maxing out the storage, but being a bit modest with the cpu and memory, although very large resource hungry databases are untested, so these two values may need to be increased.
 
-### Changing CPU and memory
-
-Changing cpu and memory afterwards isn't that difficult. On Rahti, click **Project** on the left. Then on the next page scroll down a bit until you see section **Inventory** on the left under which is **X Deployments** (X being a number). Click on that, and on the next page your deployment. Then on its page, click **YAML** in the tabs. There, look for the memory and cpu fields (CTRL + F may come handy). Not the ones like 'f:memory': {} but ones with values like memory: 1Gi. Update them to what you want and press save, although note that there is a limit to request ratio, and with cpu it's 5. Request is almost like minimum and limit is maximum, although not exactly, as request should be somewhat over what your app usually ever needs, and limit is the absolute maximum limit it can ever get.
-
-### Changing Storage
-
-Changing storage, if you for example need to accommodate guest apps and need to reduce your storage to 80Gi to fit them under the max 100Gi storage limit, is very difficult on Rahti. Making the PVC smaller isn't possible to begin with, but on top of that Rahti has limitations on what you could regularly do with OpenShift, so growing your filesystem is difficult too. Essentially the easiest and sometimes the only way is to just download your data and redo everything from the start (going through the removal process below), but setting the storage at 80Gi in the yaml the next time.
+### Clearing storage
 
 If you run out of storage space, download your data, and go through the following to delete the collected article data:
 
@@ -64,6 +96,14 @@ If you run out of storage space, download your data, and go through the followin
 
 After that when you fetch again, it should be automatically created anew.
 
+### Changing CPU and memory
+
+Changing cpu and memory afterwards isn't that difficult. On Rahti, click **Project** on the left. Then on the next page scroll down a bit until you see section **Inventory** on the left under which is **X Deployments** (X being a number). Click on that, and on the next page your deployment. Then on its page, click **YAML** in the tabs. There, look for the memory and cpu fields (CTRL + F may come handy). Not the ones like 'f:memory': {} but ones with values like memory: 1Gi. Update them to what you want and press save, although note that there is a limit to request ratio, and with cpu it's 5. Request is almost like minimum and limit is maximum, although not exactly, as request should be somewhat over what your app usually ever needs, and limit is the absolute maximum limit it can ever get.
+
+### Changing Storage
+
+Changing storage, if you for example need to accommodate guest apps and need to reduce your storage to 80Gi to fit them under the max 100Gi storage limit, is very difficult on Rahti. Making the PVC smaller isn't possible to begin with, but on top of that Rahti has limitations on what you could regularly do with OpenShift, so growing your filesystem is difficult too. Essentially the easiest and sometimes the only way is to just download your data and redo everything from the start (going through the removal process below), but setting the storage at 80Gi in the yaml the next time.
+
 ## Troubleshooting and deployment removal
 
 If something about the deployment fails, and you want to completely shut down all of the previous setup, in the web client you sadly have to go shut down the deployment, the service, the route, the PVC and the imagestream all one by one separately, although some smaller changes are possible just by changing values in the web client. Note that if the PVC is shut down, the data collected thus far is lost.
@@ -72,7 +112,22 @@ If needed, the way to remove all of the parts on the web client:
 - **Deployment**: click **Project** on the left in **Developer** (default) mode, then under **Inventory** on the left click **Deployments**, then there the three dots to the right and **Delete Deployment**.
 - **Services**: Same thing but under **Inventory** click **Services**, then the three dots and **Delete Service**.
 - **Routes**: Same thing but under **Inventory** click **Routes**, then the three dots and **Delete Route**.
-- **PVC**: Same thing but under Inventory click **PersistentVolumeClaims**, then the three dots and **Delete PersistentVolumeClaim**.
+- **PVC**: Same thing but under Inventory click **PersistentVolumeClaims**, then the three dots and **Delete PersistentVolumeClaim**. Deployment that depends on this needs to be removed first.
 - **ImageStream**: Usually doesn't need to be removed, but above left, click on **Developer** and select **Administrator**. In this mode, click **Builds** on the left, and **ImageStreams** under it. Then same as before, three dots and **Delete ImageStream**. Return the upper left mode to Developer afterwards.
 
 Note that sometimes names for things may cause odd issues that don't show up anywhere, leading to a need to try different names.
+
+```mermaid
+graph LR
+    subgraph "Rahti OpenShift Setup"
+    D1[PersistentVolumeClaim]
+    D2[ImageStream]
+    D3[Deployment]
+    D4[Service]
+    D5[Route]
+    D1 -->|Request for storage| D3
+    D2 -->|Update on Docker Hub| D3
+    D3 -->|Create/Update Pods| D4
+    D4 -->|Internal network exposure| D5
+    end
+```

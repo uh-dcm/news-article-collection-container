@@ -1,8 +1,8 @@
-# Don't bother with this yaml unless you're interesting in handing out apps for other people in Rahti
-# This is an example of a guest yaml that can be replicated 4 times (max 5 PVC) after initiating the news-collection-complete.yaml
-# For versions 2-4: just replace the number in all "news-collection-guest-1"
-# The news-collection-guest-1 in the address news-collection-guest-1.2.rahtiapp.fi can and should be unique as before
-# Storage max is 100 shared so in news-collection-complete.yaml it should be 80, read rahti-guide.md if you had 100
+# Don't bother with this yaml unless you're interested in handing out Rahti apps to other people
+# This is an example of a guest yaml that can be replicated 4 times (max 5 PVC) after initiating the news-collection-complete.yaml (the imagestream in it really)
+# For versions 2-4: just replace the number in all parts that read "news-collection-guest-1"
+# The placeholder news-collection-guest-1 in the address news-collection-guest-1.2.rahtiapp.fi should be changed to something unique, just like in news-collection-complete.yaml
+# Storage max is 100 shared, so with 4 x 5, in news-collection-complete.yaml it should be 80, read rahti-guide.md if you had 100
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -99,7 +99,7 @@ kind: Route
 metadata:
   name: news-collection-guest-1-route
 spec:
-  host: news-collection-guest-1.2.rahtiapp.fi  # IMPORTANT: replace news-collection-guest-1 with your own name
+  host: news-collection-guest-1.2.rahtiapp.fi  # IMPORTANT: replace placeholder news-collection-guest-1 with a name of your own
   to:
     kind: Service
     name: news-collection-guest-1-service

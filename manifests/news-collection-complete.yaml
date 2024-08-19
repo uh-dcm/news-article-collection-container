@@ -110,7 +110,7 @@ kind: Route
 metadata:
   name: news-collection-route
 spec:
-  host: your-app-name.2.rahtiapp.fi  # IMPORTANT: Replace 'your-app-name' with your own app name
+  host: your-app-name.2.rahtiapp.fi  # IMPORTANT: Replace placeholder 'your-app-name' with a name of your own
   to:
     kind: Service
     name: news-collection-service
