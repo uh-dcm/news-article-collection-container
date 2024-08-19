@@ -11,13 +11,28 @@ const ReregisterButton: React.FC = () => {
   const handleReregister = async () => {
     setLoading(true);
     try {
-      await requestReregister();
-      toast.success('Reregistration link sent to your email.');
+      const response = await requestReregister();
+      
+      if (response.reregister_link) {
+        // this should only happen in development where there is no SMTP_SENDER
+        console.log('REREGISTRATION LINK:', response.reregister_link);
+        toast.success('Reregistration link sent to your email.');
+      } else if (response.email_sent) {
+        toast.success('Reregistration link sent to your email.');
+      } else {
+        toast.error('Failed to send reregistration email. Please try again later.', {
+          duration: 10000,
+        });
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error('Reregistration request failed: ' + error.message);
+        toast.error('Reregistration request failed: ' + error.message, {
+          duration: 10000,
+        });
       } else {
-        toast.error('An unknown error occurred');
+        toast.error('An unknown error occurred', {
+          duration: 10000,
+        });
       }
     } finally {
       setLoading(false);
@@ -28,7 +43,7 @@ const ReregisterButton: React.FC = () => {
     <AlertDialog.Root>
       <AlertDialog.Trigger asChild>
         <Button variant="link" className="mt-2">
-          Forgot your password?
+          Renew user details?
         </Button>
       </AlertDialog.Trigger>
       <AlertDialog.Portal>
@@ -47,7 +62,7 @@ const ReregisterButton: React.FC = () => {
           >
             Do you wish to reregister your email and password? It will not
             affect the collected data or fetching. You will receive a reset link
-            to your email. (Currently only to logs.)
+            to your email. (Be aware that the sender is "Unverified".)
           </AlertDialog.Description>
           <div className="flex justify-end gap-[25px]">
             <AlertDialog.Cancel asChild>

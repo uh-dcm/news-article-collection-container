@@ -24,12 +24,17 @@ const Register: React.FC<RegisterProps> = ({ onRegistrationSuccess }) => {
     }
     setLoading(true);
     try {
-      const response = await registerUser(email, password, isReregistering);
-      if (response && (response.msg === 'User created' || response.msg === 'User updated')) {
+      const result = await registerUser(email, password, isReregistering);
+      if (result.success) {
         toast.success(isReregistering ? 'Reregistration successful!' : 'Registration successful!');
+        if (!result.emailSent) {
+          toast.warning('Registration successful, but there was an issue sending the confirmation email. You can still use the app.', {
+            duration: 10000,
+          });
+        }
         onRegistrationSuccess();
       } else {
-        toast.error('Failed to register');
+        toast.error('Failed to register: ' + result.error);
       }
     } catch (error: unknown) {
       if (error instanceof Error) {

@@ -19,10 +19,17 @@ const registerUser = async (email: string, password: string, isReregistering: bo
       password,
       isReregistering
     });
-    return response.data;
+    return {
+      success: true,
+      data: response.data,
+      emailSent: response.data.email_sent
+    };
   } catch (error) {
-    console.log('Error in registerUser: ', error);
-    return false;
+    console.error('Error in registerUser: ', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'An unknown error occurred'
+    };
   }
 };
 
@@ -54,16 +61,14 @@ const loginUser = async (password: string) => {
 
 const requestReregister = async () => {
   try {
-    const response = await axios.post(`${serverUrl}/api/request_reregister`);
-
-    // TODO: this is a development version to print link to console, remove in prod
-    if (response.data.reregister_link) {
-      console.log('REREGISTRATION LINK:', response.data.reregister_link);
-    }
-
+    const response = await axios.post(`${serverUrl}/api/request_reregister`, {}, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
     return response.data;
   } catch (error) {
-    console.log('Error in requestReregister: ', error);
+    console.error('Error in requestReregister: ', error);
     throw error;
   }
 };

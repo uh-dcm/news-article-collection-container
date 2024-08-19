@@ -5,9 +5,8 @@ from flask import current_app, jsonify, request
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import create_access_token
 
-from src.config import Config
 from src.utils.auth_utils import get_user_data, set_user_data
-from src.views.administration.mail_dispatcher import send_email
+from src.utils.mail_dispatcher import send_welcome_email,send_reregister_confirmation_email
 
 def register():
     """
@@ -28,13 +27,25 @@ def register():
     new_user_data = {"email": email, "password": generate_password_hash(password)}
     set_user_data(new_user_data)
 
-    if not current_app.config['TESTING'] and Config.MAIL_SENDER:
-        send_email(request)
+    # negates out testing and development when there is not SMTP_SENDER
+    # if reregistering, the email should be different
+    email_sent = True
+    if not current_app.config['TESTING'] and current_app.config['SMTP_SENDER']:
+        try:
+            if is_reregistering:
+                send_reregister_confirmation_email(request, password)
+            else:
+                send_welcome_email(request, password)
+        except Exception as e:
+            current_app.logger.error(f"Failed to send email: {str(e)}")
+            email_sent = False
 
-    if is_reregistering:
-        return jsonify({"msg": "User updated"}), 200
-    else:
-        return jsonify({"msg": "User created"}), 200
+    response = {
+        "msg": "User updated" if is_reregistering else "User created",
+        "email_sent": email_sent
+    }
+
+    return jsonify(response), 200
 
 def login():
     """Login a user. Called by routes.init_routes() for route /api/login."""
