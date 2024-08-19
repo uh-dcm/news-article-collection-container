@@ -5,7 +5,7 @@ from flask import jsonify, request, current_app
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 
 from src.utils.auth_utils import get_user_data
-#from src.views.administration.mail_dispatcher import send_email
+from src.utils.mail_dispatcher import send_reregister_request_email
 
 def request_reregister():
     """
@@ -18,31 +18,30 @@ def request_reregister():
 
     # generating token
     serializer = URLSafeTimedSerializer(current_app.config['REREGISTER_SECRET_KEY'])
-    token = serializer.dumps(user_data['email'], salt=current_app.config['REREGISTER_SALT'])
+    token = serializer.dumps(user_data['email'])
 
     # the reregister link
     reregister_link = f"{request.host_url}reregister/{token}"
 
-    # TODO: remove these in prod, enable parts commented out at bottom, enable import
-    # link to terminal; in prod remove this, also remove part in authfunctions.tsx
-    current_app.logger.info(f"REREGISTRATION LINK (for development only): {reregister_link}")
-    # development version to be simply shown in console; remove in prod
-    return jsonify({
-        "msg": "Reregistration link sent",
-        "reregister_link": reregister_link
-    }), 200
+    response = {
+        "msg": "Reregistration link generated",
+    }
 
-    # email details
-    #subject = "Reregister User Details for News Article Collector"
-    #body = f"Click the following link to reregister your user details: {reregister_link}"
+    # negates out testing and development when there is not SMTP_SENDER
+    if not current_app.config['TESTING'] and current_app.config['SMTP_SENDER']:
+        try:
+            send_reregister_request_email(request.host_url, user_data['email'], reregister_link)
+            response["email_sent"] = True
+        except Exception as e:
+            current_app.logger.error(f"Failed to send reregistration email: {str(e)}")
+            response["email_sent"] = False
+            response["email_error"] = "Failed to send reregistration email"
+    else:
+        # for testing and development when SMTP_SENDER is not set
+        current_app.logger.info(f"REREGISTRATION LINK (for development only): {reregister_link}")
+        response["reregister_link"] = reregister_link
 
-    #try:
-        #if not current_app.config['TESTING']:
-        #    send_email(user_data['email'], subject, body)
-        #return jsonify({"msg": "Reregistration link sent"}), 200
-    #except Exception as e:
-    #    current_app.logger.error(f"Failed to send reregistration email: {str(e)}")
-    #    return jsonify({"msg": "Failed to send reregistration email"}), 500
+    return jsonify(response), 200
 
 def validate_reregister_token(token):
     """
@@ -53,8 +52,7 @@ def validate_reregister_token(token):
     try:
         email = serializer.loads(
             token,
-            salt=current_app.config['REREGISTER_SALT'],
-            max_age=current_app.config['REREGISTER_EXPIRATION']
+            max_age=current_app.config['REREGISTER_TOKEN_EXPIRES']
         )
         return jsonify({"valid": True, "email": email}), 200
     except (SignatureExpired, BadSignature):

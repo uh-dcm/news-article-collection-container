@@ -17,9 +17,8 @@ class Config:
     JWT_SECRET_KEY: str = secrets.token_hex(32)
     JWT_ACCESS_TOKEN_EXPIRES: timedelta = timedelta(minutes=60)
     REREGISTER_SECRET_KEY: str = secrets.token_hex(32)
-    REREGISTER_SALT: str = secrets.token_hex(16)
-    REREGISTER_EXPIRATION: int = 3600
-    MAIL_SENDER = os.environ.get('SMTP_SENDER')
+    REREGISTER_TOKEN_EXPIRES: int = 3600
+    SMTP_SENDER = os.environ.get('SMTP_SENDER')
 
 @dataclass
 class TestConfig(Config):
