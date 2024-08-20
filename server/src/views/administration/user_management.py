@@ -1,68 +1,64 @@
 """
 Handles register and login routes. Called by routes.py.
 """
-import os
-from flask import jsonify, request, current_app
+from flask import current_app, jsonify, request
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import create_access_token
 
-def get_password_file_path():
-    """
-    Shared file path get function for the actual route functions. It's a function
-    instead of a shared variable so the folder isn't checked before it's created.
-    """
-    return os.path.join(current_app.config['FETCHER_FOLDER'], 'data', 'password.txt')
+from src.utils.auth_utils import get_user_data, set_user_data
+from src.utils.mail_dispatcher import send_welcome_email,send_reregister_confirmation_email
 
 def register():
-    """Register a new user. Called by routes.init_routes() for route /api/register."""
-    password_file_path = get_password_file_path()
-
-    if current_app.config['TESTING']:
-        with open(password_file_path, 'w', encoding='utf-8') as f:
-            f.write(generate_password_hash("testpassword"))
-        return jsonify({"msg": "User created"}), 200
-
+    """
+    Register a new user. Checks isReregistering whether to allow registering again.
+    Called by routes.init_routes() for route /api/register.
+    """
+    email = request.json.get('email', None)
     password = request.json.get('password', None)
+    is_reregistering = request.json.get('isReregistering', False)
 
-    if not password:
-        return jsonify({"msg": "Missing username or password"}), 400
+    if not email or not password:
+        return jsonify({"msg": "Missing email or password"}), 400
 
-    hashed_password = generate_password_hash(password)
-
-    # use a basic file for now
-    if os.path.exists(password_file_path):
+    existing_user = get_user_data()
+    if existing_user and not is_reregistering:
         return jsonify({"msg": "User already exists"}), 409
 
-    with open(password_file_path, 'w', encoding='utf-8') as f:
-        f.write(hashed_password)
+    new_user_data = {"email": email, "password": generate_password_hash(password)}
+    set_user_data(new_user_data)
 
-    return jsonify({"msg": "User created"}), 200
+    # negates out testing and development when there is not SMTP_SENDER
+    # if reregistering, the email should be different
+    email_sent = True
+    if not current_app.config['TESTING'] and current_app.config['SMTP_SENDER']:
+        try:
+            if is_reregistering:
+                send_reregister_confirmation_email(request, password)
+            else:
+                send_welcome_email(request, password)
+        except Exception as e:
+            current_app.logger.error(f"Failed to send email: {str(e)}")
+            email_sent = False
+
+    response = {
+        "msg": "User updated" if is_reregistering else "User created",
+        "email_sent": email_sent
+    }
+
+    return jsonify(response), 200
 
 def login():
     """Login a user. Called by routes.init_routes() for route /api/login."""
-    password_file_path = get_password_file_path()
-
     password = request.json.get('password', None)
-
     if not password:
-        return jsonify({"msg": "Missing username or password"}), 400
+        return jsonify({"msg": "Missing password"}), 400
 
-    if not os.path.exists(password_file_path):
+    user_data = get_user_data()
+    if not user_data:
         return jsonify({"msg": "User does not exist"}), 404
 
-    with open(password_file_path, 'r', encoding='utf-8') as f:
-        hashed_password = f.read()
+    if not check_password_hash(user_data['password'], password):
+        return jsonify({"msg": "Invalid password"}), 401
 
-    if not check_password_hash(hashed_password, password):
-        return jsonify({"msg": "Invalid username or password"}), 401
-
-    access_token = create_access_token(identity='admin')
+    access_token = create_access_token(identity=user_data['email'])
     return jsonify(access_token=access_token), 200
-
-def get_user_exists():
-    """
-    Check if the user exists.
-    Called by routes.init_routes() for route /api/get_user_exists.
-    """
-    password_file_path = get_password_file_path()
-    return jsonify({"exists": os.path.exists(password_file_path)}), 200

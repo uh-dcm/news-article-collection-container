@@ -12,16 +12,24 @@ const checkUserExists = async () => {
   }
 };
 
-const registerUser = async (email: string, password: string) => {
+const registerUser = async (email: string, password: string, isReregistering: boolean = false) => {
   try {
     const response = await axios.post(`${serverUrl}/api/register`, {
       email,
       password,
+      isReregistering
     });
-    return response.data;
+    return {
+      success: true,
+      data: response.data,
+      emailSent: response.data.email_sent
+    };
   } catch (error) {
-    console.log('Error in createUser: ', error);
-    return false;
+    console.error('Error in registerUser: ', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'An unknown error occurred'
+    };
   }
 };
 
@@ -51,4 +59,35 @@ const loginUser = async (password: string) => {
   }
 };
 
-export { checkUserExists, registerUser, getIsValidToken, loginUser };
+const requestReregister = async () => {
+  try {
+    const response = await axios.post(`${serverUrl}/api/request_reregister`, {}, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error in requestReregister: ', error);
+    throw error;
+  }
+};
+
+const validateReregisterToken = async (token: string) => {
+  try {
+    const response = await axios.get(`${serverUrl}/api/validate_reregister_token/${token}`);
+    return response.data;
+  } catch (error) {
+    console.log('Error in validateReregisterToken: ', error);
+    throw error;
+  }
+};
+
+export {
+  checkUserExists,
+  registerUser,
+  getIsValidToken,
+  loginUser,
+  requestReregister,
+  validateReregisterToken
+};

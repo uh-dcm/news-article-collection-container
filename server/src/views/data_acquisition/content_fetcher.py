@@ -74,24 +74,34 @@ def run_subprocess(script_name):
     """
     The actual, once repeated subprocess run with logging for run_collect_and_process().
     """
-    result = subprocess.run(
-        ['python3', script_name],
-        cwd=current_app.config['FETCHER_FOLDER'],
-        capture_output=True,
-        check=True,
-        text=True
-    )
-    if result.stdout:
-        current_app.logger.info(
-            "%s output:\n%s",
-            script_name,
-            result.stdout.strip(),
-            extra={'script_name': script_name}
+    try:
+        result = subprocess.run(
+            ['python3', script_name],
+            cwd=current_app.config['FETCHER_FOLDER'],
+            capture_output=True,
+            check=True,
+            text=True
         )
-    if result.stderr:
+        if result.stdout:
+            current_app.logger.info(
+                "%s output:\n%s",
+                script_name,
+                result.stdout.strip(),
+                extra={'script_name': script_name}
+            )
+        if result.stderr:
+            current_app.logger.error(
+                "%s error:\n%s",
+                script_name,
+                result.stderr.strip(),
+                extra={'script_name': script_name}
+            )
+    except subprocess.CalledProcessError as e:
         current_app.logger.error(
-            "%s error:\n%s",
+            "%s failed with return code %d:\n%s",
             script_name,
-            result.stderr.strip(),
+            e.returncode,
+            e.stderr.strip(),
             extra={'script_name': script_name}
         )
+        raise

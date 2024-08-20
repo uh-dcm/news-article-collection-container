@@ -1,0 +1,123 @@
+# Complete Rahti yaml for https://github.com/uh-dcm/news-article-collection-container
+# You need to specify your own host (URL address) for the route at the bottom where it reads IMPORTANT
+# Press the + at the top right in Rahti and paste this in that field to implement this there
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: news-collection-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi  # CUSTOMIZE: Adjust size as needed, 100 Gi max
+  storageClassName: standard-csi
+  volumeMode: Filesystem
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: news-collection
+spec:
+  tags:
+    - from:
+        kind: DockerImage
+        name: docker.io/ohtukontitus/news-collection:latest
+      importPolicy:
+        scheduled: true
+      name: latest
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-collection
+  annotations:
+    image.openshift.io/triggers: |-
+      [
+        {
+          "from": {
+            "kind": "ImageStreamTag",
+            "name": "news-collection:latest"
+          },
+          "fieldPath": "spec.template.spec.containers[0].image"
+        }
+      ]
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: news-collection
+  strategy:
+    type: Recreate  # RollingUpdate would sometimes get stuck, plus updates are rare anyway
+  template:
+    metadata:
+      labels:
+        app: news-collection
+    spec:
+      volumes:
+        - name: news-collection-data
+          persistentVolumeClaim:
+            claimName: news-collection-data
+      containers:
+        - name: news-collection
+          image: news-collection:latest
+          resources:
+            requests:
+              cpu: 100m  # CUSTOMIZE: Adjust size as needed
+              memory: 1Gi  # CUSTOMIZE: Adjust size as needed
+            limits:
+              cpu: 500m  # CUSTOMIZE: Adjust size as needed, max 4000m not recommended
+              memory: 2Gi  # CUSTOMIZE: Adjust size as needed, max 16gi not recommended
+          volumeMounts:
+            - name: news-collection-data
+              mountPath: /app/server/rss-fetcher/data
+          ports:
+            - containerPort: 5000
+              name: http
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              path: /health  # Appears to automatically work without it being defined
+              port: 5000
+            periodSeconds: 300
+            timeoutSeconds: 3
+            initialDelaySeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            periodSeconds: 300
+            timeoutSeconds: 3
+            initialDelaySeconds: 60
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: news-collection-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000  # Rahti may complain of targetPort: 5000 but it fails without this
+  selector:
+    app: news-collection
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: news-collection-route
+spec:
+  host: your-app-name.2.rahtiapp.fi  # IMPORTANT: Replace placeholder 'your-app-name' with a name of your own
+  to:
+    kind: Service
+    name: news-collection-service
+    weight: 100
+  port:
+    targetPort: 5000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None

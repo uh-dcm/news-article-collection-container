@@ -32,6 +32,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ohtukontitus/news-collection:latest,ohtukontitus/news-collection:${{ steps.get_version.outputs.RELEASE_VERSION }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/news-collection:latest,${{ secrets.DOCKERHUB_USERNAME }}/news-collection:${{ steps.get_version.outputs.RELEASE_VERSION }}
           build-args: |
             VITE_RELEASE_VERSION=${{ steps.get_version.outputs.RELEASE_VERSION }}
+            SMTP_SENDER=${{ secrets.SMTP_SENDER }}

@@ -4,17 +4,21 @@ This defines the routes used in app.py. The route functionalities are in src.vie
 import os
 from flask import send_from_directory, jsonify
 
-from src.views.administration import user_management, log_operations, status_stream
+from src.utils.auth_utils import jwt_required_conditional, get_user_data
+from src.views.administration import (
+    user_management,
+    log_operations,
+    reregistration,
+    status_stream
+)
 from src.views.data_acquisition import feed_manager, content_fetcher
 from src.views.data_analysis import query_processor, stats_analyzer
 from src.views.data_export import export_manager
-from src.views import mail_dispatcher
-from src.utils.auth_utils import jwt_required_conditional
 
 def init_routes(app):
     """
     Configures the basic routes for the app. Used by create_app().
-    17 in total.
+    The index, 9 admin/user and 9 article data related.
     """
     log_file_path = app.config['LOG_FILE_PATH']
 
@@ -27,7 +31,7 @@ def init_routes(app):
         else:
             return send_from_directory(app.static_folder, 'index.html')
 
-    # basic routes
+    # administration or user control related routes
     app.add_url_rule(
         '/api/register',
         'register',
@@ -43,7 +47,7 @@ def init_routes(app):
     app.add_url_rule(
         '/api/get_user_exists',
         'get_user_exists',
-        user_management.get_user_exists,
+        lambda: jsonify({"exists": bool(get_user_data())}),
         methods=['GET']
     )
     app.add_url_rule(
@@ -53,15 +57,27 @@ def init_routes(app):
         methods=['GET']
     )
     app.add_url_rule(
-        '/api/error_logs',
-        'get_error_logs',
-        jwt_required_conditional(lambda: log_operations.get_error_logs(log_file_path)),
+        '/api/request_reregister',
+        'request_reregister',
+        reregistration.request_reregister,
+        methods=['POST']
+    )
+    app.add_url_rule(
+        '/api/validate_reregister_token/<token>',
+        'validate_reregister_token',
+        reregistration.validate_reregister_token,
         methods=['GET']
     )
     app.add_url_rule(
-        '/api/clear_error_logs',
-        'clear_error_logs',
-        jwt_required_conditional(lambda: log_operations.clear_error_logs(log_file_path)),
+        '/api/error_log',
+        'get_error_log',
+        jwt_required_conditional(lambda: log_operations.get_error_log(log_file_path)),
+        methods=['GET']
+    )
+    app.add_url_rule(
+        '/api/clear_error_log',
+        'clear_error_log',
+        jwt_required_conditional(lambda: log_operations.clear_error_log(log_file_path)),
         methods=['POST']
     )
     app.add_url_rule(
@@ -69,14 +85,8 @@ def init_routes(app):
         'stream',
         status_stream.stream
     )
-    app.add_url_rule(
-        '/api/mail_dispatcher',
-        'send_email',
-        mail_dispatcher.send_email,
-        methods=['POST']
-    )
 
-    # data routes
+    # article data routes
     app.add_url_rule(
         '/api/get_feed_urls',
         'get_feed_urls',

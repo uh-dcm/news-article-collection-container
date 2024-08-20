@@ -1,8 +1,10 @@
-import React, { useState, KeyboardEvent  } from 'react';
+import React, { useState, KeyboardEvent } from 'react';
 import { toast } from 'sonner';
 import { loginUser } from '@/services/authfunctions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+
+import ReregisterButton from './reregister-button';
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -52,7 +54,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       <img
         src="/images/logo.png"
         alt="News Article Collector Logo"
-        className="mb-8 w-24 h-24"
+        className="mb-8 h-24 w-24"
       />
       <h1 className="text-3xl font-semibold">News Article Collector</h1>
       <p className="mt-4 text-lg">Please log in to use the app</p>
@@ -62,15 +64,12 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="mt-2 w-64 bg-background text-foreground border-input"
+        className="mt-2 w-64 border-input bg-background text-foreground"
       />
-      <Button
-        className="mt-4"
-        disabled={loading}
-        onClick={handleLogin}
-      >
+      <Button className="mt-4" disabled={loading} onClick={handleLogin}>
         {loading ? 'Logging in...' : 'Log in'}
       </Button>
+      <ReregisterButton />
     </div>
   );
 };

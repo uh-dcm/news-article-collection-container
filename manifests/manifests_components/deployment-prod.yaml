@@ -2,6 +2,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: news-collection-prod
+  annotations:
+    image.openshift.io/triggers: |-
+      [
+        {
+          "from": {
+            "kind": "ImageStreamTag",
+            "name": "docker.io/ohtukontitus/news-collection:latest"
+          },
+          "fieldPath": "spec.template.spec.containers[0].image"
+        }
+      ]
 spec:
   replicas: 1
   selector:
@@ -19,9 +30,6 @@ spec:
         - image: docker.io/ohtukontitus/news-collection:latest
           imagePullPolicy: Always
           name: news-collection
-          env:
-            - name: WEBPAGE_URL
-              value: news-collection.2.rahtiapp.fi
           resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File

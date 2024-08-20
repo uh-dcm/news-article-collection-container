@@ -13,46 +13,56 @@ ARG VITE_RELEASE_VERSION
 ENV VITE_WEBPAGE_URL=${VITE_API_BASE_URL}
 ENV VITE_RELEASE_VERSION=${VITE_RELEASE_VERSION}
 
-WORKDIR /app
+WORKDIR /app/client
 
 # Copy package.json and package-lock.json to the container
-COPY client/package*.json ./client/
+COPY client/package*.json ./
 
 # Install dependencies
-RUN cd client && npm install
+RUN npm install
 
 # Copy the rest of the client files to the container
-# We do not copy the whole client folder because 
-COPY client/ ./client/
-RUN cd client && npm run build
+COPY client/ ./
+
+# Build the client
+RUN npm run build
 
 # Second stage is here to build the server
 FROM python:3.12-slim-bookworm
 
-# Copy stuff from the first stage (client) to the second stage (server)
-COPY --from=build-stage /app/client/dist /app/client/build
-
 WORKDIR /app
+
+# Define SMTP sender env variable, none in development but in release the GitHub secret
+ARG SMTP_SENDER
+ENV SMTP_SENDER=${SMTP_SENDER}
+
+# Copy the built client directly to the server's static folder
+COPY --from=build-stage /app/client/dist /app/server/static
 
 # Copy backend files to container
 COPY server /app/server
 
-# Clone another repository into a subdirectory of /server
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* \
-    && rm -rf server/rss-fetcher && mkdir server/rss-fetcher && \
-    git clone https://github.com/ayriainen/news-article-collection server/rss-fetcher
+# Remove existing rss-fetcher if it exists, then create a new empty one
+RUN rm -rf /app/server/rss-fetcher && mkdir -p /app/server/rss-fetcher
 
-# Copy frontend build to static folder
-RUN cp -r client/build server/static
+# Download and extract the original tool into rss-fetcher
+ADD https://github.com/ayriainen/news-article-collection/archive/main.tar.gz /tmp/
+RUN tar -xzf /tmp/main.tar.gz -C /app/server/rss-fetcher --strip-components=1 && \
+    rm /tmp/main.tar.gz
 
 # Create directory for data
-RUN mkdir server/rss-fetcher/data
+RUN mkdir -p /app/server/rss-fetcher/data
 
-# Install dependencies of flask backend, but do not cache them
-RUN pip install --no-cache-dir -r server/requirements.txt
+# Solve Rahti cache issue by setting caches to a specific writable directory
+ENV XDG_CACHE_HOME=/app/server/rss-fetcher/data/.cache
 
-# Install dependencies of rss-fetcher, but do not cache them
-RUN pip install --no-cache-dir -r server/rss-fetcher/requirements.txt
+# Fix sudden nltk bug by using a specific version of it, can possibly be removed later
+# It's used in process.py as part of newspaper4k
+RUN pip install --no-cache-dir nltk==3.9b1
+
+# Install dependencies of flask backend and rss-fetcher, but do not cache them
+RUN pip install --no-cache-dir -r server/requirements.txt && \
+    pip install --no-cache-dir -r server/rss-fetcher/requirements.txt
 
 EXPOSE 5000
 

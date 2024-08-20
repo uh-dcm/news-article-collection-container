@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
-{/* custom ui */}
+// custom ui
 import { PageLayout } from '@/components/page-layout';
 import { itemVariants } from '@/components/animation-variants';
 import {
@@ -12,24 +12,23 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowDownTrayIcon } from '@heroicons/react/24/solid';
+import { DownloadButton } from '@/components/ui/download-button';
 import InfoIcon from '@/components/ui/info-icon';
 import { Switch } from '@/components/ui/switch';
 
-{/* feeds and fetching */}
+// feeds and fetching
 import RssInput from './rss-input';
 import { DataTable } from '@/components/ui/data-table';
 import { feedColumns, Feed } from '@/components/ui/feed-columns';
 import { getAllFeedUrls, sendAllFeedUrls } from './feed-urls';
 import { getFetchingStatus, keepFetching, stopFetching } from './fetching-news';
 
-{/* statistics */}
+// statistics
 import { sendStatisticsQuery } from '@/services/database-queries';
 import StatisticsDrawers from '@/features/statistics/statistics-drawers';
 import { DomainData } from '@/components/ui/drawer';
 
-{/* download function */}
+// download function
 import { handleArticleDownload } from '@/services/article-download';
 import { Label } from '@/components/ui/label';
 
@@ -43,7 +42,7 @@ export default function Dashboard() {
   const [subDirectoryData, setSubDirectoryData] = useState<DomainData[]>([]);
   const [isStatisticsDisabled, setIsStatisticsDisabled] = useState(false);
 
-  {/* Feed check at start from backend */}
+  // Feed check at start from backend
   useEffect(() => {
     const fetchFeedUrls = async () => {
       const feedUrls = await getAllFeedUrls();
@@ -65,16 +64,26 @@ export default function Dashboard() {
     checkFetchingStatus();
   }, []);
 
-  {/* Processing status stream */}
+  // Processing status stream
   useEffect(() => {
     const eventSource = new EventSource('/stream');
     eventSource.addEventListener('processing_status', (event) => {
       setIsProcessing(event.data === 'true');
     });
+
+    // disable complaints about chunking that seem to affect nothing
+    eventSource.onerror = (event) => {
+      if (event instanceof ErrorEvent && event.error instanceof Error) {
+        if (event.error.message.includes('net::ERR_INCOMPLETE_CHUNKED_ENCODING')) {
+          event.preventDefault();
+        }
+      }
+    };
+
     return () => eventSource.close();
   }, []);
 
-  {/* Feed add triggered by "Add to list" */}
+  // Feed add triggered by "Add to list"
   const handleFeedAdd = (feed: Feed) => {
     setFeedUrlList((prevData) => {
       if (!prevData.find((f) => f.url === feed.url)) {
@@ -88,14 +97,13 @@ export default function Dashboard() {
     });
   };
 
-  {/* Feed submit triggered by above */}
+  // Feed submit triggered by above
   const handleSubmit = async (updatedFeeds: string[]) => {
     setIsUrlSetDisabled(true);
     try {
       const response = await sendAllFeedUrls(updatedFeeds);
       if (response.status === 200) {
         toast.success('Feed list updated successfully!');
-        console.error('Successfully added feed to list');
       } else {
         throw new Error();
       }
@@ -106,7 +114,7 @@ export default function Dashboard() {
     }
   };
 
-  {/* Feed deletion from list */}
+  // Feed deletion from list
   const deleteSelectedRows = (selectedRows: Feed[]) => {
     const updatedFeeds = feedUrlList
       .filter((item) => !selectedRows.includes(item))
@@ -116,7 +124,7 @@ export default function Dashboard() {
     handleSubmit(updatedFeeds);
   };
 
-  {/* Next 3 const are fetch related */}
+  // Next 3 const are fetch related
   const handleFetchStart = async () => {
     toast.info('RSS fetching in progress', {
       description: 'Gathering articles...',
@@ -144,7 +152,12 @@ export default function Dashboard() {
     }
   };
 
-  {/* Two const below are stats related */}
+  // Download function
+  const handleDownload = (format: 'json' | 'csv' | 'parquet') => {
+    handleArticleDownload(format, false, setIsDisabled);
+  };
+
+  // Next 2 const are stats related
   const handleFetchStatistics = async () => {
     setIsStatisticsDisabled(true);
     try {
@@ -164,27 +177,19 @@ export default function Dashboard() {
 
   return (
     <PageLayout title="Dashboard">
-
       {/* Feed manager */}
       <motion.div variants={itemVariants}>
         <Card className="mt-6 lg:col-span-3 lg:row-span-3">
-          <CardHeader>
-            <CardTitle className="text-lg">RSS feed manager</CardTitle>
-            <CardDescription>Add or delete feeds</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <RssInput
-              handleFeedAdd={handleFeedAdd}
-              isUrlSetDisabled={isUrlSetDisabled}
-            />
-            <DataTable
-              columns={feedColumns}
-              data={feedUrlList}
-              onDeleteSelected={deleteSelectedRows}
-              tableName={'List of RSS feeds'}
-              showGlobalFilter={false}
-            />
-            <div className="flex">
+          <CardHeader className="relative pb-4">
+            <CardTitle className="text-lg">RSS feeds</CardTitle>
+            <CardDescription className="flex items-center">
+              Add or delete feeds
+              <InfoIcon
+                tooltipContent="Addresses that often end in .rss, .xml or /feed/."
+                ariaLabel="RSS feed URL info"
+              />
+            </CardDescription>
+            <div className="absolute right-4 top-4">
               <Card className="rounded-md">
                 <div className="flex items-center px-4 py-2">
                   <Switch
@@ -194,66 +199,61 @@ export default function Dashboard() {
                     onCheckedChange={handleSwitch}
                     className="mr-2 data-[state=checked]:bg-green-500"
                   />
-                  <Label htmlFor="toggleFetching">
-                    Toggle article fetching
+                  <Label htmlFor="toggleFetching" className="text-sm whitespace-nowrap">
+                    Toggle fetching
                   </Label>
                   <InfoIcon
                     tooltipContent="Collects new article data from feeds every 5 minutes."
                     ariaLabel="Fetcher info"
                   />
                   <div className="mx-2 h-6 w-px bg-gray-200 dark:bg-gray-700" />
-
-                  <div className="text-sm">
+                  <div className="text-sm whitespace-nowrap flex items-center">
+                    <span className="font-bold mr-2">Status:</span>
                     <span
-                      className={
-                        isProcessing ? 'text-primary' : 'text-muted-foreground'
-                      }
+                      className={`inline-flex items-center justify-center w-32 px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-300 ${
+                        isProcessing
+                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'
+                      }`}
                     >
-                      <b>Processing status:</b>
-                      {isProcessing ? ' Processing' : ' Not processing'}
+                      {isProcessing && (
+                        <span className="relative flex h-3 w-3 mr-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                        </span>
+                      )}
+                      <span className="truncate">
+                        {isProcessing ? 'Processing' : 'Not processing'}
+                      </span>
                     </span>
                   </div>
                 </div>
               </Card>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Download for all articles, not just filtered */}
-      <motion.div variants={itemVariants}>
-        <Card className="mt-6 lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-lg">Export</CardTitle>
-            <CardDescription>
-              Download all article data in JSON, CSV or Parquet
-              <InfoIcon
-                tooltipContent="See Q&A below for more info."
-                ariaLabel="Download info"
-              />
-            </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-            {['JSON', 'CSV', 'Parquet'].map((format) => (
-              <Button
-                key={format.toLowerCase()}
-                variant="outline"
-                onClick={() =>
-                  handleArticleDownload(
-                    format.toLowerCase() as 'json' | 'csv' | 'parquet',
-                    false,
-                    setIsDisabled
-                  )
-                }
-                disabled={isDisabled}
-                className="w-full p-6 text-base sm:w-[30%]"
-              >
-                <div className="flex justify-center">
-                  <ArrowDownTrayIcon className="mr-1.5 size-6" />
-                  {format}
-                </div>
-              </Button>
-            ))}
+          <CardContent className="space-y-5 pt-2 pb-6">
+            <div>
+              <DataTable
+                columns={feedColumns}
+                data={feedUrlList}
+                onDeleteSelected={deleteSelectedRows}
+                showGlobalFilter={false}
+                tableName="RSS feeds"
+                hideTitle={true}
+              />
+            </div>
+            <RssInput
+              handleFeedAdd={handleFeedAdd}
+              isUrlSetDisabled={isUrlSetDisabled}
+              downloadButton={
+                <DownloadButton
+                  onDownload={handleDownload}
+                  isDisabled={isDisabled}
+                  buttonText="Download All Articles"
+                  className="w-[230px]"
+                />
+              }
+            />
           </CardContent>
         </Card>
       </motion.div>

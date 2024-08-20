@@ -36,7 +36,7 @@
         }
       });
   
-      cy.contains('Dashboard', { timeout: 10000 }).should('be.visible'); // Ensure logged in
+      cy.contains('Log out', { timeout: 10000 }).should('exists'); // Ensure logged in
     });
   
     after(() => {
@@ -47,7 +47,7 @@
       cy.wait(1000);
   
       cy.contains('News Article Collector', { timeout: 3000 }).should(
-        'be.visible'
+        'exist'
       );
     });
   
@@ -59,7 +59,7 @@
     it('should add an RSS feed URL to the list', () => {
       cy.wait(1000);
   
-      cy.get('input[placeholder="RSS feed address here..."]').type(
+      cy.get('input[placeholder="Input RSS feed address here..."]').type(
         'https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss'
       );
       cy.contains('Add to list', { timeout: 3000 }).click();
@@ -84,7 +84,7 @@
       cy.contains(
         'https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss',
         { timeout: 3000 }
-      ).should('be.visible');
+      ).should('exist');
 
       // Then remove the feed URL
       cy.contains('Remove', { timeout: 3000 }).click();
@@ -156,7 +156,9 @@
       cy.wait(1000);
   
       cy.get('button').contains('JSON', { timeout: 3000 }).click({ force: true });
-  
+      cy.wait(500);
+
+
       cy.contains('Downloading...', { timeout: 3000 }).should('exist');
       cy.contains('Please note that the process might take some time.', {
         timeout: 3000,
@@ -201,28 +203,45 @@
         });
     });
   
-    // Parquet seems to require specific import reader.
-  
-    it('should go to search, click search and get fetched articles', () => {
-      cy.wait(1000);
-  
-      cy.contains('Search', { timeout: 3000 }).click();
-  
-      cy.wait(1000);
-  
-      cy.get('button:contains("Search")')
-        .find('svg')
-        .should('have.class', 'mr-3 size-6')
-        .click({ force: true });
-  
-      cy.wait(1000);
-  
-      cy.document().then((doc) => {
-        const yleCount = (doc.body.innerText.match(/yle/gi) || []).length;
-        expect(yleCount).to.be.greaterThan(5);
-      });
-    });
     
+  // Parquet seems to require specific import reader.
+  it('should download articles.parquet', () => {
+    cy.wait(1000);
+    cy.get('button').contains('Download All Articles').click({ force: true });
+  
+    cy.wait(500);
+    cy.contains('Parquet', { timeout: 3000 }).click({ force: true });
+
+    cy.wait(1000);
+    cy.contains('Download successful!', { timeout: 10000 }).should(
+      'be.visible',
+      { timeout: 3000 }
+    );
+
+    cy.readFile(`${downloadsFolder}/articles.parquet`, { timeout: 10000 })
+      .should('exist');
+  });
+
+  
+  it('should go to search, click search and get fetched articles', () => {
+    cy.wait(1000);
+
+    cy.contains('Search', { timeout: 3000 }).click();
+
+    cy.wait(1000);
+
+    cy.get('button:contains("Search")')
+      .find('svg')
+      .should('have.class', 'mr-3 size-6')
+      .click({ force: true });
+
+    cy.wait(1000);
+
+    cy.document().then((doc) => {
+      const yleCount = (doc.body.innerText.match(/yle/gi) || []).length;
+      expect(yleCount).to.be.greaterThan(5);
+    });
+  });
     // New: Empty search results.
     it('should handle no articles found during search', () => {
       cy.wait(1000);

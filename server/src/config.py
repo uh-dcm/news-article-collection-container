@@ -3,6 +3,7 @@ Sets basic or testing config for the app.
 """
 # pylint: disable=invalid-name
 import os
+import secrets
 from datetime import timedelta
 from dataclasses import dataclass
 
@@ -13,10 +14,11 @@ class Config:
     SERVER_ROOT: str = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     FETCHER_FOLDER: str = os.path.join(SERVER_ROOT, 'rss-fetcher')
     DATABASE_URL: str = f'sqlite:///{FETCHER_FOLDER}/data/data.db'
-    JWT_SECRET_KEY: str = os.environ.get(
-        'JWT_SECRET_KEY', "your_secret_key_here_change_this"
-    )  # TODO: change this
+    JWT_SECRET_KEY: str = secrets.token_hex(32)
     JWT_ACCESS_TOKEN_EXPIRES: timedelta = timedelta(minutes=60)
+    REREGISTER_SECRET_KEY: str = secrets.token_hex(32)
+    REREGISTER_TOKEN_EXPIRES: int = 3600
+    SMTP_SENDER = os.environ.get('SMTP_SENDER')
 
 @dataclass
 class TestConfig(Config):

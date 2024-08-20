@@ -3,44 +3,44 @@ import { motion } from 'framer-motion';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import { toast } from 'sonner';
 
-{/* custom ui */}
+// custom ui
 import { PageLayout } from '@/components/page-layout';
 import { itemVariants } from '@/components/animation-variants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-{/* Logs api calls */}
+// Log api calls
 import { getLogRecords, clearLogRecords } from './log-records';
 
 export default function Errors() {
   const [logRecords, setLogRecords] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchLogs();
+    fetchLog();
   }, []);
 
-  const fetchLogs = async () => {
+  const fetchLog = async () => {
     const data = await getLogRecords();
     setLogRecords(data);
   };
 
-  const handleClearLogs = async () => {
+  const handleClearLog = async () => {
     try {
       await clearLogRecords();
       setLogRecords([]);
-      toast.success('Logs cleared successfully');
+      toast.success('Log cleared successfully');
     } catch (error) {
-      console.error('Failed to clear logs:', error);
-      toast.error('Failed to clear logs');
+      console.error('Failed to clear log:', error);
+      toast.error('Failed to clear log');
     }
   };
 
-  const handleDownloadLogs = () => {
+  const handleDownloadLog = () => {
     const blob = new Blob([logRecords.join('\n')], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'error_logs.txt';
+    a.download = 'error_log.log';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -52,8 +52,8 @@ export default function Errors() {
       <motion.div variants={itemVariants}>
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Error logs</CardTitle>
-            <CardDescription>View and manage error logs</CardDescription>
+            <CardTitle className="text-lg">Error log</CardTitle>
+            <CardDescription>View and manage error log</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="max-h-[60vh] overflow-y-auto text-xs">
@@ -64,15 +64,15 @@ export default function Errors() {
                   </div>
                 ))
               ) : (
-                <p className="text-center text-gray-500">No error logs.</p>
+                <p className="text-center text-gray-500">No error log.</p>
               )}
             </div>
             {logRecords.length > 0 && (
               <div className="mt-4 flex justify-end space-x-2">
-                <Button onClick={handleDownloadLogs}>Download Logs</Button>
+                <Button onClick={handleDownloadLog}>Download Log</Button>
                 <AlertDialog.Root>
                   <AlertDialog.Trigger asChild>
-                    <Button variant="destructive">Clear Logs</Button>
+                    <Button variant="destructive">Clear Log</Button>
                   </AlertDialog.Trigger>
                   <AlertDialog.Portal>
                     <AlertDialog.Overlay className="bg-background/80 fixed inset-0" />
@@ -81,15 +81,15 @@ export default function Errors() {
                         Are you sure?
                       </AlertDialog.Title>
                       <AlertDialog.Description className="mt-2 mb-5 text-sm text-muted-foreground">
-                        This action cannot be undone. This will delete all the error logs.
+                        This action cannot be undone. This will empty the entire error log.
                       </AlertDialog.Description>
                       <div className="flex justify-end gap-[15px]">
                         <AlertDialog.Cancel asChild>
                           <Button variant="outline">Cancel</Button>
                         </AlertDialog.Cancel>
                         <AlertDialog.Action asChild>
-                          <Button variant="destructive" onClick={handleClearLogs}>
-                            Clear Logs
+                          <Button variant="destructive" onClick={handleClearLog}>
+                            Clear Log
                           </Button>
                         </AlertDialog.Action>
                       </div>

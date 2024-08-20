@@ -1,0 +1,112 @@
+# Don't bother with this yaml unless you're interested in handing out Rahti apps to other people
+# This is an example of a guest yaml that can be replicated 4 times (max 5 PVC) after initiating the news-collection-complete.yaml (the imagestream in it really)
+# For versions 2-4: just replace the number in all parts that read "news-collection-guest-1"
+# The placeholder news-collection-guest-1 in the address news-collection-guest-1.2.rahtiapp.fi should be changed to something unique, just like in news-collection-complete.yaml
+# Storage max is 100 shared, so with 4 x 5, in news-collection-complete.yaml it should be 80, read rahti-guide.md if you had 100
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: news-collection-guest-1-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi  # CUSTOMIZE: Adjust size as needed, as 100 is max for all not just one
+  storageClassName: standard-csi
+  volumeMode: Filesystem
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-collection-guest-1
+  annotations:
+    image.openshift.io/triggers: |-
+      [
+        {
+          "from": {
+            "kind": "ImageStreamTag",
+            "name": "news-collection:latest"
+          },
+          "fieldPath": "spec.template.spec.containers[0].image"
+        }
+      ]
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: news-collection-guest-1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: news-collection-guest-1
+    spec:
+      volumes:
+        - name: news-collection-guest-1-data
+          persistentVolumeClaim:
+            claimName: news-collection-guest-1-data
+      containers:
+        - name: news-collection-guest-1
+          image: news-collection:latest
+          resources:
+            requests:
+              cpu: 100m
+              memory: 1Gi
+            limits:
+              cpu: 500m
+              memory: 2Gi
+          volumeMounts:
+            - name: news-collection-guest-1-data
+              mountPath: /app/server/rss-fetcher/data
+          ports:
+            - containerPort: 5000
+              name: http
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            periodSeconds: 300
+            timeoutSeconds: 3
+            initialDelaySeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            periodSeconds: 300
+            timeoutSeconds: 3
+            initialDelaySeconds: 60
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: news-collection-guest-1-service
+spec:
+  selector:
+    app: news-collection-guest-1
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: news-collection-guest-1-route
+spec:
+  host: news-collection-guest-1.2.rahtiapp.fi  # IMPORTANT: replace placeholder news-collection-guest-1 with a name of your own
+  to:
+    kind: Service
+    name: news-collection-guest-1-service
+    weight: 100
+  port:
+    targetPort: 5000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
