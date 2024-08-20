@@ -1,3 +1,5 @@
+# this is a docker compose for running the app locally
+
 services:
   app:
     build:
