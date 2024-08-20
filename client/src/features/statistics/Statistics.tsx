@@ -35,7 +35,7 @@ export default function Statistics() {
     setIsDisabled(true);
     try {
       const data = await sendTextQuery(true);
-      setFilteredTextData(data.map( (x: Map<String, String>) => Object.values(x)[0]) );
+      setFilteredTextData(data.map( (x: Map<string, string>) => Object.values(x)[0]) );
     } catch (error) {
       console.error('Failed to fetch filtered text fields:', error);
       toast.error('Failed to get full text. Have you fetched yet?');
