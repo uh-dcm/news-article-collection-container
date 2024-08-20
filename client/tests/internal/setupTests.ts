@@ -178,29 +178,29 @@ describe('API handlers', () => {
   it('should fetch feed URLs', async () => {
     const response = await fetch(`${serverUrl}/api/get_feed_urls`);
     const data = await response.json();
-    expect(data).toEqual(['https://www.blubblub.com/feed/']);
+    expect(data).to.equal(['https://www.blubblub.com/feed/']);
   });
 
   it('should return status', async () => {
     const response = await fetch(`${serverUrl}/api/status`);
     const data = await response.json();
-    expect(data).toEqual({ status: 'stopped' });
+    expect(data).to.equal({ status: 'stopped' });
   });
 
   it('should start the service', async () => {
     const response = await fetch(`${serverUrl}/api/start`, { method: 'POST' });
-    expect(response.status).toBe(200);
+    expect(response.status).to.be('200');
   });
 
   it('should stop the service', async () => {
     const response = await fetch(`${serverUrl}/api/stop`, { method: 'POST' });
-    expect(response.status).toBe(200);
+    expect(response.status).to.be('200');
   });
 
   it('should search articles', async () => {
     const response = await fetch(`${serverUrl}/api/articles/search?textQuery=test`);
     const data = await response.json();
-    expect(data).toEqual(expect.any(Array));
+    expect(data).to.equal(expect(Array));
   });
 
   it('should set feed URLs', async () => {
@@ -210,55 +210,55 @@ describe('API handlers', () => {
       body: JSON.stringify(newFeed),
     });
     const data = await response.json();
-    expect(data).toEqual(newFeed);
+    expect(data).to.equal(newFeed);
   });
 
   it('should check if user exists', async () => {
     const response = await fetch(`${serverUrl}/api/get_user_exists`);
     const data = await response.json();
-    expect(data).toEqual({ exists: true });
+    expect(data).to.equal({ exists: true });
   });
 
   it('should register a user', async () => {
     const response = await fetch(`${serverUrl}/api/register`, { method: 'POST' });
     const data = await response.json();
-    expect(data).toEqual({ message: 'User registered successfully' });
+    expect(data).to.equal({ message: 'User registered successfully' });
   });
 
   it('should validate token', async () => {
     const response = await fetch(`${serverUrl}/api/get_is_valid_token`);
     const data = await response.json();
-    expect(data).toEqual({ valid: true });
+    expect(data).to.equal({ valid: true });
   });
 
   it('should login a user', async () => {
     const response = await fetch(`${serverUrl}/api/login`, { method: 'POST' });
     const data = await response.json();
-    expect(data).toEqual({ access_token: 'mock-access-token' });
+    expect(data).to.equal({ access_token: 'mock-access-token' });
   });
 
   it('should remove a user', async () => {
     const response = await fetch(`${serverUrl}/api/remove_user`, { method: 'POST' });
     const data = await response.json();
-    expect(data).toEqual({ message: 'User removed successfully' });
+    expect(data).to.equal({ message: 'User removed successfully' });
   });
 
   it('should handle event stream', async () => {
     const response = await fetch(`${serverUrl}/stream`);
     const data = await response.text();
-    expect(data).toBe('data: {"is_active":false}\n\n');
+    expect(data).to.be('data: {"is_active":false}\n\n');
   });
 
   // New test cases
   it('should return empty array for empty search query', async () => {
     const response = await fetch(`${serverUrl}/api/articles/search?textQuery=`);
     const data = await response.json();
-    expect(data).toEqual([]);
+    expect(data).to.equal([]);
   });
 
   it('should handle invalid endpoint', async () => {
     const response = await fetch(`${serverUrl}/api/invalid_endpoint`);
-    expect(response.status).toBe(404);
+    expect(response.status).to.be('404');
   });
 
   it('should handle server error', async () => {
@@ -268,6 +268,6 @@ describe('API handlers', () => {
       })
     );
     const response = await fetch(`${serverUrl}/api/status`);
-    expect(response.status).toBe(500);
+    expect(response.status).to.be('500');
   });
 });

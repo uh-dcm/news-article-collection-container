@@ -95,26 +95,26 @@ def test_exporting_insensitive_case_format(client):
 
 def test_exporting_whitespace_format(client):
     """Tests extra whitespace format export."""
-    response = client.get('/api/articles/export?format= csv ')
+    response = client.get('/api/articles/export?format=csv')
     assert response.status_code == 404
 
 def test_exporting_multiple_formats(client):
     """Tests unused multiple format export."""
-    response = client.get('/api/articles/export?format=json&format=csv')
+    response = client.get('/api/articles/export?format=json & format=csv')
     assert response.status_code == 404
 
 def test_exporting_no_format(client):
     """Tests no format export."""
     response = client.get('/api/articles/export')
     assert response.status_code == 404
-
-def test_exporting_invalid_format(client):
-    """Tests invalid format export."""
     response = client.get('/api/articles/export?format=invalid')
     assert response.status_code == 400
     assert response.json['message'] == "Invalid format specified."
 
 # Test for Large Dataset: Simulate exporting a large dataset to check performance and response.
+
+def test_exporting_invalid_format(client):
+    """Tests invalid format export."""
 @pytest.mark.usefixtures("setup_and_teardown")
 def test_exporting_large_dataset(client):
     """Tests exporting a large dataset."""

@@ -70,10 +70,42 @@ def setup_and_teardown(engine, app_config):
 
     yield
 
+""" 
+@pytest.fixture(scope='function')
+def setup_and_teardown(engine, app_config, temp_dir):
+    # Files and database setup fixture.
+    # Used as a pytest.mark.usefixtures above the tests.
+    base_dir = temp_dir
+    data_dir = os.path.join(base_dir, 'data')
+
+    os.makedirs(data_dir, exist_ok=True)
+    with open(os.path.join(data_dir, 'feeds.txt'), 'w', encoding='utf-8') as f:
+        f.write('')
+
+    with open(os.path.join(base_dir, 'collect.py'), 'w', encoding='utf-8') as f:
+        f.write('print("Bla bla bla collect script")')
+
+    with open(os.path.join(base_dir, 'process.py'), 'w', encoding='utf-8') as f:
+        f.write('print("Bla bla bla process script")')
+
+    conn = engine.connect()
+    trans = conn.begin()
+    fill_test_database(conn)
+
+    yield conn
+
+    try:
+        trans.rollback()
+    except SQLAlchemyError:
+        pass
+    finally:
+        conn.close() """
+
+
 
 # Useful fixtures:
 
-# he clean_database fixture ensures that the database is cleaned up after each test, preventing side effects between tests.
+# The clean_database fixture ensures that the database is cleaned up after each test, preventing side effects between tests.
 # Add a fixture for cleaning up the database after each test:
 @pytest.fixture(scope='function', autouse=True)
 def clean_database(engine):
