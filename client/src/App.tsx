@@ -37,6 +37,7 @@ export default function App() {
     const checkInitialState = async () => {
       try {
         const userExistsResponse = await checkUserExists();
+        console.log(userExistsResponse)
         setUserExists(userExistsResponse.exists);
 
         const token = localStorage.getItem('accessToken');
