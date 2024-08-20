@@ -15,7 +15,7 @@ import StatisticsDrawers from './statistics-drawers';
 export default function Statistics() {
   const [filteredStatisticData, setFilteredStatisticsData] = useState<DomainData[][]>([]);
   const [filteredSubDirectoryData, setFilteredSubDirectoryData] = useState<DomainData[]>([]);
-  const [filteredTextData, setTextData] = useState<string[]>([]);
+  const [filteredTextData, setFilteredTextData] = useState<string[]>([]);
   const [isDisabled, setIsDisabled] = useState(false);
 
   const handleFetchStatistics = async () => {
@@ -35,7 +35,7 @@ export default function Statistics() {
     setIsDisabled(true);
     try {
       const data = await sendTextQuery(true);
-      setTextData(data);
+      setFilteredTextData(data.map( (x: Map<String, String>) => Object.values(x)[0]) );
     } catch (error) {
       console.error('Failed to fetch filtered text fields:', error);
       toast.error('Failed to get full text. Have you fetched yet?');

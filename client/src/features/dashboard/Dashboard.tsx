@@ -171,8 +171,7 @@ export default function Dashboard() {
     setIsDisabled(true);
     try {
       const data = await sendTextQuery(false);
-      console.log(data.map( (x: any ) => Object.values(x)[0] ) )
-      setTextData(data)
+      setTextData(data.map( (x: Map<String, String>) => Object.values(x)[0] ))
     } catch (error) {
       console.error('Failed to fetch filtered statistics:', error);
       toast.error('Failed to get full text. Have you fetched yet?');

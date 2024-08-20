@@ -134,7 +134,7 @@ export default function StatisticsDrawers({
             <WordCloud
               width={500}
               height={400}
-              words={ textData.map( (x: any ) => Object.values(x)[0] as string)  }
+              words={ textData  }
             />
             <DrawerFooter>
               <DrawerClose asChild>

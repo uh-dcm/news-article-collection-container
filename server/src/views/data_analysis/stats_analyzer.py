@@ -43,13 +43,13 @@ def get_text():
         return jsonify(text_data), 200
 
     except SQLAlchemyError as e:
-        current_app.logger.exception("Database error when getting statisticss")
+        current_app.logger.exception("Database error when getting text fields")
         return jsonify({
             "status": "error",
-            "message": f"Database error when getting statistics: {str(e)}"
+            "message": f"Database error when getting text fields: {str(e)}"
         }), 500
     except Exception as e:
-        current_app.logger.exception("Error when getting statistics")
+        current_app.logger.exception("Error when getting text fields")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
