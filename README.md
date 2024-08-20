@@ -4,16 +4,32 @@
 
 This is a repository for further development of the news article collection tool based in repository [news-article-collection](https://github.com/uh-dcm/news-article-collection), originally developed by [matnel](https://github.com/matnel). This project extends the tool by containerizing it with Docker and optimizing it for deployment on the [CSC](https://my.csc.fi/) [Rahti 2](https://rahti.csc.fi/) OpenShift service. It offers a web application built with TypeScript, React and Tailwind CSS, aided by Vite. The backend utilizes Python with Flask, JWT and APScheduler, with the SQLite database being sourced from the original tool. Testing is done via Vitest for frontend tests, Pytest for backend and Cypress for end-to-end tests.
 
-This is being worked on as part of the University of Helsinki [Ohjelmistotuotantoprojekti TKT20007](https://github.com/HY-TKTL/TKT20007-Ohjelmistotuotantoprojekti) course for the summer of 2024.
+This was worked on as part of the University of Helsinki [Ohjelmistotuotantoprojekti TKT20007](https://github.com/HY-TKTL/TKT20007-Ohjelmistotuotantoprojekti) course for the summer of 2024.
+
+Short action charts for developer and user (see more in [rahti-guide.md](https://github.com/uh-dcm/news-article-collection-container/blob/main/docs/rahti-guide.md)):
+```mermaid
+graph TD
+    subgraph User
+    C[Start CSC project]:::userStyle --> D[Register project in requested Rahti]:::userStyle
+    D --> E[Use manifest yaml in Rahti]:::userStyle
+    end
+    subgraph Developer
+    A[Commit]:::devStyle --> B[Release]:::devStyle
+    end
+    
+    classDef userStyle fill:#e6ffee,stroke:#333,stroke-width:2px,color:#888888;
+    classDef devStyle fill:#e6f3ff,stroke:#333,stroke-width:2px,color:#888888;
+    classDef subgraphStyle fill:none,stroke:none;
+    class User,Developer subgraphStyle;
+```
 
 Chart of the CD triggered by a release:
-
 ```mermaid
 graph LR
     A[GitHub - Main Branch] -->|Release| B[GitHub Actions]
     C -->|ImageStream| D[Rahti OpenShift]
     
-    subgraph "Docker Image Build"
+    subgraph docker_build["Docker Image Build"]
     C1[Build Client]
     C2[Build Server]
     C3[Image]
@@ -23,24 +39,64 @@ graph LR
     B ---> C1
     B ---> C2
     C3 -->|Push| C[Docker Hub]
-
+    
     linkStyle 0 stroke:#ff3e00,stroke-width:2px;
+    
+    classDef subgraphStyle fill:#f0f4f8,stroke:#d1dce8,stroke-width:1px;
+    class docker_build subgraphStyle;
+
+    style docker_build color:#888888,fill:#f0f4f8,stroke:#d1dce8,stroke-width:1px
 ```
 
-[General project structure in Markdown](https://github.com/uh-dcm/news-article-collection-container/blob/main/docs/project-structure.md)
+Graph of the directories of the main functionalities:
+```mermaid
+graph TD
+    A[news-article-collection-container] --> C[client]
+    A --> F[server]
+
+    C --> C1[public]
+    C --> C2[src]
+    C --> C3[tests]
+
+    C2A --> C2A1[ui]
+
+    C2 --> C2A[components]
+    C2 --> C2B[css]
+    C2 --> C2C[features]
+    C2 --> C2D[lib]
+    C2 --> C2E[services]
+
+    C2C --> C2C1[dashboard]
+    C2C --> C2C2[errors]
+    C2C --> C2C3[info]
+    C2C --> C2C4[search]
+    C2C --> C2C5[statistics]
+    C2C --> C2C6[user]
+
+    F --> F1[src]
+    F --> F2[tests]
+
+    F1 --> F1A[views]
+    F1 --> F1B[utils]
+
+    F1A --> F1A1[administration]
+    F1A --> F1A2[data_acquisition]
+    F1A --> F1A3[data_analysis]
+    F1A --> F1A4[data_export]
+
+    G[news-article-collection] --> G1[collect.py]
+    G --> G2[database.py]
+    G --> G3[process.py]
+```
 
 ## Development documentation
 
 - [Definition of Done & Practices](https://github.com/uh-dcm/news-article-collection-container/blob/main/docs/dod-practices.md)
 - [Product Backlog](https://github.com/orgs/uh-dcm/projects/3/views/1)
-- [Sprint 1 Task Board](https://github.com/orgs/uh-dcm/projects/6/views/1)
-- [Sprint 2 Task Board](https://github.com/orgs/uh-dcm/projects/9/views/1)
-- [Sprint 3 Task Board](https://github.com/orgs/uh-dcm/projects/10/views/1)
-- [Sprint 4 Task Board](https://github.com/orgs/uh-dcm/projects/11/views/1)
-- [Sprint 5 Task Board](https://github.com/orgs/uh-dcm/projects/13/views/1)
-- [Sprint 6 Task Board](https://github.com/orgs/uh-dcm/projects/17/views/1)
+- Summer 2024 task boards: [Sprint 1](https://github.com/orgs/uh-dcm/projects/6/views/1), [Sprint 2](https://github.com/orgs/uh-dcm/projects/9/views/1), [Sprint 3](https://github.com/orgs/uh-dcm/projects/10/views/1), [Sprint 4](https://github.com/orgs/uh-dcm/projects/11/views/1), [Sprint 5](https://github.com/orgs/uh-dcm/projects/13/views/1), [Sprint 6](https://github.com/orgs/uh-dcm/projects/17/views/1)
+- [Future development](https://github.com/uh-dcm/news-article-collection-container/blob/main/docs/future-development.md)
 
-## Starting the app
+## Starting the app locally
 
 Make sure you have Docker installed!
 
