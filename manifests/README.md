@@ -1,2 +1,2 @@
 # Manifests
-These are OpenShift/Kubernetes manifests to be used with Rahti. See rahti-guide.md in docs for a comprehensive starting guide for the initialization of the app in Rahti.
+These are OpenShift/Kubernetes manifests to be used with Rahti. See rahti-guide.md in docs for a comprehensive starting guide for the initialization of the app in Rahti. The news-collection-complete.yaml is the general manifest users should copy and use. The guest.yaml is used when inviting other people to try the app through your Rahti project in their own separate environment. And as for the folders, as the names imply, manifests_components has component-specific manifests and manifests_playground has manifests for the playground deployment.
