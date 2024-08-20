@@ -217,12 +217,11 @@
       'be.visible',
       { timeout: 3000 }
     );
-
     cy.readFile(`${downloadsFolder}/articles.parquet`, { timeout: 10000 })
       .should('exist');
   });
 
-  
+
   it('should go to search, click search and get fetched articles', () => {
     cy.wait(1000);
 
@@ -242,6 +241,7 @@
       expect(yleCount).to.be.greaterThan(5);
     });
   });
+
     // New: Empty search results.
     it('should handle no articles found during search', () => {
       cy.wait(1000);
