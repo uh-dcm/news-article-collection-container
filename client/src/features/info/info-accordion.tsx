@@ -113,11 +113,12 @@ export default function InfoAccordion({
               URL and time.
             </p>
             <p className="mt-2">
-              In the advanced search, the inputs are split for each data type.
-              Time is split into start and end time, and inputs for these need to
-              be in the format YYYY-MM-DD HH:MM:SS, also allowing the input of
-              partial values like YYYY-MM or YYYY-MM-DD HH. Additionally, you can
-              perform searches on the more code-like HTML data.
+              Advanced search overrides general search. In the advanced search,
+              the inputs are split for each data type. Time is split into start
+              and end time, and inputs for these need to be in the format
+              YYYY-MM-DD HH:MM:SS, also allowing the input of partial values
+              like YYYY-MM or YYYY-MM-DD HH. Additionally, you can perform
+              searches on the more code-like HTML data.
             </p>
             <p className="mt-2">
               You can use the AND, OR and NOT boolean operators to refine your

@@ -109,6 +109,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
               value={searchParams.generalQuery || ''}
               onChange={handleInputChange('generalQuery')}
               onKeyDown={handleKeyDown}
+              disabled={isAdvancedOpen}
             />
             <Button
               className="absolute right-0 top-0 rounded-l-none"

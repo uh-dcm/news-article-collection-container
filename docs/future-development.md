@@ -26,12 +26,13 @@ Additional note about requests: some generally cited examples of sites for inspi
 - Obviously non-functioning feed addresses like "ttps://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss" and "net::ERR_INCOMPLETE_CHUNKED_ENCODING" are able to pass the current feed add validity check.
 - When registering, it doesn't properly report whether the email was sent successfully or not.
 - The data table headers are horizontally misplaced before the data tables are filled with information.
-- Sometimes when hovering the cursor over the toasts they seem to get stuck until the user clicks and moves the cursor around.
+- Sometimes when hovering the cursor over the toasts they seem to get stuck until the user clicks and moves the cursor around. Maybe this is an intended feature.
 - Feed list checkboxes seem to make the row just a bit taller when checked.
 - After having registered, the user can still visit /register/ and see the register page, although the system does check whether a user exists already and refuses another user, but it could also just redirect to login, after having checked whether the user is also reregistering. Basic /reregister/ without the token could also redirect.
 - One Japanese feed https://assets.wor.jp/rss/rdf/reuters/top.rdf didn't work with process.py unless the newspaper4 installation was in format newspaper4k[all] as the tool instructed in its error report for the particular feed (also suggesting newspaper4k[ja]). There is seemingly nothing about this function in newspaper4k's docs.
 - Yle headlines feed has an ever updating article from 2022 so the time series for it is quite stretched.
 - Word cloud often doesn't work with IS feed: https://www.is.fi/rss/tuoreimmat.xml
+- General query wouldn't want to work with text and url query. Fixing one issue with that algorithm made another issue pop up, and fixing that made a third pop up. Just forced one side at a time. The query_processor algorithm can probably be simplified since the final one has remnants of trying to make them work together.
 
 ## Dependency updates
 The workflows, package.json, requirements.txt and requirements-dev.txt contain the dependency information, so if you want to try to fix an issue by updating the dependencies, update the version numbers in these. Note that ESLint was not able to updated to the latest 9.7.0 version at the time due to another dependency requiring it to be 8.57.0 or lower. Likewise for other dependencies, updates for them might break down other things.
