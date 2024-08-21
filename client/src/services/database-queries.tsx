@@ -13,7 +13,7 @@ export interface SearchParams {
   sort_order?: 'asc' | 'desc';
 }
 
-export const sendSearchQuery = async (params: SearchParams) => {
+export const sendSearchQuery = async (params: Partial<SearchParams>) => {
   try {
     const response = await authClient.get('/api/articles/search', { params });
     return response.data;

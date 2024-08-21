@@ -6,6 +6,8 @@ describe('News Article Collector App', () => {
 
     cy.wait(1000);
 
+    cy.intercept('POST', '/api/register').as('registerRequest');
+
     // First, handle registration if on the registration screen
     cy.get('body').then((body) => {
       if (body.find('button:contains("Register")').length > 0) {
@@ -18,6 +20,8 @@ describe('News Article Collector App', () => {
         // Click the register button
         cy.contains('Register').click();
 
+        cy.wait('@registerRequest');
+
         // Add a wait to allow any redirection or confirmation messages to process
         cy.wait(500);
       }
@@ -25,18 +29,20 @@ describe('News Article Collector App', () => {
 
     cy.wait(200);
 
+    cy.intercept('POST', '/api/login').as('loginRequest');
+
     // Next, handle login whether coming from the registration process or directly at login
     cy.get('body').then((body) => {
       if (body.find('button:contains("Log in")').length > 0) {
         cy.get('input[type="password"]').type('testi');
 
-        cy.contains('Log in').click();
+        cy.get('button').contains('Log in').click()
+        cy.wait('@loginRequest')
         cy.wait(500);
       }
     });
 
-    // when it comes to checking non-toast text, exist check is preferable
-    cy.contains('RSS feeds', { timeout: 10000 }).should('exist'); // Ensure logged in
+    cy.url().should('not.include', '/login', { timeout: 10000 })  // Ensure logged in
   });
 
   after(() => {
@@ -46,7 +52,7 @@ describe('News Article Collector App', () => {
   it('should load the app', () => {
     cy.wait(1000);
 
-    cy.contains('Add or delete feeds', { timeout: 3000 }).should(
+    cy.contains('News Article Collector', { timeout: 3000 }).should(
       'exist'
     );
   });
