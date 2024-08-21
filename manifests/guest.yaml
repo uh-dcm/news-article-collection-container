@@ -3,6 +3,7 @@
 # For versions 2-4: just replace the number in all parts that read "news-collection-guest-1"
 # The placeholder news-collection-guest-1 in the address news-collection-guest-1.2.rahtiapp.fi should be changed to something unique, just like in news-collection-complete.yaml
 # Storage max is 100 shared, so with 4 x 5, in news-collection-complete.yaml it should be 80, read rahti-guide.md if you had 100
+# Also pay attention to your CSC billing units at my.csc.fi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

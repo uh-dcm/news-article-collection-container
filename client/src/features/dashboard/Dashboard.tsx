@@ -24,7 +24,7 @@ import { getAllFeedUrls, sendAllFeedUrls } from './feed-urls';
 import { getFetchingStatus, keepFetching, stopFetching } from './fetching-news';
 
 // statistics
-import { sendStatisticsQuery } from '@/services/database-queries';
+import { sendStatisticsQuery, sendTextQuery} from '@/services/database-queries';
 import StatisticsDrawers from '@/features/statistics/statistics-drawers';
 import { DomainData } from '@/components/ui/drawer';
 
@@ -40,6 +40,7 @@ export default function Dashboard() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [statisticData, setStatisticsData] = useState<DomainData[][]>([]);
   const [subDirectoryData, setSubDirectoryData] = useState<DomainData[]>([]);
+  const [textData, setTextData] = useState<string[]>([]);
   const [isStatisticsDisabled, setIsStatisticsDisabled] = useState(false);
 
   // Feed check at start from backend
@@ -157,7 +158,7 @@ export default function Dashboard() {
     handleArticleDownload(format, false, setIsDisabled);
   };
 
-  // Next 2 const are stats related
+  // Next 3 const are stats related
   const handleFetchStatistics = async () => {
     setIsStatisticsDisabled(true);
     try {
@@ -174,6 +175,20 @@ export default function Dashboard() {
   const formSubDirectoryData = async (url: string) => {
     setSubDirectoryData(statisticData[1].filter((x) => x.name.startsWith(url)));
   };
+
+  const handleFetchText = async () => {
+    setIsDisabled(true);
+    try {
+      const data = await sendTextQuery(false);
+      setTextData(data.map( (x: Map<string, string>) => Object.values(x)[0] ))
+    } catch (error) {
+      console.error('Failed to fetch filtered statistics:', error);
+      toast.error('Failed to get full text. Have you fetched yet?');
+    } finally {
+      setIsDisabled(false);
+    }
+  };
+
 
   return (
     <PageLayout title="Dashboard">
@@ -271,8 +286,10 @@ export default function Dashboard() {
             <StatisticsDrawers
               statisticData={statisticData}
               subDirectoryData={subDirectoryData}
+              textData={textData}
               isDisabled={isStatisticsDisabled}
               handleFetchStatistics={handleFetchStatistics}
+              handleFetchText={handleFetchText}
               formSubDirectoryData={formSubDirectoryData}
               isFiltered={false}
             />

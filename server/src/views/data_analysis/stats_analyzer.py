@@ -7,6 +7,52 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from src.utils.resource_management import check_articles_table
 
+# TODO: Remove SQL injection vulnerability from queries (no string interpolation)
+
+def get_text():
+    """
+    Returns full_text field from db articles.
+    Called by routes.init_routes() for route /api/articles/full_text.
+    """
+
+    try:
+        db_check_error = check_articles_table()
+        if db_check_error:
+            return db_check_error
+
+        # denotes whether or not the the query should be done on filtered articles.
+        filtered = request.args.get('filtered', 'false').lower() == 'true'
+        last_search_ids = (
+            current_app.last_search_ids
+            if hasattr(current_app, 'last_search_ids')
+            else None
+        )
+        # base query to be built upon
+        base_query = "FROM articles"
+
+        text_query = text(f"SELECT full_text {base_query}")
+
+        # if filtered and searched, use searched ids
+        if filtered and last_search_ids:
+            base_query += f" WHERE id IN ({','.join(map(str, last_search_ids))})"
+
+        with current_app.db_engine.connect() as connection:
+            text_query = connection.execute(text_query).fetchall()
+
+        text_data = [{"full_text": full_text[0]} for full_text in text_query]
+        return jsonify(text_data), 200
+
+    except SQLAlchemyError as e:
+        current_app.logger.exception("Database error when getting text fields")
+        return jsonify({
+            "status": "error",
+            "message": f"Database error when getting text fields: {str(e)}"
+        }), 500
+    except Exception as e:
+        current_app.logger.exception("Error when getting text fields")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 def get_stats():
     """
     Returns various preselected stats about db articles.
@@ -72,6 +118,7 @@ def get_stats():
         subdir_data = [{"name": domain, "count": count} for domain, count in subdir_rows]
 
         return jsonify(domain_data, subdir_data, dates), 200
+
     except SQLAlchemyError as e:
         current_app.logger.exception("Database error when getting statisticss")
         return jsonify({

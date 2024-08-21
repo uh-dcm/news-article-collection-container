@@ -1,9 +1,9 @@
 """
 Service for sending emails. On Rahti, you only need a university email address
-and the CSC SMPT_SERVER value, although they will be marked as "Unverified" when
+and the CSC SMTP_SERVER value, although the emails will be marked as "Unverified" when
 received. There are three types of emails: welcome email, reregistration request email
-and reregistration confirmation (second welcome) email. They are called individually
-in administration routes and then all use send_email() here.
+and reregistration confirmation (second welcome) email. They are called upon individually
+in administration routes and then all lastly use send_email() here.
 """
 import re
 import smtplib

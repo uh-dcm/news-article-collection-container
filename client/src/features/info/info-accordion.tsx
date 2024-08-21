@@ -75,7 +75,8 @@ export default function InfoAccordion({
                 <ul className="ml-5 mt-1 list-inside list-disc">
                   <li>
                     See statistics on all collected articles or download them on
-                    the Dashboard page.
+                    the Dashboard page. Be aware that downloads will wait until
+                    processing is done.
                   </li>
                   <li>
                     Use the Search page to find specific articles and download
@@ -122,14 +123,6 @@ export default function InfoAccordion({
               AND. Queries for specific phrases happen by encasing them in
               quotation marks.
             </p>
-            <p className="mt-2">Examples:</p>
-            <ul className="mt-1 list-inside list-disc space-y-1">
-              <li>forest fire smoke</li>
-              <li>forest fire OR forest smoke</li>
-              <li>fire smoke NOT game</li>
-              <li>"forest fire"</li>
-              <li>" oulu"</li>
-            </ul>
             <p className="mt-2">
               You can do wildcard searches with _ (matches any character) and %
               (matches any sequence of 0+ characters). You can escape % and _
@@ -150,6 +143,18 @@ export default function InfoAccordion({
               the HTML data. You can specifically search for those without full
               text with a special query: NOTEXT.
             </p>
+            <p className="mt-2">Examples:</p>
+            <ul className="mt-1 list-inside list-disc space-y-1">
+              <li>forest fire smoke</li>
+              <li>forest fire OR forest smoke</li>
+              <li>fire smoke NOT game</li>
+              <li>"forest fire"</li>
+              <li>"forest NOT NOTEXT"</li>
+              <li>" oulu"</li>
+              <li>"2024-08-20 16:40:00"</li>
+              <li>"2024-08-20 16"</li>
+              <li>"2024-08"</li>
+            </ul>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
