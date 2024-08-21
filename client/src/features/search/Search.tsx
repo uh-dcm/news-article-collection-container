@@ -58,20 +58,22 @@ export default function Search() {
   });
 
   // Search function
-  const handleSearchQuery = async (params: SearchParams) => {
+  const handleSearchQuery = async (params: Partial<SearchParams>) => {
     setArticlesLoading(true);
     try {
-      const response: SearchResponse = await sendSearchQuery({
+      const updatedParams: SearchParams = {
         ...searchParams,
         ...params,
         page: params.page || currentPage,
         per_page: itemsPerPage,
         sort_by: params.sort_by || sortBy,
         sort_order: params.sort_order || sortOrder
-      });
+      };
+      setSearchParams(updatedParams);
+      const response: SearchResponse = await sendSearchQuery(updatedParams);
       setSearchData(response.data);
       setTotalCount(response.total_count);
-      setSearchState(params, response.data, response.total_count, params.page || currentPage);
+      setSearchState(updatedParams, response.data, response.total_count, updatedParams.page || currentPage);
     } catch (error) {
       console.error('Error in handleSearchQuery:', error);
     } finally {
@@ -90,7 +92,7 @@ export default function Search() {
   // Pagination
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    handleSearchQuery({ page, per_page: itemsPerPage });
+    handleSearchQuery({ ...searchParams, page, per_page: itemsPerPage });
   };
 
   // Download function

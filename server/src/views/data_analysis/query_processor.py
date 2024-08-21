@@ -30,38 +30,36 @@ def get_search_results():
             'html_query': request.args.get('htmlQuery', '')
         }
 
-        # pagination params
-        page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 10))
+        # pagination and sorting params
+        query_params = {
+            'page': int(request.args.get('page', 1)),
+            'per_page': int(request.args.get('per_page', 10)),
+            'sort_by': request.args.get('sort_by', 'time'),
+            'sort_order': request.args.get('sort_order', 'desc')
+        }
 
-        # sorting params
-        sort_by = request.args.get('sort_by', 'time')
-        sort_order = request.args.get('sort_order', 'desc')
-
-        query, count_query, sql_params = build_search_query(
-            search_params,
-            page,
-            per_page,
-            sort_by,
-            sort_order
-        )
+        queries, sql_params = build_search_query(search_params, query_params)
+        query, count_query, id_query = queries
 
         with current_app.db_engine.connect() as connection:
-            result = connection.execute(text(query), sql_params)
-            rows = result.fetchall()
-            total_count = connection.execute(text(count_query), sql_params).scalar()
+            results = {
+                'rows': connection.execute(text(query), sql_params).fetchall(),
+                'total_count': connection.execute(text(count_query), sql_params).scalar(),
+                'all_ids': [row[0] for row in connection.execute(text(id_query), sql_params)]
+            }
 
         data = [
             {"time": time, "url": url, "full_text": full_text}
-            for _, time, url, full_text in rows
+            for _, time, url, full_text in results['rows']
         ]
-        current_app.last_search_ids = [row[0] for row in rows]
+
+        current_app.last_search_ids = results['all_ids']
 
         return jsonify({
             "data": data,
-            "total_count": total_count,
-            "page": page,
-            "per_page": per_page
+            "total_count": results['total_count'],
+            "page": query_params['page'],
+            "per_page": query_params['per_page']
         }), 200
 
     except SQLAlchemyError as e:
@@ -74,17 +72,25 @@ def get_search_results():
         current_app.logger.exception("Error when searching")
         return jsonify({"status": "error", "message": str(e)}), 500
 
-def build_search_query(search_params, page, per_page, sort_by, sort_order):
+def build_search_query(search_params, query_params):
     """
     Builds the SQLite query based on the params. Used by get_search_results().
     """
     base_query, count_query, sql_params = build_base_query(search_params)
 
-    final_query = apply_sorting_and_pagination(base_query, sort_by, sort_order)
+    id_query = f"SELECT id FROM articles WHERE {base_query.split('WHERE', 1)[1]}"
 
-    sql_params.update({'per_page': per_page, 'offset': (page - 1) * per_page})
+    final_query = apply_sorting_and_pagination(
+        base_query, query_params['sort_by'],
+        query_params['sort_order']
+    )
 
-    return final_query, count_query, sql_params
+    sql_params.update(
+        {'per_page': query_params['per_page'],
+         'offset': (query_params['page'] - 1) * query_params['per_page']}
+    )
+
+    return (final_query, count_query, id_query), sql_params
 
 def build_base_query(search_params):
     """
