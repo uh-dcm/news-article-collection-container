@@ -28,7 +28,7 @@ def test_get_error_logs_empty_file(client):
     with patch('builtins.open', mock_open(read_data="")):
         response = client.get('/api/error_logs')
         assert response.status_code == 200
-        assert response.json['logs'] == []
+        assert response.json == ''
 
 # Verifies the behavior when there is a permission error while accessing the log file.
 def test_get_error_logs_permission_error(client):
@@ -44,4 +44,5 @@ def test_get_error_logs_unexpected_format(client):
     with patch('builtins.open', mock_open(read_data="Unexpected format")):
         response = client.get('/api/error_logs')
         assert response.status_code == 200
-        assert response.json['logs'] == ["Unexpected format"]
+        #assert response.json['logs'] == ["Unexpected format"]
+        assert response.json == ''

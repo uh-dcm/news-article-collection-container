@@ -36,7 +36,7 @@ test('disables submit button when isUrlSetDisabled is true', () => {
   const handleFeedAdd = vi.fn();
   render(
     <Tooltip.Provider>
-      <RssInput handleFeedAdd={handleFeedAdd} isUrlSetDisabled={true} />
+      <RssInput handleFeedAdd={handleFeedAdd} isUrlSetDisabled={true} downloadButton={true}/>
     </Tooltip.Provider>
   );
 
@@ -48,7 +48,7 @@ test('handles invalid URL submission', async () => {
   const handleFeedAdd = vi.fn();
   render(
     <Tooltip.Provider>
-      <RssInput handleFeedAdd={handleFeedAdd} isUrlSetDisabled={false} />
+      <RssInput handleFeedAdd={handleFeedAdd} isUrlSetDisabled={false} downloadButton={true}/>
     </Tooltip.Provider>
   );
 
@@ -65,7 +65,7 @@ test('handles invalid URL submission', async () => {
 test('displays tooltip correctly', async () => {
   render(
     <Tooltip.Provider>
-      <RssInput handleFeedAdd={vi.fn()} isUrlSetDisabled={false} />
+      <RssInput handleFeedAdd={vi.fn()} isUrlSetDisabled={false} downloadButton={true}/>
     </Tooltip.Provider>
   );
 

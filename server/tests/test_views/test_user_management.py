@@ -41,7 +41,7 @@ def test_get_user_exists_true(client):
     )
     response = client.get('/api/get_user_exists')
     assert response.status_code == 200
-    assert 'exists' in response.json
+    assert True in response.json
     assert response.json['exists'] is True, "API should report that user exists"
 
 @pytest.mark.usefixtures("setup_and_teardown")
