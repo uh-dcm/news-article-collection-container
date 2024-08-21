@@ -52,7 +52,6 @@ def get_text():
         current_app.logger.exception("Error when getting text fields")
         return jsonify({"status": "error", "message": str(e)}), 500
 
-
 def get_stats():
     """
     Returns various preselected stats about db articles.
@@ -72,10 +71,11 @@ def get_stats():
         )
         # base query to be built upon
         base_query = "FROM articles"
+        where_clause = ""
 
         # if filtered and searched, use searched ids
         if filtered and last_search_ids:
-            base_query += f" WHERE id IN ({','.join(map(str, last_search_ids))})"
+            where_clause = f"WHERE id IN ({','.join(map(str, last_search_ids))})"
 
         # Queries URLs of the form www.url.com
         domain_query = text(f"""
@@ -83,6 +83,7 @@ def get_stats():
                 SUBSTRING( REPLACE( REPLACE( URL, 'https://', ''), 'http://', ''), 1, INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/")- 1) as domain,
                 COUNT(*) as count
             {base_query}
+            {where_clause}
             GROUP BY domain
         """)
 
@@ -97,6 +98,7 @@ def get_stats():
                 ) as domain,
                 COUNT (*) as count
             {base_query}
+            {where_clause}
             GROUP BY domain
         """)
 
@@ -107,6 +109,7 @@ def get_stats():
             SELECT time, COUNT(*) as count
             {base_query}
             WHERE time IS NOT NULL AND time != ''
+            {f"AND {where_clause[6:]}" if where_clause else ""}
             GROUP BY strftime('%d-%m-%Y', time)
             ORDER BY time ASC
         """)
@@ -116,11 +119,11 @@ def get_stats():
             subdir_rows = connection.execute(subdir_query).fetchall()
             dates_row = connection.execute(dates_query).fetchall()
 
-        dates = [{"name": time, "count": count} for time, count in dates_row]
-        domain_data = [{"name": domain, "count": count} for domain, count in domain_rows]
-        subdir_data = [{"name": domain, "count": count} for domain, count in subdir_rows]
-
-        return jsonify(domain_data, subdir_data, dates), 200
+        return jsonify(
+            [{"name": domain, "count": count} for domain, count in domain_rows],
+            [{"name": domain, "count": count} for domain, count in subdir_rows],
+            [{"name": time, "count": count} for time, count in dates_row]
+        ), 200
 
     except SQLAlchemyError as e:
         current_app.logger.exception("Database error when getting statisticss")
