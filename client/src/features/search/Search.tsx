@@ -17,6 +17,7 @@ import { handleArticleDownload } from '@/services/article-download';
 interface SearchResponse {
   data: Article[];
   total_count: number;
+  page: number;
 }
 
 export default function Search() {
@@ -73,7 +74,8 @@ export default function Search() {
       const response: SearchResponse = await sendSearchQuery(updatedParams);
       setSearchData(response.data);
       setTotalCount(response.total_count);
-      setSearchState(updatedParams, response.data, response.total_count, updatedParams.page || currentPage);
+      setCurrentPage(response.page);
+      setSearchState(updatedParams, response.data, response.total_count, response.page);
     } catch (error) {
       console.error('Error in handleSearchQuery:', error);
     } finally {
