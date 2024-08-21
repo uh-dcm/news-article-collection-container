@@ -101,9 +101,12 @@ def get_stats():
         """)
 
         # Queries dates and counts for articles
+        # ignore ones with null or empty time; using download_time was considered,
+        # but the only feed without working publication dates had articles going back 2 months
         dates_query = text(f"""
             SELECT time, COUNT(*) as count
             {base_query}
+            WHERE time IS NOT NULL AND time != ''
             GROUP BY strftime('%d-%m-%Y', time)
             ORDER BY time ASC
         """)

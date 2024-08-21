@@ -36,7 +36,7 @@ describe('News Article Collector App', () => {
     });
 
     // when it comes to checking non-toast text, exist check is preferable
-    cy.contains('Log out', { timeout: 10000 }).should('exist'); // Ensure logged in
+    cy.contains('RSS feeds', { timeout: 10000 }).should('exist'); // Ensure logged in
   });
 
   after(() => {
@@ -46,7 +46,7 @@ describe('News Article Collector App', () => {
   it('should load the app', () => {
     cy.wait(1000);
 
-    cy.contains('News Article Collector', { timeout: 3000 }).should(
+    cy.contains('Add or delete feeds', { timeout: 3000 }).should(
       'exist'
     );
   });
