@@ -1,11 +1,16 @@
 import authClient from './authclient';
 
 export interface SearchParams {
+  generalQuery?: string;
   textQuery?: string;
   urlQuery?: string;
   startTime?: string;
   endTime?: string;
   htmlQuery?: string;
+  page?: number;
+  per_page?: number;
+  sort_by?: string;
+  sort_order?: 'asc' | 'desc';
 }
 
 export const sendSearchQuery = async (params: SearchParams) => {

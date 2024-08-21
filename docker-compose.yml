@@ -1,4 +1,5 @@
 # this is a docker compose for running the app locally
+# note that debug mode is on
 
 services:
   app:

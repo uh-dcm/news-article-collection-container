@@ -3,15 +3,10 @@ import * as React from 'react';
 
 import {
   ColumnDef,
-  ColumnFiltersState,
-  SortingState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
-  getExpandedRowModel,
+  getPaginationRowModel,
 } from '@tanstack/react-table';
 
 import {
@@ -22,10 +17,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Button } from './button';
 import { Label } from '@radix-ui/react-label';
 import { Skeleton } from './skeleton';
-import { Input } from './input';
+import { Button } from './button';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -34,9 +28,18 @@ interface DataTableProps<TData, TValue> {
   tableName: string;
   isLoading?: boolean;
   reducedSpacing?: boolean;
-  showGlobalFilter?: boolean;
   onClear?: number;
   hideTitle?: boolean;
+  showDeleteButton?: boolean;
+  totalCount?: number;
+  currentPage?: number;
+  itemsPerPage?: number;
+  onPageChange?: (page: number) => void;
+  showPagination?: boolean;
+  showPageNumbers?: boolean;
+  onSort?: (column: string) => void;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export function DataTable<TData, TValue>({
@@ -46,38 +49,25 @@ export function DataTable<TData, TValue>({
   tableName,
   isLoading = false,
   reducedSpacing = false,
-  showGlobalFilter = true,
   onClear,
   hideTitle = false,
+  showDeleteButton = false,
+  totalCount,
+  currentPage,
+  itemsPerPage,
+  onPageChange,
+  showPagination = false,
+  showPageNumbers = false,
+  onSort,
+  sortBy,
+  sortOrder,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [globalFilter, setGlobalFilter] = React.useState('');
-
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    getExpandedRowModel: getExpandedRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: 'includesString',
-    state: {
-      sorting,
-      columnFilters,
-      globalFilter,
-    },
-    initialState: {
-      pagination: {
-        pageSize: 8,
-      },
-    },
+    manualSorting: true,
   });
 
   React.useEffect(() => {
@@ -100,7 +90,7 @@ export function DataTable<TData, TValue>({
     if (isLoading) {
       return (
         <>
-          {[...Array(8)].map((_, index) => (
+          {[...Array(itemsPerPage || 5)].map((_, index) => (
             <TableRow key={index}>
               {columns.map((_column, cellIndex) => (
                 <TableCell key={cellIndex}>
@@ -113,7 +103,7 @@ export function DataTable<TData, TValue>({
       );
     }
 
-    if (table.getRowModel().rows?.length) {
+    if (data.length) {
       return table.getRowModel().rows.map((row) => (
         <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
           {row.getVisibleCells().map((cell) => (
@@ -139,16 +129,11 @@ export function DataTable<TData, TValue>({
       {!hideTitle && (
         <div className={`flex h-8 items-center justify-between ${reducedSpacing ? 'mb-2' : 'mb-4'}`}>
           <Label className="text-base font-medium">{tableName}</Label>
-        </div>
-      )}
-      {showGlobalFilter && table.getAllColumns().some(column => column.getCanFilter()) && (
-        <div className={`flex items-center ${reducedSpacing ? 'py-2' : 'py-4'}`}>
-          <Input
-            placeholder="Quick filter visible results..."
-            value={globalFilter}
-            onChange={(event) => setGlobalFilter(event.target.value)}
-            className="max-w-sm"
-          />
+          {totalCount !== undefined && (
+            <span className="text-sm text-gray-500">
+              Total items: {totalCount}
+            </span>
+          )}
         </div>
       )}
 
@@ -158,13 +143,21 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} colSpan={header.colSpan}>
+                  <TableHead 
+                    key={header.id} 
+                    colSpan={header.colSpan}
+                    onClick={() => onSort && onSort(header.id)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
+                    {sortBy === header.id && (
+                      <span>{sortOrder === 'asc' ? '' : ''}</span>
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -173,37 +166,43 @@ export function DataTable<TData, TValue>({
           <TableBody>{renderTableContent()}</TableBody>
         </Table>
       </div>
-      {(table.getCanPreviousPage() || table.getCanNextPage() || (onDeleteSelected && table.getSelectedRowModel().rows.length > 0)) && (
-        <div className="flex items-center justify-between mt-4">
-          <div>
-            {onDeleteSelected && table.getSelectedRowModel().rows.length > 0 && (
-              <Button onClick={handleDeleteSelected} variant="destructive" size="sm">
-                Delete Selected
-              </Button>
+      <div className="flex items-center justify-between">
+        {showPagination && currentPage !== undefined && onPageChange && (
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={totalCount !== undefined && itemsPerPage !== undefined && currentPage * itemsPerPage >= totalCount}
+            >
+              Next
+            </Button>
+            {showPageNumbers && (
+              <span className="text-sm ml-2">
+                Page {currentPage} of {totalCount !== undefined && itemsPerPage !== undefined ? Math.ceil(totalCount / itemsPerPage) : ''}
+              </span>
             )}
           </div>
-          {(table.getCanPreviousPage() || table.getCanNextPage()) && (
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                Next
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+        {showDeleteButton && onDeleteSelected && table.getSelectedRowModel().rows.length > 0 && (
+          <Button
+            onClick={handleDeleteSelected}
+            variant="destructive"
+            size="sm"
+            className="ml-auto"
+          >
+            Delete Selected
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

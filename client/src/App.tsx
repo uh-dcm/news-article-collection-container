@@ -9,8 +9,9 @@ import {
 import { toast } from 'sonner';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
-// theme and user validification
+// theme and search context providers and user validification
 import { ThemeProvider } from './components/ui/theme-provider';
+import { SearchProvider } from './features/search/search-context';
 import { checkUserExists, getIsValidToken } from './services/authfunctions';
 
 // main modules, with 5 dynamic imports
@@ -107,86 +108,88 @@ export default function App() {
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <Tooltip.Provider>
-        <div className="flex min-h-screen flex-col">
-          {showHeader && <Header onLogout={handleLogout} />}
-          <main className="flex-grow">
-            <Suspense fallback={<div>Loading...</div>}>
-              <Routes>
-                <Route
-                  path="/register"
-                  element={
-                    <Register
-                      onRegistrationSuccess={() => {
-                        setUserExists(true);
-                        navigate('/login');
-                      }}
-                    />
-                  }
-                />
-                <Route
-                  path="/login"
-                  element={
-                    <Login
-                      onLoginSuccess={() => {
-                        setValidToken(true);
-                        navigate('/dashboard');
-                      }}
-                    />
-                  }
-                />
-                <Route
-                  path="/reregister/:token"
-                  element={<ReregisterValidator onValidationComplete={handleReregisterValidation} />}
-                />
-                <Route
-                  path="/dashboard"
-                  element={
-                    validToken ? (
-                      <Dashboard />
-                    ) : (
-                      <Navigate to="/login" replace />
-                    )
-                  }
-                />
-                <Route
-                  path="/search"
-                  element={
-                    validToken ? <Search /> : <Navigate to="/login" replace />
-                  }
-                />
-                <Route
-                  path="/statistics"
-                  element={
-                    validToken ? (
-                      <Statistics />
-                    ) : (
-                      <Navigate to="/login" replace />
-                    )
-                  }
-                />
-                <Route
-                  path="/errors"
-                  element={
-                    validToken ? <Errors /> : <Navigate to="/login" replace />
-                  }
-                />
-                <Route
-                  path="/info"
-                  element={
-                    validToken ? <Info /> : <Navigate to="/login" replace />
-                  }
-                />
-                <Route
-                  path="/"
-                  element={<Navigate to="/dashboard" replace />}
-                />
-              </Routes>
-            </Suspense>
-          </main>
-          <Footer />
-        </div>
-      </Tooltip.Provider>
+      <SearchProvider>
+        <Tooltip.Provider>
+          <div className="flex min-h-screen flex-col">
+            {showHeader && <Header onLogout={handleLogout} />}
+            <main className="flex-grow">
+              <Suspense fallback={<div>Loading...</div>}>
+                <Routes>
+                  <Route
+                    path="/register"
+                    element={
+                      <Register
+                        onRegistrationSuccess={() => {
+                          setUserExists(true);
+                          navigate('/login');
+                        }}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/login"
+                    element={
+                      <Login
+                        onLoginSuccess={() => {
+                          setValidToken(true);
+                          navigate('/dashboard');
+                        }}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/reregister/:token"
+                    element={<ReregisterValidator onValidationComplete={handleReregisterValidation} />}
+                  />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      validToken ? (
+                        <Dashboard />
+                      ) : (
+                        <Navigate to="/login" replace />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/search"
+                    element={
+                      validToken ? <Search /> : <Navigate to="/login" replace />
+                    }
+                  />
+                  <Route
+                    path="/statistics"
+                    element={
+                      validToken ? (
+                        <Statistics />
+                      ) : (
+                        <Navigate to="/login" replace />
+                      )
+                    }
+                  />
+                  <Route
+                    path="/errors"
+                    element={
+                      validToken ? <Errors /> : <Navigate to="/login" replace />
+                    }
+                  />
+                  <Route
+                    path="/info"
+                    element={
+                      validToken ? <Info /> : <Navigate to="/login" replace />
+                    }
+                  />
+                  <Route
+                    path="/"
+                    element={<Navigate to="/dashboard" replace />}
+                  />
+                </Routes>
+              </Suspense>
+            </main>
+            <Footer />
+          </div>
+        </Tooltip.Provider>
+      </SearchProvider>
     </ThemeProvider>
   );
 }
