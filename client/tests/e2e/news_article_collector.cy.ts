@@ -169,7 +169,7 @@ describe('News Article Collector App', () => {
 
     cy.get('button:contains("Search")')
       .find('svg')
-      .should('have.class', 'mr-3 size-6')
+      .should('have.class', 'mr-2 h-4 w-4')
       .click({ force: true });
 
     cy.wait(1000);

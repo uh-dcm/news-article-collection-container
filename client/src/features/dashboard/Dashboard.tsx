@@ -42,6 +42,7 @@ export default function Dashboard() {
   const [subDirectoryData, setSubDirectoryData] = useState<DomainData[]>([]);
   const [textData, setTextData] = useState<string[]>([]);
   const [isStatisticsDisabled, setIsStatisticsDisabled] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Feed check at start from backend
   useEffect(() => {
@@ -125,6 +126,17 @@ export default function Dashboard() {
     handleSubmit(updatedFeeds);
   };
 
+  // Feed page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Feed pagination
+  const paginatedFeedUrlList = feedUrlList.slice(
+    (currentPage - 1) * 8,
+    currentPage * 8
+  );
+
   // Next 3 const are fetch related
   const handleFetchStart = async () => {
     toast.info('RSS fetching in progress', {
@@ -141,7 +153,7 @@ export default function Dashboard() {
 
   const handleFetchStop = () => {
     setIsFetching(false);
-    toast.warning('RSS fetching stopped.');
+    toast.warning('RSS fetching stopped');
     stopFetching();
   };
 
@@ -248,13 +260,19 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="space-y-5 pt-2 pb-6">
             <div>
-              <DataTable
+              <DataTable<Feed, unknown>
                 columns={feedColumns}
-                data={feedUrlList}
+                data={paginatedFeedUrlList}
                 onDeleteSelected={deleteSelectedRows}
-                showGlobalFilter={false}
                 tableName="RSS feeds"
                 hideTitle={true}
+                showDeleteButton={true}
+                totalCount={feedUrlList.length}
+                currentPage={currentPage}
+                itemsPerPage={8}
+                onPageChange={handlePageChange}
+                showPagination={true}
+                showPageNumbers={false}
               />
             </div>
             <RssInput

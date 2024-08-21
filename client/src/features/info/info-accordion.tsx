@@ -109,13 +109,15 @@ export default function InfoAccordion({
             <p>
               On the Search page, you can perform searches on the contents of
               the articles and also download queried articles as JSON, CSV or
-              Parquet. Search inputs are possible in the four data types
-              collected: full text, URL, time and HTML.
+              Parquet. The basic search looks at three data types: full text,
+              URL and time.
             </p>
             <p className="mt-2">
-              Time is split into start time and end time, with the formatting
-              being YYYY-MM-DD HH:MM:SS, and the input of partial values also
-              being possible.
+              In the advanced search, the inputs are split for each data type.
+              Time is split into start and end time, and inputs for these need to
+              be in the format YYYY-MM-DD HH:MM:SS, also allowing the input of
+              partial values like YYYY-MM or YYYY-MM-DD HH. Additionally, you can
+              perform searches on the more code-like HTML data.
             </p>
             <p className="mt-2">
               You can use the AND, OR and NOT boolean operators to refine your
@@ -149,11 +151,11 @@ export default function InfoAccordion({
               <li>forest fire OR forest smoke</li>
               <li>fire smoke NOT game</li>
               <li>"forest fire"</li>
-              <li>"forest NOT NOTEXT"</li>
+              <li>forest NOT NOTEXT</li>
               <li>" oulu"</li>
-              <li>"2024-08-20 16:40:00"</li>
-              <li>"2024-08-20 16"</li>
-              <li>"2024-08"</li>
+              <li>2024-08-20 16:40:00</li>
+              <li>2024-08-20 16</li>
+              <li>2024-08</li>
             </ul>
           </AccordionContent>
         </AccordionItem>

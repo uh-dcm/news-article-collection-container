@@ -17,10 +17,19 @@ There should be some information about when the last fetch happened or even a li
 
 This was left vague, but apparently so that the user can easily redo a search from earlier.
 
-Some general examples of sites for inspiration were https://www.mediacloud.org/ and https://dl.acm.org/
+<br>
+
+Additional note about requests: some generally cited examples of sites for inspiration were https://www.mediacloud.org/ and https://dl.acm.org/.
 
 ## Small issues
-The app doesn't conform properly to small screens. Feed addresses missing the first h like "ttps://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss" are able to pass the feed add validity check. When registering, it doesn't properly report whether the email was sent successfully or not. The data table headers are horizontally misplaced before the data tables are filled with information. Sometimes when hovering the cursor over the toasts they seem to get stuck until the user clicks and moves the cursor around. Feed list checkboxes seem to make the row just a bit taller when checked. After having registered, the user can still visit /register/ and see the register page, although the system does check whether a user exists already and refuses another user, but it could also just redirect to login, after having checked whether the user is also reregistering. Basic /reregister/ without the token could also redirect.
+- The app doesn't conform properly to small screens.
+- Feed addresses missing the first h like "ttps://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss" are able to pass the feed add validity check.
+- When registering, it doesn't properly report whether the email was sent successfully or not.
+- The data table headers are horizontally misplaced before the data tables are filled with information.
+- Sometimes when hovering the cursor over the toasts they seem to get stuck until the user clicks and moves the cursor around.
+- Feed list checkboxes seem to make the row just a bit taller when checked.
+- After having registered, the user can still visit /register/ and see the register page, although the system does check whether a user exists already and refuses another user, but it could also just redirect to login, after having checked whether the user is also reregistering. Basic /reregister/ without the token could also redirect.
+- Japanese Reuters https://assets.wor.jp/rss/rdf/reuters/top.r didn't work unless the newspaper4 installation was in format newspaper4k[all] as the tool instructed in its error report for the particular feed (also suggesting newspaper4k[ja]). There is seemingly nothing about this function in newspaper4k's docs.
 
 ## Dependency updates
 The workflows, package.json, requirements.txt and requirements-dev.txt contain the dependency information, so if you want to try to fix an issue by updating the dependencies, update the version numbers in these. Note that ESLint was not able to updated to the latest 9.7.0 version at the time due to another dependency requiring it to be 8.57.0 or lower. Likewise for other dependencies, updates for them might break down other things.
@@ -50,4 +59,3 @@ It might be useful to unify some of the naming, as various names for the app hav
 If you add or change some feature and break a test without understanding how to fix the test, rather than not doing anything about it and letting the CI workflow simply always fail with further cosmetic changes, it might be optimal to comment out the particular test that fails rather than just letting the entire CI keep failing.
 
 Also, Codecov might be useful to add plus its badge to README.md, but this required the owner to set it up. Nevertheless the runtests.sh generated coverage-reports.html does essentially the same job.
-

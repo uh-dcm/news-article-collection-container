@@ -1,3 +1,5 @@
+# this is non-prod development purpose Dockerfile for client only
+
 FROM node:22.5.1-bookworm-slim
 
 WORKDIR /app/client
