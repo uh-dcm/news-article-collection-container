@@ -27,17 +27,15 @@ def get_text():
             if hasattr(current_app, 'last_search_ids')
             else None
         )
-        # base query to be built upon
-        base_query = "FROM articles"
-
-        text_query = text(f"SELECT full_text {base_query}")
-
+        
         # if filtered and searched, use searched ids
+        filter_query = ""
         if filtered and last_search_ids:
-            base_query += f" WHERE id IN ({','.join(map(str, last_search_ids))})"
-
+            filter_query = f" WHERE id IN ({','.join(map(str, last_search_ids))})"
+        
         with current_app.db_engine.connect() as connection:
-            text_query = connection.execute(text_query).fetchall()
+            whole_query = text(f"SELECT full_text FROM articles {filter_query}")
+            text_query = connection.execute(whole_query).fetchall()
 
         text_data = [{"full_text": full_text[0]} for full_text in text_query]
         return jsonify(text_data), 200
