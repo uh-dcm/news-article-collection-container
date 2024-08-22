@@ -1,4 +1,9 @@
-import { ChartPieIcon, ChartBarSquareIcon } from '@heroicons/react/24/solid';
+import {
+  ChartPieIcon,
+  ChartBarSquareIcon,
+  CloudIcon,
+} from '@heroicons/react/24/solid';
+
 import { Button } from '@/components/ui/button';
 ('use client');
 
@@ -24,7 +29,7 @@ import {
 } from '@/components/ui/drawer';
 import { DomainData } from '@/components/ui/drawer';
 import { PieChart, SubPieChart } from './piechart';
-import { WordCloud } from './wordcloud';
+import { WordCloudContainer } from './wordcloud';
 
 interface StatisticsDrawersProps {
   statisticData: DomainData[][];
@@ -190,20 +195,20 @@ export default function StatisticsDrawers({
             className="w-full p-6 text-base sm:w-[30%]"
           >
             <div className="flex justify-center">
-              <ChartBarSquareIcon className="mr-1.5 size-6" />
+              <CloudIcon className="mr-1.5 size-6" />
               Word cloud
             </div>
           </Button>
         </DrawerTrigger>
         <DrawerContent>
-          <div className="mx-auto w-full max-w-sm">
+          <div className="mx-auto w-full max-w-3xl items-center">
             <DrawerHeader>
               <DrawerTitle>Word cloud for collected articles</DrawerTitle>
               <DrawerDescription>
-                Word cloud on 100 most frequent words in the articles
+                Word cloud on 200 most frequent words in the articles
               </DrawerDescription>
             </DrawerHeader>
-            <WordCloud width={500} height={400} words={textData} />
+            <WordCloudContainer words={textData} />
             <DrawerFooter>
               <DrawerClose asChild>
                 <Button variant="outline">Close</Button>
