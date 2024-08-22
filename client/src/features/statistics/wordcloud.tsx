@@ -1,16 +1,16 @@
-import { Text } from '@visx/text';
-import { scaleLog } from '@visx/scale';
-import Wordcloud from '@visx/wordcloud/lib/Wordcloud';
+import WordCloud from 'react-d3-cloud';
+import { scaleOrdinal } from 'd3-scale';
+import { schemeCategory10 } from 'd3-scale-chromatic';
+import { stop_words } from './stop-words';
 
 export interface WordData {
   text: string;
   value: number;
 }
 
-const colors = ['#143059', '#2F6B9A', '#82a6c2'];
-
+console.log('');
 function comp(a: WordData, b: WordData) {
-  return b.value - a.value
+  return b.value - a.value;
 }
 
 function wordFreq(text: string): WordData[] {
@@ -18,56 +18,39 @@ function wordFreq(text: string): WordData[] {
   const freqMap: Record<string, number> = {};
 
   for (const w of words) {
-    if (w !== "" && !freqMap[w]) freqMap[w] = 0;
+    if (w !== '' && !freqMap[w]) freqMap[w] = 0;
+    if (stop_words.includes(w.toLowerCase())) freqMap[w] = 0;
+    if (!isNaN(parseFloat(w))) freqMap[w] = 0;
+
     freqMap[w] += 1;
   }
-  
-  return Object.keys(freqMap).map((word) => ({ text: word, value: freqMap[word] }));
+
+  return Object.keys(freqMap).map((word) => ({
+    text: word,
+    value: freqMap[word],
+  }));
 }
+const schemeCategory10ScaleOrdinal = scaleOrdinal(schemeCategory10);
 
-function getRotationDegree() {
-  return 0.5
-}
-
-const fixedValueGenerator = () => 0.5;
-
-export const WordCloud = ({ width, height, words}: {width: number, height: number, words: string[] }) => {
-  const freqMap = wordFreq(words.join(" ")).sort( comp ).slice(0, 100)
-
-  const fontScale = scaleLog({
-    domain: [Math.min(...freqMap.map((w) => w.value)), Math.max(...freqMap.map((w) => w.value))],
-    range: [10, 100],
-  });
-  const fontSizeSetter = (datum: WordData) => fontScale(datum.value);
+export const WordCloudContainer = ({ words }: { words: string[] }) => {
+  const freqMap = wordFreq(words.join(' ')).sort(comp).slice(0, 200);
 
   return (
-    <div className="wordcloud">
-      <Wordcloud
-        words={freqMap}
-        width={width}
-        height={height}
-        fontSize={fontSizeSetter}
-        font={'Impact'}
-        padding={2}
-        spiral={"archimedean"}
-        rotate={ getRotationDegree }
-        random={fixedValueGenerator}
-      >
-        {(cloudWords) =>
-          cloudWords.map((w, i) => (
-            <Text
-              key={w.text}
-              fill={colors[i % colors.length]}
-              textAnchor={'middle'}
-              transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
-              fontSize={w.size}
-              fontFamily={w.font}
-            >
-              {w.text}
-            </Text>
-          ))
-        }
-      </Wordcloud>
+    <div className="wordcloud h-full w-full">
+      <WordCloud
+        data={freqMap}
+        width={1500}
+        height={1400}
+        font="times"
+        fontStyle=""
+        fontWeight="bold"
+        fontSize={(word) => Math.log2(word.value) * 12}
+        spiral="archimedean"
+        rotate={1}
+        padding={5}
+        random={Math.random}
+        fill={(_d: never, i: string) => schemeCategory10ScaleOrdinal(i)}
+      />
     </div>
   );
-}
+};

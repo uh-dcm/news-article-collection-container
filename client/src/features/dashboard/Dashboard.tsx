@@ -144,6 +144,7 @@ export default function Dashboard() {
 
   // Next 3 const are fetch related
   const handleFetchStart = async () => {
+    toast.dismiss();
     toast.info('RSS fetching in progress', {
       description: 'Gathering articles...',
       duration: 5000,
@@ -158,6 +159,7 @@ export default function Dashboard() {
 
   const handleFetchStop = () => {
     setIsFetching(false);
+    toast.dismiss();
     toast.warning('RSS fetching stopped');
     stopFetching();
   };
@@ -181,7 +183,6 @@ export default function Dashboard() {
     try {
       const data = await sendStatisticsQuery(false);
       setStatisticsData(data);
-      console.log(statisticData);
     } catch (error) {
       console.error('Failed to fetch statistics:', error);
       toast.error('Failed to get statistics. Have you fetched yet?');
