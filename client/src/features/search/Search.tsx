@@ -94,6 +94,7 @@ export default function Search() {
   // Pagination
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    setClearTrigger(prev => prev + 1);
     handleSearchQuery({ ...searchParams, page, per_page: itemsPerPage });
   };
 
@@ -111,6 +112,13 @@ export default function Search() {
     clearSearchState();
   };
 
+  // for search clicks: setClearTrigger resets all the "Show more..."
+  const handleSearchButtonClick = (params: SearchParams) => {
+    setClearTrigger(prev => prev + 1);
+    setCurrentPage(1);
+    handleSearchQuery({ ...params, page: 1 });
+  };
+
   const showPageNumbers = totalCount > 0;
 
   return (
@@ -119,7 +127,7 @@ export default function Search() {
         <AdvancedSearch 
           searchParams={searchParams}
           onSearchParamsChange={setSearchParams}
-          onSearch={handleSearchQuery}
+          onSearch={handleSearchButtonClick}
           onDownload={handleDownload}
           onClear={handleClear}
           isDownloadDisabled={isDisabled}
