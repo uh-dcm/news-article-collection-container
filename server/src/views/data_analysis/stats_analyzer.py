@@ -20,6 +20,9 @@ def get_text():
         if db_check_error:
             return db_check_error
 
+        # initialize for later execution in db_engine
+        where_params = {}
+
         # denotes whether or not the query should be done on filtered articles.
         filtered = request.args.get('filtered', 'false').lower() == 'true'
         last_search_ids = (
@@ -68,6 +71,9 @@ def get_stats():
             if hasattr(current_app, 'last_search_ids')
             else None
         )
+
+         # initialize for later execution in db_engine
+        where_params = {}
 
         # Queries URLs of the form www.url.com
         domain_query = text(f"""
