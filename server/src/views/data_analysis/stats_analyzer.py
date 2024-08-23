@@ -1,6 +1,7 @@
 """
 This handles db articles statistics get route. Called by routes.py.
 """
+import os
 from flask import jsonify, request, current_app
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
@@ -49,7 +50,6 @@ def get_text():
     except Exception as e:
         current_app.logger.exception("Error when getting text fields")
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 def get_stats():
     """
@@ -139,4 +139,32 @@ def get_stats():
         }), 500
     except Exception as e:
         current_app.logger.exception("Error when getting statistics")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+def get_data_size():
+    """
+    Returns the size of the data.db file.
+    Called by routes.init_routes() for route /api/data_size.
+    """
+    try:
+        db_path = os.path.join(current_app.config['FETCHER_FOLDER'], 'data', 'data.db')
+
+        if not os.path.exists(db_path):
+            return jsonify({"size": "0 bytes"}), 200
+
+        size_bytes = os.path.getsize(db_path)
+
+        if size_bytes < 1024:
+            size_str = f"{size_bytes} bytes"
+        elif size_bytes < 1024 * 1024:
+            size_str = f"{size_bytes / 1024:.2f} KB"
+        elif size_bytes < 1024 * 1024 * 1024:
+            size_str = f"{size_bytes / (1024 * 1024):.2f} MB"
+        else:
+            size_str = f"{size_bytes / (1024 * 1024 * 1024):.2f} GB"
+
+        return jsonify({"size": size_str}), 200
+
+    except Exception as e:
+        current_app.logger.exception("Error when getting data size")
         return jsonify({"status": "error", "message": str(e)}), 500

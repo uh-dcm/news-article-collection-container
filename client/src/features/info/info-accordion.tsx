@@ -5,8 +5,6 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
-const version = import.meta.env.VITE_RELEASE_VERSION || 'development';
-
 interface InfoAccordionProps {
   className?: string;
 }
@@ -51,9 +49,6 @@ export default function InfoAccordion({
               Parquet
             </a>{' '}
             file.
-            <p className="mt-2">
-              Current version: {version}
-            </p>
           </AccordionContent>
         </AccordionItem>
 
@@ -97,6 +92,12 @@ export default function InfoAccordion({
               Note: You can stop fetching at any time without affecting your
               feed list. Reactivating will restart the fetching process
               immediately.
+            </p>
+            <p className="mt-2">
+              Be mindful of the size limit of your environment. The data size
+              button above helps keep track of the size of your database. If you
+              near your limit, try to move your data elsewhere and clear the
+              database (see external instructions for that).
             </p>
           </AccordionContent>
         </AccordionItem>
