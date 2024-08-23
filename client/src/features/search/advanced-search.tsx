@@ -1,13 +1,20 @@
-import React, { KeyboardEvent } from 'react';
+import React, { KeyboardEvent, useState } from 'react';
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DownloadButton } from '@/components/ui/download-button';
 import { Separator } from '@/components/ui/separator';
 import { useSearchContext } from './use-search-context';
+import { toast } from 'sonner';
 
 export interface SearchParams {
   generalQuery?: string;
@@ -32,24 +39,27 @@ interface AdvancedSearchProps {
   resultCount: number;
 }
 
-const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ 
+const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
   searchParams,
   onSearchParamsChange,
   onSearch,
-  onDownload, 
-  onClear, 
-  isDownloadDisabled, 
-  resultCount 
+  onDownload,
+  onClear,
+  isDownloadDisabled,
+  resultCount,
 }) => {
   const { isAdvancedOpen, setIsAdvancedOpen } = useSearchContext();
+  const [isSaveSearchOpen, setIsSaveSearchOpen] = useState(false);
 
   const handleSearch = () => {
+    console.log(searchParams);
     onSearch(searchParams);
   };
-    
-  const handleInputChange = (key: keyof SearchParams) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearchParamsChange({ ...searchParams, [key]: e.target.value });
-  };
+
+  const handleInputChange =
+    (key: keyof SearchParams) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      onSearchParamsChange({ ...searchParams, [key]: e.target.value });
+    };
 
   const handleClear = () => {
     onSearchParamsChange({
@@ -83,11 +93,23 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
     }
   };
 
+  const handleSaveSearchToggle = () => {
+    setIsSaveSearchOpen(!isSaveSearchOpen);
+  };
+
+  const handleCopySearch = () => {
+    toast.dismiss();
+    navigator.clipboard.writeText(JSON.stringify(searchParams));
+    toast.info('Query copied to clipboard!');
+  };
+
   return (
     <Card className="w-full">
       <CardHeader className="relative">
         <CardTitle>Search articles</CardTitle>
-        <CardDescription>Query and export articles with matching data</CardDescription>
+        <CardDescription>
+          Query and export articles with matching data
+        </CardDescription>
         <div className="absolute right-4 top-4 flex items-center space-x-4">
           <DownloadButton
             onDownload={onDownload}
@@ -95,14 +117,19 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
             buttonText="Download Results"
             className="w-[205px]"
           />
-          <Button variant="outline" size="sm" onClick={handleClear} className="h-8 px-2 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClear}
+            className="h-8 px-2 text-xs"
+          >
             Clear
           </Button>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex space-x-2 mb-4">
-          <div className="flex-grow relative">
+        <div className="mb-4 flex space-x-2">
+          <div className="relative flex-grow">
             <Input
               className="w-full pr-16"
               placeholder="Insert query..."
@@ -118,10 +145,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
               <Search className="mr-2 h-4 w-4" /> Search
             </Button>
           </div>
-          <Button
-            variant="outline"
-            onClick={handleAdvancedToggle}
-          >
+          <Button variant="outline" onClick={handleAdvancedToggle}>
             Advanced
             {isAdvancedOpen ? (
               <ChevronUp className="ml-2 h-4 w-4" />
@@ -148,7 +172,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   onChange={handleInputChange('textQuery')}
                   onKeyDown={handleKeyDown}
                 />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Input
                     placeholder="Insert URL query..."
                     value={searchParams.urlQuery || ''}
@@ -175,6 +199,41 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   />
                 </div>
               </div>
+              <Button
+                variant="outline"
+                onClick={handleSaveSearchToggle}
+                className="mt-4"
+              >
+                View Query Syntax
+                {isSaveSearchOpen ? (
+                  <ChevronUp className="ml-2 h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                )}
+              </Button>
+
+              <AnimatePresence>
+                {isSaveSearchOpen && (
+                  <div>
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="my-4 w-1/2 rounded-md border border-gray-100 pb-1 shadow-sm">
+                        <p className="whitespace-pre-wrap break-words p-2 font-mono text-sm">
+                          {JSON.stringify(searchParams)}
+                        </p>
+                      </div>
+                      <Button onClick={handleCopySearch}>
+                        Copy To Clipboard
+                      </Button>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
