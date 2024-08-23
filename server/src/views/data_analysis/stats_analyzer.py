@@ -3,8 +3,9 @@ This handles db articles statistics get route. Called by routes.py.
 """
 import os
 from flask import jsonify, request, current_app
-from sqlalchemy import text
+from sqlalchemy import text, bindparam
 from sqlalchemy.exc import SQLAlchemyError
+
 
 from src.utils.resource_management import check_articles_table
 
@@ -19,6 +20,9 @@ def get_text():
         if db_check_error:
             return db_check_error
 
+        # initialize for later execution in db_engine
+        where_params = {}
+
         # denotes whether or not the query should be done on filtered articles.
         filtered = request.args.get('filtered', 'false').lower() == 'true'
         last_search_ids = (
@@ -27,16 +31,15 @@ def get_text():
             else None
         )
 
-        # Build the filter query safely
-        filter_query = ""
-        query_params = {}
+        whole_query = text(f"SELECT full_text FROM articles")
+
         if filtered and last_search_ids:
-            filter_query = "WHERE id IN :ids"
-            query_params = {'ids': last_search_ids}
+            where_clause = "WHERE id IN :ids"
+            where_params = {'ids': tuple(last_search_ids)}
+            whole_query = text(f"SELECT full_text FROM articles {where_clause}").bindparams(bindparam('ids', expanding=True))
 
         with current_app.db_engine.connect() as connection:
-            whole_query = text(f"SELECT full_text FROM articles {filter_query}")
-            text_query = connection.execute(whole_query, **query_params).fetchall()
+            text_query = connection.execute(whole_query, where_params).fetchall()
 
         text_data = [{"full_text": full_text[0]} for full_text in text_query]
         return jsonify(text_data), 200
@@ -68,62 +71,91 @@ def get_stats():
             if hasattr(current_app, 'last_search_ids')
             else None
         )
-        # base query to be built upon
-        base_query = "FROM articles"
-        where_clause = ""
+
+         # initialize for later execution in db_engine
+        where_params = {}
+
+        # Queries URLs of the form www.url.com
+        domain_query = text(f"""
+                SELECT 
+                    SUBSTRING(
+                        REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 
+                        1, 
+                        INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/") - 1
+                    ) as domain,
+                    COUNT(*) as count
+                FROM articles
+                GROUP BY domain
+            """)
+
+        # Queries URLs of the form www.url.com/subdirectory/
+        subdir_query = text(f"""
+                SELECT
+                    SUBSTRING(
+                        REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 
+                        1,  
+                        LENGTH(SUBSTRING(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 1, INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/") - 1))  
+                        + INSTR(SUBSTRING(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), '/') + 1), '/') + 1
+                    ) as domain,
+                    COUNT(*) as count
+                FROM articles
+                GROUP BY domain
+            """)
+
+        # Queries dates for time series
+        dates_query = text(f"""
+                SELECT time, COUNT(*) as count
+                FROM articles
+                WHERE time IS NOT NULL AND time != ''
+                GROUP BY strftime('%d-%m-%Y', time)
+                ORDER BY time ASC
+            """)
 
         # if filtered and searched, use searched ids
         if filtered and last_search_ids:
             where_clause = "WHERE id IN :ids"
-            where_params = {'ids': last_search_ids}
-        else:
-            where_params = {}
+            where_params = {'ids': tuple(last_search_ids)}
 
-        # Queries URLs of the form www.url.com
-        domain_query = text(f"""
-            SELECT 
-                SUBSTRING(
-                    REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 
-                    1, 
-                    INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/") - 1
-                ) as domain,
-                COUNT(*) as count
-            {base_query}
-            {where_clause}
-            GROUP BY domain
-        """)
+            domain_query = text(f"""
+                                SELECT 
+                                    SUBSTRING(
+                                        REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 
+                                        1, 
+                                        INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/") - 1
+                                    ) as domain,
+                                    COUNT(*) as count
+                                FROM articles
+                                {where_clause}
+                                GROUP BY domain
+                            """).bindparams(bindparam('ids', expanding=True))
 
-        # Queries URLs of the form www.url.com/subdirectory/
-        subdir_query = text(f"""
-            SELECT
-                SUBSTRING(
-                    REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 
-                    1,  
-                    LENGTH(SUBSTRING(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 1, INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/") - 1))  
-                    + INSTR(SUBSTRING(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), '/') + 1), '/') + 1
-                ) as domain,
-                COUNT(*) as count
-            {base_query}
-            {where_clause}
-            GROUP BY domain
-        """)
+            subdir_query = text(f"""
+                                SELECT
+                                    SUBSTRING(
+                                        REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 
+                                        1,  
+                                        LENGTH(SUBSTRING(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 1, INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/") - 1))  
+                                        + INSTR(SUBSTRING(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), '/') + 1), '/') + 1
+                                    ) as domain,
+                                    COUNT(*) as count
+                                FROM articles
+                                {where_clause}
+                                GROUP BY domain
+                            """).bindparams(bindparam('ids', expanding=True))
 
-        # Queries dates and counts for articles
-        # ignore ones with null or empty time; using download_time was considered,
-        # but the only feed without working publication dates had articles going back 2 months
-        dates_query = text(f"""
-            SELECT time, COUNT(*) as count
-            {base_query}
-            WHERE time IS NOT NULL AND time != ''
-            {"AND " + where_clause[6:] if where_clause else ""}
-            GROUP BY strftime('%d-%m-%Y', time)
-            ORDER BY time ASC
-        """)
+            dates_query = text(f"""
+                                SELECT time, COUNT(*) as count
+                                FROM articles
+                                WHERE time IS NOT NULL AND time != ''
+                                {"AND " + where_clause[6:] if where_clause else ""}
+                                GROUP BY strftime('%d-%m-%Y', time)
+                                ORDER BY time ASC
+                            """).bindparams(bindparam('ids', expanding=True))
 
         with current_app.db_engine.connect() as connection:
-            domain_rows = connection.execute(domain_query, **where_params).fetchall()
-            subdir_rows = connection.execute(subdir_query, **where_params).fetchall()
-            dates_row = connection.execute(dates_query, **where_params).fetchall()
+            domain_rows = connection.execute(domain_query, where_params).fetchall()
+            subdir_rows = connection.execute(subdir_query, where_params).fetchall()
+            dates_row = connection.execute(dates_query, where_params).fetchall()
 
         return jsonify(
             [{"name": domain, "count": count} for domain, count in domain_rows],
@@ -140,6 +172,7 @@ def get_stats():
     except Exception as e:
         current_app.logger.exception("Error when getting statistics")
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
 def get_data_size():
     """
