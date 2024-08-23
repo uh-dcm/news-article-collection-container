@@ -7,8 +7,6 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from src.utils.resource_management import check_articles_table
 
-# TODO: Remove SQL injection vulnerability from queries (no string interpolation)
-
 def get_text():
     """
     Returns full_text field from db articles.
@@ -20,22 +18,24 @@ def get_text():
         if db_check_error:
             return db_check_error
 
-        # denotes whether or not the the query should be done on filtered articles.
+        # denotes whether or not the query should be done on filtered articles.
         filtered = request.args.get('filtered', 'false').lower() == 'true'
         last_search_ids = (
             current_app.last_search_ids
             if hasattr(current_app, 'last_search_ids')
             else None
         )
-        
-        # if filtered and searched, use searched ids
+
+        # Build the filter query safely
         filter_query = ""
+        query_params = {}
         if filtered and last_search_ids:
-            filter_query = f" WHERE id IN ({','.join(map(str, last_search_ids))})"
-        
+            filter_query = "WHERE id IN :ids"
+            query_params = {'ids': last_search_ids}
+
         with current_app.db_engine.connect() as connection:
             whole_query = text(f"SELECT full_text FROM articles {filter_query}")
-            text_query = connection.execute(whole_query).fetchall()
+            text_query = connection.execute(whole_query, **query_params).fetchall()
 
         text_data = [{"full_text": full_text[0]} for full_text in text_query]
         return jsonify(text_data), 200
@@ -50,6 +50,7 @@ def get_text():
         current_app.logger.exception("Error when getting text fields")
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
 def get_stats():
     """
     Returns various preselected stats about db articles.
@@ -60,7 +61,7 @@ def get_stats():
         if db_check_error:
             return db_check_error
 
-        # denotes whether or not the the query should be done on filtered articles.
+        # denotes whether or not the query should be done on filtered articles.
         filtered = request.args.get('filtered', 'false').lower() == 'true'
         last_search_ids = (
             current_app.last_search_ids
@@ -73,12 +74,19 @@ def get_stats():
 
         # if filtered and searched, use searched ids
         if filtered and last_search_ids:
-            where_clause = f"WHERE id IN ({','.join(map(str, last_search_ids))})"
+            where_clause = "WHERE id IN :ids"
+            where_params = {'ids': last_search_ids}
+        else:
+            where_params = {}
 
         # Queries URLs of the form www.url.com
         domain_query = text(f"""
             SELECT 
-                SUBSTRING( REPLACE( REPLACE( URL, 'https://', ''), 'http://', ''), 1, INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/")- 1) as domain,
+                SUBSTRING(
+                    REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 
+                    1, 
+                    INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/") - 1
+                ) as domain,
                 COUNT(*) as count
             {base_query}
             {where_clause}
@@ -89,12 +97,12 @@ def get_stats():
         subdir_query = text(f"""
             SELECT
                 SUBSTRING(
-                    REPLACE( REPLACE( URL, 'https://', ''), 'http://', '') ,
+                    REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 
                     1,  
-                    LENGTH(SUBSTRING( REPLACE( REPLACE( URL, 'https://', ''), 'http://', ''), 1, INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/")- 1))  
-                    + INSTR(SUBSTRING(REPLACE( REPLACE( URL, 'https://', ''), 'http://', ''), INSTR(REPLACE( REPLACE( URL, 'https://', ''), 'http://', ''), '/') + 1), '/') +1
+                    LENGTH(SUBSTRING(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 1, INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), "/") - 1))  
+                    + INSTR(SUBSTRING(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), INSTR(REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), '/') + 1), '/') + 1
                 ) as domain,
-                COUNT (*) as count
+                COUNT(*) as count
             {base_query}
             {where_clause}
             GROUP BY domain
@@ -107,15 +115,15 @@ def get_stats():
             SELECT time, COUNT(*) as count
             {base_query}
             WHERE time IS NOT NULL AND time != ''
-            {f"AND {where_clause[6:]}" if where_clause else ""}
+            {"AND " + where_clause[6:] if where_clause else ""}
             GROUP BY strftime('%d-%m-%Y', time)
             ORDER BY time ASC
         """)
 
         with current_app.db_engine.connect() as connection:
-            domain_rows = connection.execute(domain_query).fetchall()
-            subdir_rows = connection.execute(subdir_query).fetchall()
-            dates_row = connection.execute(dates_query).fetchall()
+            domain_rows = connection.execute(domain_query, **where_params).fetchall()
+            subdir_rows = connection.execute(subdir_query, **where_params).fetchall()
+            dates_row = connection.execute(dates_query, **where_params).fetchall()
 
         return jsonify(
             [{"name": domain, "count": count} for domain, count in domain_rows],
@@ -124,7 +132,7 @@ def get_stats():
         ), 200
 
     except SQLAlchemyError as e:
-        current_app.logger.exception("Database error when getting statisticss")
+        current_app.logger.exception("Database error when getting statistics")
         return jsonify({
             "status": "error",
             "message": f"Database error when getting statistics: {str(e)}"
