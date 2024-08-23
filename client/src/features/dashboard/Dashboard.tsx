@@ -46,6 +46,7 @@ export default function Dashboard() {
   const [textData, setTextData] = useState<string[]>([]);
   const [isStatisticsDisabled, setIsStatisticsDisabled] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isWordCloudLoading, setIsWordCloudLoading] = useState(false);
 
   // Feed check at start from backend
   useEffect(() => {
@@ -197,14 +198,16 @@ export default function Dashboard() {
 
   const handleFetchText = async () => {
     setIsDisabled(true);
+    setIsWordCloudLoading(true);
     try {
       const data = await sendTextQuery(false);
       setTextData(data.map((x: Map<string, string>) => Object.values(x)[0]));
     } catch (error) {
-      console.error('Failed to fetch filtered statistics:', error);
+      console.error('Failed to fetch filtered text fields:', error);
       toast.error('Failed to get full text. Have you fetched yet?');
     } finally {
       setIsDisabled(false);
+      setIsWordCloudLoading(false);
     }
   };
 
@@ -319,6 +322,7 @@ export default function Dashboard() {
               handleFetchText={handleFetchText}
               formSubDirectoryData={formSubDirectoryData}
               isFiltered={false}
+              isWordCloudLoading={isWordCloudLoading}
             />
           </CardContent>
         </Card>

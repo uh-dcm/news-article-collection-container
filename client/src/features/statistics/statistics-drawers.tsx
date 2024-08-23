@@ -40,6 +40,7 @@ interface StatisticsDrawersProps {
   handleFetchText: () => void;
   formSubDirectoryData: (url: string) => void;
   isFiltered: boolean;
+  isWordCloudLoading: boolean;
 }
 
 const barConfig = {
@@ -61,6 +62,7 @@ export default function StatisticsDrawers({
   handleFetchText,
   formSubDirectoryData,
   isFiltered,
+  isWordCloudLoading,
 }: StatisticsDrawersProps) {
   return (
     <>
@@ -201,14 +203,20 @@ export default function StatisticsDrawers({
           </Button>
         </DrawerTrigger>
         <DrawerContent>
-          <div className="mx-auto w-full max-w-3xl items-center">
+          <div className="mx-auto h-[65vh] w-full max-w-2xl items-center">
             <DrawerHeader>
               <DrawerTitle>Word cloud for collected articles</DrawerTitle>
               <DrawerDescription>
                 Word cloud on 200 most frequent words in the articles
               </DrawerDescription>
             </DrawerHeader>
-            <WordCloudContainer words={textData} />
+            {isWordCloudLoading ? (
+              <div className="flex h-[52.82vh] items-center justify-center">
+                <div className="h-48 w-48 animate-spin rounded-full border-b-2 border-gray-900"></div>
+              </div>
+            ) : (
+              <WordCloudContainer words={textData} />
+            )}
             <DrawerFooter>
               <DrawerClose asChild>
                 <Button variant="outline">Close</Button>
