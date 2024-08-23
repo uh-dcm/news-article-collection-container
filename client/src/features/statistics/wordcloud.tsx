@@ -1,6 +1,10 @@
+import { useRef } from 'react';
+import html2canvas from 'html2canvas';
 import WordCloud from 'react-d3-cloud';
 import { scaleOrdinal } from 'd3-scale';
 import { schemeCategory10 } from 'd3-scale-chromatic';
+
+import { Button } from '@/components/ui/button';
 import { stop_words } from './stop-words';
 
 export interface WordData {
@@ -8,7 +12,6 @@ export interface WordData {
   value: number;
 }
 
-console.log('');
 function comp(a: WordData, b: WordData) {
   return b.value - a.value;
 }
@@ -33,24 +36,43 @@ function wordFreq(text: string): WordData[] {
 const schemeCategory10ScaleOrdinal = scaleOrdinal(schemeCategory10);
 
 export const WordCloudContainer = ({ words }: { words: string[] }) => {
+  const wordCloudRef = useRef<HTMLDivElement>(null);
+
+  const handleSaveImage = async () => {
+    if (wordCloudRef.current) {
+      const canvas = await html2canvas(wordCloudRef.current, {
+        backgroundColor: null // background to transparent, otherwise it's just white
+      });
+      
+      const image = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = 'news-wordcloud.png';
+      link.click();
+    }
+  };
+
   const freqMap = wordFreq(words.join(' ')).sort(comp).slice(0, 200);
 
   return (
-    <div className="wordcloud h-full w-full">
-      <WordCloud
-        data={freqMap}
-        width={1500}
-        height={1400}
-        font="times"
-        fontStyle=""
-        fontWeight="bold"
-        fontSize={(word) => Math.log2(word.value) * 12}
-        spiral="archimedean"
-        rotate={1}
-        padding={5}
-        random={Math.random}
-        fill={(_d: never, i: string) => schemeCategory10ScaleOrdinal(i)}
-      />
+    <div>
+      <div ref={wordCloudRef} className="wordcloud h-full w-full">
+        <WordCloud
+          data={freqMap}
+          width={1500}
+          height={1400}
+          font="times"
+          fontStyle=""
+          fontWeight="bold"
+          fontSize={(word) => Math.log2(word.value) * 12}
+          spiral="archimedean"
+          rotate={1}
+          padding={5}
+          random={Math.random}
+          fill={(_d: never, i: string) => schemeCategory10ScaleOrdinal(i)}
+        />
+      </div>
+      <Button onClick={handleSaveImage}>Save as PNG</Button>
     </div>
   );
 };

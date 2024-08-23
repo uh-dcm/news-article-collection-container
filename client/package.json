@@ -38,6 +38,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "framer-motion": "^11.2.12",
+    "html2canvas": "^1.4.1",
     "lucide-react": "^0.394.0",
     "next-themes": "^0.3.0",
     "react": "^18.2.0",

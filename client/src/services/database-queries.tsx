@@ -46,3 +46,13 @@ export const sendTextQuery = async (filtered: boolean) => {
     throw error;
   }
 };
+
+export const sendDataSizeQuery = async () => {
+  try {
+    const response = await authClient.get('/api/data_size');
+    return response.data;
+  } catch (error) {
+    console.error('Error in sendDataSizeQuery:', error);
+    throw error;
+  }
+};
