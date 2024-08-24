@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -121,40 +122,63 @@ export const articleColumns: ColumnDef<Article>[] = [
         );
       }
 
-      const truncatedText = text.slice(0, 50) + (text.length > 50 ? '...' : '');
+      const truncatedText = text.slice(0, 45) + (text.length > 45 ? '...' : '');
 
       return (
         <div className="max-w-2xl">
-          {isExpanded ? (
-            <div className="flex flex-col">
-              <ScrollArea className="h-[300px] rounded-md border p-2">
-                {text.split('\n').map((paragraph, index) => (
-                  <p key={index} className="mb-2">
-                    <HighlightedText text={paragraph} highlight={searchTerm} />
-                  </p>
-                ))}
-              </ScrollArea>
-
-              <button
-                onClick={() => row.toggleExpanded()}
-                className="mt-2 cursor-pointer self-start text-blue-500 hover:underline"
+          <AnimatePresence initial={false}>
+            {isExpanded ? (
+              <motion.div
+                key="expanded"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
               >
-                Show less
-              </button>
-            </div>
-          ) : (
-            <div>
-              <HighlightedText text={truncatedText} highlight={searchTerm} />
-              {text.length > 50 && (
-                <button
-                  onClick={() => row.toggleExpanded()}
-                  className="ml-2 cursor-pointer text-blue-500 hover:underline"
-                >
-                  Show more...
-                </button>
-              )}
-            </div>
-          )}
+                <ScrollArea className="h-[300px] rounded-md border p-2">
+                  {text.split('\n').map((paragraph, index) => (
+                    <p key={index} className="mb-2">
+                      <HighlightedText
+                        text={paragraph}
+                        highlight={searchTerm}
+                      />
+                    </p>
+                  ))}
+                </ScrollArea>
+                <div className="mr-4 flex justify-end">
+                  <button
+                    onClick={() => row.toggleExpanded()}
+                    className="mt-2 cursor-pointer text-blue-500 hover:underline"
+                  >
+                    Show less
+                  </button>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="collapsed"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="mr-4 flex justify-between">
+                  <HighlightedText
+                    text={truncatedText}
+                    highlight={searchTerm}
+                  />
+                  {text.length > 45 && (
+                    <button
+                      onClick={() => row.toggleExpanded()}
+                      className="ml-2 cursor-pointer text-blue-500 hover:underline"
+                    >
+                      Show more
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       );
     },

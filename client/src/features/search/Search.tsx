@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 // custom ui
@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 // search, its results and download function
 import { useSearchContext } from './use-search-context';
-import AdvancedSearch, { SearchParams } from './advanced-search';  
+import AdvancedSearch, { SearchParams } from './advanced-search';
 import { sendSearchQuery } from '@/services/database-queries';
 import { DataTable } from '@/components/ui/data-table';
 import { articleColumns, Article } from '@/components/ui/article-columns';
@@ -22,41 +22,21 @@ interface SearchResponse {
 
 export default function Search() {
   const {
-    searchParams: contextSearchParams,
-    searchResults: contextSearchResults,
-    totalCount: contextTotalCount,
-    currentPage: contextCurrentPage,
+    searchParams,
+    searchResults,
+    totalCount,
+    currentPage,
+    sortBy,
+    sortOrder,
     setSearchState,
     clearSearchState,
+    setSortState,
   } = useSearchContext();
-  const [searchData, setSearchData] = useState<Article[]>(contextSearchResults || []);
+
   const [articlesLoading, setArticlesLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [clearTrigger, setClearTrigger] = useState(0);
-  const [totalCount, setTotalCount] = useState(contextTotalCount || 0);
-  const [currentPage, setCurrentPage] = useState(contextCurrentPage || 1);
   const itemsPerPage = 10;
-  const [sortBy, setSortBy] = useState<string>('time');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-
-  // check if existing search
-  useEffect(() => {
-    if (contextSearchResults.length > 0) {
-      setSearchData(contextSearchResults);
-      setTotalCount(contextTotalCount);
-      setCurrentPage(contextCurrentPage);
-      setSearchParams(contextSearchParams);
-    }
-  }, [contextSearchResults, contextTotalCount, contextCurrentPage, contextSearchParams]);
-
-  const [searchParams, setSearchParams] = useState<SearchParams>(contextSearchParams || {
-    generalQuery: '',
-    textQuery: '',
-    urlQuery: '',
-    startTime: '',
-    endTime: '',
-    htmlQuery: '',
-  });
 
   // Search function
   const handleSearchQuery = async (params: Partial<SearchParams>) => {
@@ -68,14 +48,15 @@ export default function Search() {
         page: params.page || currentPage,
         per_page: itemsPerPage,
         sort_by: params.sort_by || sortBy,
-        sort_order: params.sort_order || sortOrder
+        sort_order: params.sort_order || sortOrder,
       };
-      setSearchParams(updatedParams);
       const response: SearchResponse = await sendSearchQuery(updatedParams);
-      setSearchData(response.data);
-      setTotalCount(response.total_count);
-      setCurrentPage(response.page);
-      setSearchState(updatedParams, response.data, response.total_count, response.page);
+      setSearchState(
+        updatedParams,
+        response.data,
+        response.total_count,
+        response.page
+      );
     } catch (error) {
       console.error('Error in handleSearchQuery:', error);
     } finally {
@@ -86,15 +67,13 @@ export default function Search() {
   // Sorting
   const handleSort = (column: string) => {
     const newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-    setSortBy(column);
-    setSortOrder(newSortOrder);
+    setSortState(column, newSortOrder);
     handleSearchQuery({ sort_by: column, sort_order: newSortOrder });
   };
 
   // Pagination
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    setClearTrigger(prev => prev + 1);
+    setClearTrigger((prev) => prev + 1);
     handleSearchQuery({ ...searchParams, page, per_page: itemsPerPage });
   };
 
@@ -105,17 +84,13 @@ export default function Search() {
 
   // Clear function
   const handleClear = () => {
-    setSearchData([]);
-    setTotalCount(0);
-    setCurrentPage(1);
-    setClearTrigger(prev => prev + 1);
     clearSearchState();
+    setClearTrigger((prev) => prev + 1);
   };
 
   // for search clicks: setClearTrigger resets all the "Show more..."
   const handleSearchButtonClick = (params: SearchParams) => {
-    setClearTrigger(prev => prev + 1);
-    setCurrentPage(1);
+    setClearTrigger((prev) => prev + 1);
     handleSearchQuery({ ...params, page: 1 });
   };
 
@@ -123,10 +98,12 @@ export default function Search() {
 
   return (
     <PageLayout title="Search">
-      <motion.div variants={itemVariants} className="space-y-8">
-        <AdvancedSearch 
+      <motion.div variants={itemVariants} className="mt-6 space-y-8">
+        <AdvancedSearch
           searchParams={searchParams}
-          onSearchParamsChange={setSearchParams}
+          onSearchParamsChange={(params) =>
+            setSearchState(params, searchResults, totalCount, currentPage)
+          }
           onSearch={handleSearchButtonClick}
           onDownload={handleDownload}
           onClear={handleClear}
@@ -140,7 +117,7 @@ export default function Search() {
           <CardContent>
             <DataTable<Article, unknown>
               columns={articleColumns}
-              data={searchData}
+              data={searchResults}
               tableName={'Query results'}
               isLoading={articlesLoading}
               reducedSpacing={true}
