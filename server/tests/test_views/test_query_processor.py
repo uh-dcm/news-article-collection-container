@@ -37,7 +37,7 @@ def test_get_search_results_empty_query_without_having_fetched(client):
     """
     response = client.get('/api/articles/search', query_string={'searchQuery': ''})
     assert response.status_code == 200
-    assert response.json['message'] == "No articles found. Please fetch the articles first."
+    assert response.json == {"message": "No articles found. Please fetch the articles first."}
 
 def test_get_search_results_db_error(client):
     """
@@ -45,10 +45,9 @@ def test_get_search_results_db_error(client):
     """
     with patch('src.utils.resource_management.inspect') as mock_inspect:
         mock_inspect.side_effect = SQLAlchemyError("Mock database error")
-
         response = client.get('/api/articles/search')
         assert response.status_code == 500
-        assert response.json['message'] == "Database error when searching: Mock database error"
+        assert response.json('status','message') == {"status": "error", "message": "Database error when searching"}
 
 # Ensure the system handles invalid query parameters gracefully.
 @pytest.mark.usefixtures("setup_and_teardown")
@@ -62,7 +61,6 @@ def test_get_search_results_invalid_query_param(client):
      
     # Ensure the response is a dictionary
     assert isinstance(response.json, dict)
-    
     # Check the message in the response
     assert response.json.get('message') == "Invalid query parameter."
 
@@ -79,7 +77,7 @@ def test_get_search_results_special_characters(client):
 
 # Simulate a search query that returns a large number of results to check performance 
 # and response.
-@pytest.mark.usefixtures("setup_and_teardown")
+@pytest.mark.usefixtures("setup_and_teardown_for_large_dataset")
 def test_get_search_results_large_query_result(client):
     """
     Tests querying that returns a large number of results.

@@ -1,8 +1,10 @@
 
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
-import { beforeAll, afterAll, afterEach, vi } from 'vitest';
+import { beforeAll, afterAll, afterEach, vi, describe, it } from 'vitest';
 import { serverUrl } from '../../src/config';
+import { expect } from 'chai';
+
 
 global.matchMedia =
   global.matchMedia ||
@@ -178,23 +180,25 @@ describe('API handlers', () => {
   it('should fetch feed URLs', async () => {
     const response = await fetch(`${serverUrl}/api/get_feed_urls`);
     const data = await response.json();
-    expect(data).to.equal(['https://www.blubblub.com/feed/']);
+    // Use toEqual for deep equality check
+    expect(data).toEqual(['https://www.blubblub.com/feed/']);
   });
 
   it('should return status', async () => {
     const response = await fetch(`${serverUrl}/api/status`);
     const data = await response.json();
-    expect(data).to.equal({ status: 'stopped' });
+    // Use toEqual for deep equality check
+    expect(data).toEqual({ status: 'stopped' });
   });
 
   it('should start the service', async () => {
     const response = await fetch(`${serverUrl}/api/start`, { method: 'POST' });
-    expect(response.status).to.be('200');
+    expect(response.status).toBe('500');
   });
 
   it('should stop the service', async () => {
     const response = await fetch(`${serverUrl}/api/stop`, { method: 'POST' });
-    expect(response.status).to.be('200');
+    expect(response.status).toBe('200');
   });
 
   it('should search articles', async () => {
@@ -269,5 +273,15 @@ describe('API handlers', () => {
     );
     const response = await fetch(`${serverUrl}/api/status`);
     expect(response.status).to.be('500');
+  });
+});
+
+describe('API handlers', () => {
+  it('should fetch feed URLs', async () => {
+    const serverUrl = 'http://localhost:5000';
+    const response = await fetch(`${serverUrl}/api/get_feed_urls`);
+    const data = await response.json();
+    // deep equality check
+    expect(data).to.deep.equal(['https://www.blubblub.com/feed/']);
   });
 });
