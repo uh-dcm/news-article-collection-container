@@ -17,9 +17,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Label } from '@radix-ui/react-label';
+
 import { Skeleton } from './skeleton';
 import { Button } from './button';
+
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  DoubleArrowLeftIcon,
+  DoubleArrowRightIcon,
+} from '@radix-ui/react-icons';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -46,11 +53,8 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   onDeleteSelected,
-  tableName,
   isLoading = false,
-  reducedSpacing = false,
   onClear,
-  hideTitle = false,
   showDeleteButton = false,
   totalCount,
   currentPage,
@@ -86,15 +90,25 @@ export function DataTable<TData, TValue>({
     }
   };
 
+  const handleLastPage = () => {
+    if (
+      totalCount !== undefined &&
+      itemsPerPage !== undefined &&
+      onPageChange
+    ) {
+      onPageChange(Math.ceil(totalCount / itemsPerPage));
+    }
+  };
+
   const renderTableContent = () => {
     if (isLoading) {
       return (
         <>
           {[...Array(itemsPerPage || 5)].map((_, index) => (
             <TableRow key={index}>
-              {columns.map((_column, cellIndex) => (
-                <TableCell key={cellIndex}>
-                  <Skeleton className="h-6 w-full" />
+              {columns.map((column, cellIndex) => (
+                <TableCell width={column.size} key={cellIndex}>
+                  <Skeleton className="h-8 w-full" />
                 </TableCell>
               ))}
             </TableRow>
@@ -126,25 +140,14 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      {!hideTitle && (
-        <div className={`flex h-8 items-center justify-between ${reducedSpacing ? 'mb-2' : 'mb-4'}`}>
-          <Label className="text-base font-medium">{tableName}</Label>
-          {totalCount !== undefined && (
-            <span className="text-sm text-gray-500">
-              Total items: {totalCount}
-            </span>
-          )}
-        </div>
-      )}
-
       <div className="mb-4 rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead 
-                    key={header.id} 
+                  <TableHead
+                    key={header.id}
                     colSpan={header.colSpan}
                     onClick={() => onSort && onSort(header.id)}
                     style={{ cursor: 'pointer' }}
@@ -166,42 +169,85 @@ export function DataTable<TData, TValue>({
           <TableBody>{renderTableContent()}</TableBody>
         </Table>
       </div>
+      <div className="flex-grow"></div>
       <div className="flex items-center justify-between">
-        {showPagination && currentPage !== undefined && onPageChange && (
-          <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-6 lg:space-x-8">
+          {showPagination && currentPage !== undefined && onPageChange && (
+            <div className="flex items-center space-x-2">
+              {showPageNumbers && (
+                <Button
+                  variant="outline"
+                  className="hidden h-8 w-8 p-0 lg:flex"
+                  onClick={() => onPageChange(1)}
+                  disabled={currentPage === 1}
+                >
+                  <span className="sr-only">Go to first page</span>
+                  <DoubleArrowLeftIcon className="h-4 w-4" />
+                </Button>
+              )}
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0"
+                onClick={() => onPageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <span className="sr-only">Go to previous page</span>
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0"
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={
+                  totalCount !== undefined &&
+                  itemsPerPage !== undefined &&
+                  currentPage * itemsPerPage >= totalCount
+                }
+              >
+                <span className="sr-only">Go to next page</span>
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+              {showPageNumbers && (
+                <Button
+                  variant="outline"
+                  className="hidden h-8 w-8 p-0 lg:flex"
+                  onClick={handleLastPage}
+                  disabled={
+                    totalCount !== undefined &&
+                    itemsPerPage !== undefined &&
+                    currentPage === Math.ceil(totalCount / itemsPerPage)
+                  }
+                >
+                  <span className="sr-only">Go to last page</span>
+                  <DoubleArrowRightIcon className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          )}
+          {showPageNumbers && (
+            <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+              Page {currentPage} of{' '}
+              {totalCount !== undefined && itemsPerPage !== undefined
+                ? Math.ceil(totalCount / itemsPerPage)
+                : ''}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        {showDeleteButton &&
+          onDeleteSelected &&
+          table.getSelectedRowModel().rows.length > 0 && (
             <Button
-              variant="outline"
+              onClick={handleDeleteSelected}
+              variant="destructive"
               size="sm"
-              onClick={() => onPageChange(currentPage - 1)}
-              disabled={currentPage === 1}
+              className="ml-auto"
             >
-              Previous
+              Delete Selected
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(currentPage + 1)}
-              disabled={totalCount !== undefined && itemsPerPage !== undefined && currentPage * itemsPerPage >= totalCount}
-            >
-              Next
-            </Button>
-            {showPageNumbers && (
-              <span className="text-sm ml-2">
-                Page {currentPage} of {totalCount !== undefined && itemsPerPage !== undefined ? Math.ceil(totalCount / itemsPerPage) : ''}
-              </span>
-            )}
-          </div>
-        )}
-        {showDeleteButton && onDeleteSelected && table.getSelectedRowModel().rows.length > 0 && (
-          <Button
-            onClick={handleDeleteSelected}
-            variant="destructive"
-            size="sm"
-            className="ml-auto"
-          >
-            Delete Selected
-          </Button>
-        )}
+          )}
       </div>
     </div>
   );

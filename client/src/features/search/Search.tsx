@@ -13,6 +13,7 @@ import { sendSearchQuery } from '@/services/database-queries';
 import { DataTable } from '@/components/ui/data-table';
 import { articleColumns, Article } from '@/components/ui/article-columns';
 import { handleArticleDownload } from '@/services/article-download';
+import { Label } from '@/components/ui/label';
 
 interface SearchResponse {
   data: Article[];
@@ -112,7 +113,16 @@ export default function Search() {
         />
         <Card>
           <CardHeader>
-            <CardTitle>Query results ({totalCount})</CardTitle>
+            <CardTitle>
+              <div className={`flex items-center justify-between`}>
+                <Label className="text-base font-medium">Query results</Label>
+                {totalCount !== undefined && (
+                  <span className="mr-2 text-sm text-gray-500">
+                    {totalCount} articles found
+                  </span>
+                )}
+              </div>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <DataTable<Article, unknown>
