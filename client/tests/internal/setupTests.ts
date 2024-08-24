@@ -34,6 +34,11 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
+Object.defineProperty(window, 'scrollTo', {
+  value: () => {},
+  writable: true
+});
+
 const handlers = [
   http.get(`${serverUrl}/api/get_feed_urls`, () => {
     return new HttpResponse(
@@ -56,14 +61,19 @@ const handlers = [
   }),
   http.get(`${serverUrl}/api/articles/search`, async ({ request }) => {
     const url = new URL(request.url);
-    const query = url.searchParams.get('textQuery');
+    const query = url.searchParams.get('generalQuery');
     if (!query) {
-      return HttpResponse.json([]);
+      return HttpResponse.json({ data: [], total_count: 0, page: 1, per_page: 10 });
     }
     const filteredData = testData.filter((article) =>
       article.full_text.toLowerCase().includes(query.toLowerCase())
     );
-    return HttpResponse.json(filteredData);
+    return HttpResponse.json({
+      data: filteredData,
+      total_count: filteredData.length,
+      page: 1,
+      per_page: 10
+    });
   }),
   http.post(`${serverUrl}/api/set_feed_urls`, async ({ request }) => {
     const newFeed = await request.json();

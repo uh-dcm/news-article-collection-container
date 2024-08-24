@@ -4,7 +4,6 @@ import {
   screen,
   fireEvent,
   waitFor,
-  act,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '@/App';
@@ -203,6 +202,8 @@ describe('App component', () => {
     await testDownloadOption('Parquet');
   });
 
+  // handler at setup is only using generalQuery for now
+
   test('handles download error', async () => {
     const toastErrorSpy = vi.spyOn(toast, 'error');
     vi.spyOn(global, 'fetch').mockImplementation(() =>
@@ -219,30 +220,31 @@ describe('App component', () => {
   
   // handler at setup is only using textQuery for now
   test('searches articles based on query', async () => {
+    const user = userEvent.setup();
+
     const searchLink = screen.getByRole('link', { name: /^Search$/ });
-    fireEvent.click(searchLink);
+    await user.click(searchLink);
 
-    // fails without this wait
-    await waitFor(
-      () => {
-        expect(screen.getByText(/Search articles/i)).toBeInTheDocument();
-      },
-      { timeout: 5000 }
-    );
+    await waitFor(() => {
+      expect(screen.getByText(/Search articles/i)).toBeInTheDocument();
+    }, { timeout: 2000 });
 
-    const searchInput = screen.getByPlaceholderText('Insert text query...');
-    const searchButton = screen.getByRole('button', { name: /Submit search/i });
+    const searchInput = screen.getByPlaceholderText('Insert query...');
+    const searchButton = screen.getByRole('button', { name: /Search/i });
 
-    await act(async () => {
-      fireEvent.change(searchInput, { target: { value: 'Full text 1' } });
-      fireEvent.click(searchButton);
-    });
+    await user.type(searchInput, 'Full text 1');
+    await user.click(searchButton);
 
-    const fullText1 = screen.getByText('Full text 1', { exact: false });
-    expect(fullText1).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Full text 1.', { exact: false })).toBeInTheDocument();
+      expect(screen.queryByText('Full text 2.', { exact: false })).not.toBeInTheDocument();
+    }, { timeout: 2000 });
 
-    const fullText2 = screen.queryByText('Full text 2', { exact: false });
-    expect(fullText2).not.toBeInTheDocument();
+    const table = screen.getByRole('table');
+    expect(table).toBeInTheDocument();
+
+    const rows = screen.getAllByRole('row');
+    expect(rows.length).toBe(2);
   });
 
   test('handles no articles found during search', async () => {

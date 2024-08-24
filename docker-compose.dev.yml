@@ -1,3 +1,6 @@
+# this is a development geared docker compose, for seeing code changes live
+# current version needs some work
+
 services:
   frontend:
     container_name: frontend_dev_container

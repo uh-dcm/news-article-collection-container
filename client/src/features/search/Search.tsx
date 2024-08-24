@@ -1,38 +1,81 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 
 // custom ui
 import { PageLayout } from '@/components/page-layout';
 import { itemVariants } from '@/components/animation-variants';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { DownloadButton } from '@/components/ui/download-button';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 // search, its results and download function
-import { sendSearchQuery, SearchParams } from '@/services/database-queries';
+import { useSearchContext } from './use-search-context';
+import AdvancedSearch, { SearchParams } from './advanced-search';  
+import { sendSearchQuery } from '@/services/database-queries';
 import { DataTable } from '@/components/ui/data-table';
 import { articleColumns, Article } from '@/components/ui/article-columns';
 import { handleArticleDownload } from '@/services/article-download';
 
+interface SearchResponse {
+  data: Article[];
+  total_count: number;
+  page: number;
+}
+
 export default function Search() {
-  const [searchData, setSearchData] = useState<Article[]>([]);
+  const {
+    searchParams: contextSearchParams,
+    searchResults: contextSearchResults,
+    totalCount: contextTotalCount,
+    currentPage: contextCurrentPage,
+    setSearchState,
+    clearSearchState,
+  } = useSearchContext();
+  const [searchData, setSearchData] = useState<Article[]>(contextSearchResults || []);
   const [articlesLoading, setArticlesLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
-  const [textQuery, setTextQuery] = useState('');
-  const [urlQuery, setUrlQuery] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
-  const [htmlQuery, setHtmlQuery] = useState('');
+  const [clearTrigger, setClearTrigger] = useState(0);
+  const [totalCount, setTotalCount] = useState(contextTotalCount || 0);
+  const [currentPage, setCurrentPage] = useState(contextCurrentPage || 1);
+  const itemsPerPage = 10;
+  const [sortBy, setSortBy] = useState<string>('time');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // check if existing search
+  useEffect(() => {
+    if (contextSearchResults.length > 0) {
+      setSearchData(contextSearchResults);
+      setTotalCount(contextTotalCount);
+      setCurrentPage(contextCurrentPage);
+      setSearchParams(contextSearchParams);
+    }
+  }, [contextSearchResults, contextTotalCount, contextCurrentPage, contextSearchParams]);
+
+  const [searchParams, setSearchParams] = useState<SearchParams>(contextSearchParams || {
+    generalQuery: '',
+    textQuery: '',
+    urlQuery: '',
+    startTime: '',
+    endTime: '',
+    htmlQuery: '',
+  });
 
   // Search function
-  const handleSearchQuery = async () => {
+  const handleSearchQuery = async (params: Partial<SearchParams>) => {
     setArticlesLoading(true);
     try {
-      const params: SearchParams = { textQuery, urlQuery, startTime, endTime, htmlQuery };
-      const data = await sendSearchQuery(params);
-      setSearchData(data);
+      const updatedParams: SearchParams = {
+        ...searchParams,
+        ...params,
+        page: params.page || currentPage,
+        per_page: itemsPerPage,
+        sort_by: params.sort_by || sortBy,
+        sort_order: params.sort_order || sortOrder
+      };
+      setSearchParams(updatedParams);
+      const response: SearchResponse = await sendSearchQuery(updatedParams);
+      setSearchData(response.data);
+      setTotalCount(response.total_count);
+      setCurrentPage(response.page);
+      setSearchState(updatedParams, response.data, response.total_count, response.page);
     } catch (error) {
       console.error('Error in handleSearchQuery:', error);
     } finally {
@@ -40,71 +83,78 @@ export default function Search() {
     }
   };
 
+  // Sorting
+  const handleSort = (column: string) => {
+    const newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortBy(column);
+    setSortOrder(newSortOrder);
+    handleSearchQuery({ sort_by: column, sort_order: newSortOrder });
+  };
+
+  // Pagination
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    setClearTrigger(prev => prev + 1);
+    handleSearchQuery({ ...searchParams, page, per_page: itemsPerPage });
+  };
+
   // Download function
   const handleDownload = (format: 'json' | 'csv' | 'parquet') => {
     handleArticleDownload(format, true, setIsDisabled);
   };
 
-  // Two const below are Clear button related
-  const [clearTrigger, setClearTrigger] = useState(0);
-
+  // Clear function
   const handleClear = () => {
-    setTextQuery('');
-    setUrlQuery('');
-    setStartTime('');
-    setEndTime('');
-    setHtmlQuery('');
     setSearchData([]);
+    setTotalCount(0);
+    setCurrentPage(1);
     setClearTrigger(prev => prev + 1);
+    clearSearchState();
   };
 
-  // remove this and the useeffect import to disable autosearch
-  useEffect(() => {
-    handleSearchQuery();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // for search clicks: setClearTrigger resets all the "Show more..."
+  const handleSearchButtonClick = (params: SearchParams) => {
+    setClearTrigger(prev => prev + 1);
+    setCurrentPage(1);
+    handleSearchQuery({ ...params, page: 1 });
+  };
+
+  const showPageNumbers = totalCount > 0;
 
   return (
     <PageLayout title="Search">
-      <motion.div variants={itemVariants}>
+      <motion.div variants={itemVariants} className="space-y-8">
+        <AdvancedSearch 
+          searchParams={searchParams}
+          onSearchParamsChange={setSearchParams}
+          onSearch={handleSearchButtonClick}
+          onDownload={handleDownload}
+          onClear={handleClear}
+          isDownloadDisabled={isDisabled}
+          resultCount={totalCount}
+        />
         <Card>
-          <CardHeader className="relative">
-            <CardTitle className="text-lg">Search articles</CardTitle>
-            <CardDescription>Query and export articles with matching data</CardDescription>
-            <div className="absolute right-4 top-4 flex items-center space-x-4">
-              <DownloadButton
-                onDownload={handleDownload}
-                isDisabled={isDisabled || searchData.length === 0}
-                buttonText="Download Results"
-                className="w-[205px]"
-              />
-              <Button variant="outline" size="sm" onClick={handleClear} className="h-8 px-2 text-xs">
-                Clear
-              </Button>
-            </div>
+          <CardHeader>
+            <CardTitle>Query results ({totalCount})</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-            <Input className="w-full p-6" onChange={(e) => setTextQuery(e.target.value)} placeholder="Insert text query..." value={textQuery} />
-            <Input className="w-full p-6" onChange={(e) => setUrlQuery(e.target.value)} placeholder="Insert URL query..." value={urlQuery} />
-            <Input className="w-full p-6" type="text" placeholder="Insert start time... (YYYY-MM-DD HH:MM:SS)" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
-            <Input className="w-full p-6" type="text" placeholder="Insert end time... (YYYY-MM-DD HH:MM:SS)" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
-            <Input className="w-full p-6" type="text" placeholder="Insert HTML query..." value={htmlQuery} onChange={(e) => setHtmlQuery(e.target.value)} />
-            <Button className="w-full p-6 text-base" variant="outline" onClick={handleSearchQuery} aria-label="Submit search">
-              <div className="flex justify-center">
-                <MagnifyingGlassIcon className="mr-3 size-6" />
-                Search
-              </div>
-            </Button>
-          </CardContent>
           <CardContent>
-            <DataTable
+            <DataTable<Article, unknown>
               columns={articleColumns}
               data={searchData}
               tableName={'Query results'}
               isLoading={articlesLoading}
               reducedSpacing={true}
-              showGlobalFilter={true}
               onClear={clearTrigger}
+              hideTitle={true}
+              totalCount={totalCount}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+              showPagination={true}
+              showPageNumbers={showPageNumbers}
+              onSort={handleSort}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
             />
           </CardContent>
         </Card>

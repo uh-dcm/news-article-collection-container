@@ -20,7 +20,6 @@ def create_app(testing=False):
     # Flask
     app = Flask(__name__, static_folder=os.path.join(Config.SERVER_ROOT, 'static'))
     CORS(app, resources={r"/*": {"origins": "*"}})
-    app.config['CORS_HEADERS'] = 'Content-Type'
 
     # testing check
     app.config.from_object(TestConfig if testing else Config)

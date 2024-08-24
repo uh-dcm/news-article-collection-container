@@ -51,3 +51,5 @@ After running it and installing the dependencies, you can run the frontend and b
 - When the test finishes, in the other window:
 
 - press CTRL together with C then `docker compose down --rmi all` (removes what was built, besides some cache)
+
+Note: Cypress tests may fail for some locally, since their execution varies so much.

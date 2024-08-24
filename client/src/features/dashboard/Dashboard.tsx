@@ -24,7 +24,10 @@ import { getAllFeedUrls, sendAllFeedUrls } from './feed-urls';
 import { getFetchingStatus, keepFetching, stopFetching } from './fetching-news';
 
 // statistics
-import { sendStatisticsQuery, sendTextQuery} from '@/services/database-queries';
+import {
+  sendStatisticsQuery,
+  sendTextQuery,
+} from '@/services/database-queries';
 import StatisticsDrawers from '@/features/statistics/statistics-drawers';
 import { DomainData } from '@/components/ui/drawer';
 
@@ -42,6 +45,8 @@ export default function Dashboard() {
   const [subDirectoryData, setSubDirectoryData] = useState<DomainData[]>([]);
   const [textData, setTextData] = useState<string[]>([]);
   const [isStatisticsDisabled, setIsStatisticsDisabled] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isWordCloudLoading, setIsWordCloudLoading] = useState(false);
 
   // Feed check at start from backend
   useEffect(() => {
@@ -75,7 +80,9 @@ export default function Dashboard() {
     // disable complaints about chunking that seem to affect nothing
     eventSource.onerror = (event) => {
       if (event instanceof ErrorEvent && event.error instanceof Error) {
-        if (event.error.message.includes('net::ERR_INCOMPLETE_CHUNKED_ENCODING')) {
+        if (
+          event.error.message.includes('net::ERR_INCOMPLETE_CHUNKED_ENCODING')
+        ) {
           event.preventDefault();
         }
       }
@@ -125,8 +132,20 @@ export default function Dashboard() {
     handleSubmit(updatedFeeds);
   };
 
+  // Feed page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Feed pagination
+  const paginatedFeedUrlList = feedUrlList.slice(
+    (currentPage - 1) * 8,
+    currentPage * 8
+  );
+
   // Next 3 const are fetch related
   const handleFetchStart = async () => {
+    toast.dismiss();
     toast.info('RSS fetching in progress', {
       description: 'Gathering articles...',
       duration: 5000,
@@ -141,7 +160,8 @@ export default function Dashboard() {
 
   const handleFetchStop = () => {
     setIsFetching(false);
-    toast.warning('RSS fetching stopped.');
+    toast.dismiss();
+    toast.warning('RSS fetching stopped');
     stopFetching();
   };
 
@@ -178,17 +198,18 @@ export default function Dashboard() {
 
   const handleFetchText = async () => {
     setIsDisabled(true);
+    setIsWordCloudLoading(true);
     try {
       const data = await sendTextQuery(false);
-      setTextData(data.map( (x: Map<string, string>) => Object.values(x)[0] ))
+      setTextData(data.map((x: Map<string, string>) => Object.values(x)[0]));
     } catch (error) {
-      console.error('Failed to fetch filtered statistics:', error);
+      console.error('Failed to fetch filtered text fields:', error);
       toast.error('Failed to get full text. Have you fetched yet?');
     } finally {
       setIsDisabled(false);
+      setIsWordCloudLoading(false);
     }
   };
-
 
   return (
     <PageLayout title="Dashboard">
@@ -214,7 +235,10 @@ export default function Dashboard() {
                     onCheckedChange={handleSwitch}
                     className="mr-2 data-[state=checked]:bg-green-500"
                   />
-                  <Label htmlFor="toggleFetching" className="text-sm whitespace-nowrap">
+                  <Label
+                    htmlFor="toggleFetching"
+                    className="whitespace-nowrap text-sm"
+                  >
                     Toggle fetching
                   </Label>
                   <InfoIcon
@@ -222,19 +246,19 @@ export default function Dashboard() {
                     ariaLabel="Fetcher info"
                   />
                   <div className="mx-2 h-6 w-px bg-gray-200 dark:bg-gray-700" />
-                  <div className="text-sm whitespace-nowrap flex items-center">
-                    <span className="font-bold mr-2">Status:</span>
+                  <div className="flex items-center whitespace-nowrap text-sm">
+                    <span className="mr-2 font-bold">Status:</span>
                     <span
-                      className={`inline-flex items-center justify-center w-32 px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-300 ${
+                      className={`inline-flex w-32 items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-300 ${
                         isProcessing
                           ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100'
                           : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'
                       }`}
                     >
                       {isProcessing && (
-                        <span className="relative flex h-3 w-3 mr-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                        <span className="relative mr-2 flex h-3 w-3">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
+                          <span className="relative inline-flex h-3 w-3 rounded-full bg-blue-500"></span>
                         </span>
                       )}
                       <span className="truncate">
@@ -246,15 +270,21 @@ export default function Dashboard() {
               </Card>
             </div>
           </CardHeader>
-          <CardContent className="space-y-5 pt-2 pb-6">
+          <CardContent className="space-y-5 pb-6 pt-2">
             <div>
-              <DataTable
+              <DataTable<Feed, unknown>
                 columns={feedColumns}
-                data={feedUrlList}
+                data={paginatedFeedUrlList}
                 onDeleteSelected={deleteSelectedRows}
-                showGlobalFilter={false}
                 tableName="RSS feeds"
                 hideTitle={true}
+                showDeleteButton={true}
+                totalCount={feedUrlList.length}
+                currentPage={currentPage}
+                itemsPerPage={8}
+                onPageChange={handlePageChange}
+                showPagination={true}
+                showPageNumbers={false}
               />
             </div>
             <RssInput
@@ -292,11 +322,11 @@ export default function Dashboard() {
               handleFetchText={handleFetchText}
               formSubDirectoryData={formSubDirectoryData}
               isFiltered={false}
+              isWordCloudLoading={isWordCloudLoading}
             />
           </CardContent>
         </Card>
       </motion.div>
-
     </PageLayout>
   );
 }

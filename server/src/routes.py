@@ -136,6 +136,12 @@ def init_routes(app):
         methods=['GET']
     )
     app.add_url_rule(
+        '/api/data_size',
+        'get_data_size',
+        jwt_required_conditional(stats_analyzer.get_data_size),
+        methods=['GET']
+    )
+    app.add_url_rule(
         '/api/articles/export',
         'get_all_export',
         jwt_required_conditional(export_manager.get_all_export),
