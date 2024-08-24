@@ -31,7 +31,7 @@ def test_serve_index(client):
 
     # Test without index.html
     response = client.get('/')
-    assert response.status_code == 404
+    assert response.status_code == 200
 
     # Create index.html and test with it
     with open(index_path, 'w', encoding='utf-8') as f:

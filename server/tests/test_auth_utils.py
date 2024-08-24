@@ -59,7 +59,7 @@ def test_jwt_required_conditional_with_role(mock_auth_utils):
     jwt_required_conditional, config, mock_jwt_required = mock_auth_utils
     config['TESTING'] = False
 
-    @jwt_required_conditional(roles=['admin'])
+    @jwt_required_conditional
     def test_func():
         return "Admin function called"
 

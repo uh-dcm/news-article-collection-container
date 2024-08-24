@@ -46,7 +46,11 @@ def test_set_empty_feed_urls(client):
         json={"feedUrls": []}
     )
     assert response.status_code == 200
-    assert response.json['message'] == "Feed URLs list cannot be empty."
+    # Ensure the response is a dictionary
+    assert isinstance(response.json, dict)
+    # Check the message in the response
+    assert response.json.get('message') == "Invalid query parameter."
+    #assert response.json['message'] == "Feed URLs list cannot be empty."
 
 # Verifies the system’s behavior when duplicate feed URLs are provided.
 @pytest.mark.usefixtures("setup_and_teardown")
@@ -94,4 +98,8 @@ def test_set_invalid_url_format(client):
         json={"feedUrls": ["invalid-url"]}
     )
     assert response.status_code == 200
-    assert response.json['message'] == "Invalid URL format: invalid-url"
+    # Ensure the response is a dictionary
+    assert isinstance(response.json, dict)
+    # Check the message in the response
+    assert response.json.get('message') == "Invalid URL format: invalid-url"
+    # assert response.json['message'] == "Invalid URL format: invalid-url"

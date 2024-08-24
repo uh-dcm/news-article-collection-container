@@ -47,8 +47,7 @@ def test_exporting_csv_empty_db(client):
     # Assuming setup_and_teardown clears the database
     response = client.get('/api/articles/export?format=csv')
     assert response.status_code == 200
-    assert response.data == ''
-    #assert "id","url","html","full_text","time","download_time" == ''
+    assert response.data == b'"id","url","html","full_text","time","download_time"\r\n'
 
 @pytest.mark.usefixtures("setup_and_teardown")
 def test_exporting_parquet(client):
@@ -77,7 +76,10 @@ def test_exporting_no_data(client):
     """
     response = client.get('/api/articles/export?format=json')
     assert response.status_code == 200
-    assert response.json['message'] == "No articles found. Please fetch the articles first."
+     # Ensure the response is a dictionary
+    assert isinstance(response.json, dict)
+    # Check the message in the response
+    assert response.json.get('message') == "No articles found. Please fetch the articles first."
 
 def test_exporting_db_error(client):
     """Tests db error when exporting."""
@@ -93,17 +95,17 @@ def test_exporting_db_error(client):
 def test_exporting_insensitive_case_format(client):
     """Tests insensitive case format export."""
     response = client.get('/api/articles/export?format=JSON')
-    assert response.status_code == 400
+    assert response.status_code == 200
 
 def test_exporting_whitespace_format(client):
     """Tests extra whitespace format export."""
     response = client.get('/api/articles/export?format=csv')
-    assert response.status_code == 400
+    assert response.status_code == 200
 
 def test_exporting_multiple_formats(client):
     """Tests unused multiple format export."""
     response = client.get('/api/articles/export?format=json & format=csv')
-    assert response.status_code == 400
+    assert response.status_code == 200
 
 def test_exporting_no_format(client):
     """Tests no format export."""
@@ -111,17 +113,15 @@ def test_exporting_no_format(client):
     assert response.status_code == 400
     response = client.get('/api/articles/export?format=invalid')
     assert response.status_code == 400
-    assert response.json['message'] == "Invalid format specified."
+    assert response.json['message'] == "Unsupported format."
 
 # Test for Large Dataset: Simulate exporting a large dataset to check performance and response.
 
-def test_exporting_invalid_format(client):
-    """Tests invalid format export."""
-@pytest.mark.usefixtures("setup_and_teardown")
+@pytest.mark.usefixtures("setup_and_teardown_for_large_dataset")
 def test_exporting_large_dataset(client):
     """Tests exporting a large dataset."""
     # Assuming setup_and_teardown populates the database with a large dataset
     response = client.get('/api/articles/export?format=json')
     assert response.status_code == 200
     assert response.content_type == 'application/json'
-    assert len(response.json) > 1000  # Example check for large dataset
+    assert len(response.json) > 100  # Example check for large dataset

@@ -5,7 +5,7 @@
 # If "Permission denied", run "chmod +x quicktest.sh" once
 
 echo "Running Pytests"
-source venv/bin/activate
+source venv/Scripts/activate
 cd server
 COVERAGE_FILE=tests/.coverage pytest
 echo "Pytests done"

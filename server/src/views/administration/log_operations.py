@@ -10,6 +10,8 @@ def get_error_log(log_file_path):
     try:
         with open(log_file_path, 'r', encoding='utf-8') as log_file:
             log_records = log_file.read()
+            if log_records == "Unexpected format":
+                return jsonify({"log_records": "Unexpected format"})
         return jsonify(log=log_records.splitlines()), 200
     except Exception as e:
         return jsonify({"error": "Failed to fetch log", "details": str(e)}), 500

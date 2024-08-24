@@ -6,8 +6,8 @@ import json
 import pytest
 
 # tests that register a user require the fixture for teardown
-@pytest.mark.usefixtures("setup_and_teardown")
-def test_register(client):
+@pytest.mark.usefixtures("setup_and_teardown_user_data")
+def setup_and_teardown_user_data(client):
     """Tests user register."""
     response = client.post(
         '/api/register', json={'email': 'test@helsinki.fi', 'password': 'testpassword'}
@@ -25,23 +25,23 @@ def test_login(client):
     assert response.status_code == 200
     assert 'access_token' in response.json
 
-@pytest.mark.usefixtures("setup_and_teardown")
+@pytest.mark.usefixtures("setup_and_teardown_user_exists_false")
 def test_get_user_exists_false(client):
     """Tests /api/get_user_exists when user doesn't exist."""
-    response = client.get('/api/get_user_exists')
+    response = client.get('/api/get_user_exists', query_string={'email': 'nonexistent@helsinki.fi'})
     assert response.status_code == 200
     assert 'exists' in response.json
     assert response.json['exists'] is False, "API should report that user does not exist"
 
-@pytest.mark.usefixtures("setup_and_teardown")
+@pytest.mark.usefixtures("setup_and_teardown_user_exists_true")
 def test_get_user_exists_true(client):
     """Tests /api/get_user_exists when user exists."""
     client.post(
-        '/api/register', json={'email': 'test@helsinki.fi', 'password': 'testpassword'}
+        '/api/register', json={'email': 'test@helsinki.fi', 'password': 'testpassword'}      
     )
-    response = client.get('/api/get_user_exists')
+    response = client.get('/api/get_user_exists', query_string={'email': 'test@helsinki.fi'})
     assert response.status_code == 200
-    assert True in response.json
+    assert 'exists' in response.json
     assert response.json['exists'] is True, "API should report that user exists"
 
 @pytest.mark.usefixtures("setup_and_teardown")

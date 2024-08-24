@@ -26,3 +26,4 @@ class TestConfig(Config):
     TESTING: bool = True
     FETCHER_FOLDER: str = os.path.join(Config.SERVER_ROOT, 'test-rss-fetcher')
     DATABASE_URL: str = 'sqlite:///:memory:'
+    

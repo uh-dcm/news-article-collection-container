@@ -64,18 +64,17 @@ def setup_and_teardown(engine, app_config):
     finally:
         conn.close()
     
-    engine.dispose()
+        engine.dispose()
 
-    shutil.rmtree(base_dir)
+        shutil.rmtree(base_dir)
 
     yield
 
-""" 
-@pytest.fixture(scope='function')
-def setup_and_teardown(engine, app_config, temp_dir):
-    # Files and database setup fixture.
-    # Used as a pytest.mark.usefixtures above the tests.
-    base_dir = temp_dir
+# Useful fixtures:
+
+@pytest.fixture
+def setup_and_teardown_for_large_dataset(client):
+    base_dir = app_config['FETCHER_FOLDER']
     data_dir = os.path.join(base_dir, 'data')
 
     os.makedirs(data_dir, exist_ok=True)
@@ -91,19 +90,46 @@ def setup_and_teardown(engine, app_config, temp_dir):
     conn = engine.connect()
     trans = conn.begin()
     fill_test_database(conn)
-
+    # Populate the database with a large dataset
+    articles = [Article(title=f"Article {i}", content="Some content") for i in range(150)]
+    db.session.bulk_save_objects(articles)
+    db.session.commit()
     yield conn
 
     try:
         trans.rollback()
     except SQLAlchemyError:
         pass
+    
     finally:
-        conn.close() """
+        conn.close()
+        db.session.remove()
+        engine.dispose()
+        shutil.rmtree(base_dir)
+    yield
 
 
+@pytest.fixture
+def setup_and_teardown_user_exists_false(client):
+    # Clear the user data before running the test
+    User.query.delete()
+    db.session.commit()
+    yield
+    # Teardown code if needed
+    #db.session.remove()
+    #db.drop_all()
 
-# Useful fixtures:
+
+@pytest.fixture
+def setup_and_teardown_user_exists_true(client):
+    # Clear the user data before running the test
+    # User.query.delete()
+    # db.session.commit()
+    yield
+    # Teardown code if needed
+    #db.session.remove()
+    #db.drop_all()
+
 
 # The clean_database fixture ensures that the database is cleaned up after each test, preventing side effects between tests.
 # Add a fixture for cleaning up the database after each test:
@@ -115,7 +141,7 @@ def clean_database(engine):
 
     yield
 
-    transaction.rollback()
+    transaction.rollback() #this need the rollback parameter to be set in sqlite
     connection.close()
 
 # a fixture for setting up a temporary directory for file operations:
@@ -138,7 +164,7 @@ def mock_env_vars(monkeypatch):
     monkeypatch.undo()
 
 @pytest.fixture(scope='function')
-def setup_and_teardown(engine, app_config, temp_dir):
+def setup_and_teardown_with_temp_dir(engine, app_config, temp_dir):
     # Files and database setup fixture.
     # Used as a pytest.mark.usefixtures above the tests.
     base_dir = temp_dir
