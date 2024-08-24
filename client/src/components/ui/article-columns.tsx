@@ -56,6 +56,7 @@ export const articleColumns: ColumnDef<Article>[] = [
         </DropdownMenu>
       );
     },
+    size: 53,
   },
   {
     accessorKey: 'time',
@@ -76,6 +77,7 @@ export const articleColumns: ColumnDef<Article>[] = [
       return <div className="w-30 whitespace-nowrap">{time}</div>;
     },
     filterFn: 'includesString',
+    size: 176,
   },
   {
     accessorKey: 'url',
@@ -94,7 +96,7 @@ export const articleColumns: ColumnDef<Article>[] = [
     cell: ({ row }) => {
       const url: string = row.getValue('url');
       return (
-        <div className="w-64 break-words">
+        <div className="w-64 overflow-hidden text-ellipsis whitespace-nowrap">
           <a
             className="cursor-pointer text-blue-500 hover:underline"
             href={url}
@@ -106,6 +108,7 @@ export const articleColumns: ColumnDef<Article>[] = [
         </div>
       );
     },
+    size: 300,
     filterFn: 'includesString',
   },
   {
@@ -135,7 +138,7 @@ export const articleColumns: ColumnDef<Article>[] = [
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <ScrollArea className="h-[300px] rounded-md border p-2">
+                <ScrollArea className="h-[300px] max-w-[430px] rounded-md border p-2">
                   {text.split('\n').map((paragraph, index) => (
                     <p key={index} className="mb-2">
                       <HighlightedText
@@ -182,6 +185,7 @@ export const articleColumns: ColumnDef<Article>[] = [
         </div>
       );
     },
+    size: 470,
     filterFn: 'includesString',
   },
 ];
