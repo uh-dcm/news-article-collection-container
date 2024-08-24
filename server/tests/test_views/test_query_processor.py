@@ -84,3 +84,63 @@ def test_get_search_results_sorting(client):
     assert 'data' in response.json
     if len(response.json['data']) > 1:
         assert response.json['data'][0]['time'] >= response.json['data'][1]['time']
+
+@pytest.mark.usefixtures("setup_and_teardown")
+def test_get_search_results_with_text_query(client):
+    """
+    Tests searching with a specific text query.
+    """
+    response = client.get('/api/articles/search', query_string={'textQuery': 'Full text'})
+    assert response.status_code == 200
+    assert isinstance(response.json, dict)
+    assert 'data' in response.json
+    assert all('Full text' in item['full_text'] for item in response.json['data'])
+
+@pytest.mark.usefixtures("setup_and_teardown")
+def test_get_search_results_with_url_query(client):
+    """
+    Tests searching with a specific URL query.
+    """
+    response = client.get('/api/articles/search', query_string={'urlQuery': 'blabla.com'})
+    assert response.status_code == 200
+    assert isinstance(response.json, dict)
+    assert 'data' in response.json
+    assert all('blabla.com' in item['url'] for item in response.json['data'])
+
+@pytest.mark.usefixtures("setup_and_teardown")
+def test_get_search_results_with_time_range(client):
+    """
+    Tests searching within a specific time range.
+    """
+    response = client.get('/api/articles/search', query_string={
+        'startTime': '2016-01-01',
+        'endTime': '2016-12-31'
+    })
+    assert response.status_code == 200
+    assert isinstance(response.json, dict)
+    assert 'data' in response.json
+    assert all('2016' in item['time'] for item in response.json['data'])
+
+@pytest.mark.usefixtures("setup_and_teardown")
+def test_get_search_results_with_advanced_query(client):
+    """
+    Tests searching with an advanced query using AND, OR, NOT operators.
+    """
+    response = client.get('/api/articles/search', query_string={
+        'textQuery': 'Full text AND (1 OR 2) NOT 3'
+    })
+    assert response.status_code == 200
+    assert isinstance(response.json, dict)
+    assert 'data' in response.json
+
+@pytest.mark.usefixtures("setup_and_teardown")
+def test_get_search_results_with_escaped_characters(client):
+    """
+    Tests searching with escaped characters in the query.
+    """
+    response = client.get('/api/articles/search', query_string={
+        'textQuery': 'ESC%Full ESC_text'
+    })
+    assert response.status_code == 200
+    assert isinstance(response.json, dict)
+    assert 'data' in response.json
