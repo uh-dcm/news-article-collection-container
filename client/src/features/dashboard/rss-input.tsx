@@ -77,7 +77,7 @@ export default function RssInput({
     try {
       new URL(urlString);
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   }

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ChartPieIcon,
   ChartBarSquareIcon,
@@ -5,8 +7,6 @@ import {
 } from '@heroicons/react/24/solid';
 
 import { Button } from '@/components/ui/button';
-('use client');
-
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import {
   ChartConfig,
@@ -203,21 +203,23 @@ export default function StatisticsDrawers({
           </Button>
         </DrawerTrigger>
         <DrawerContent>
-          <div className="mx-auto h-[65vh] w-full max-w-2xl items-center">
-            <DrawerHeader>
+          <div className="mx-auto w-full max-w-3xl flex flex-col h-[calc(100vh-2rem)]">
+            <DrawerHeader className="flex-shrink-0 pb-2">
               <DrawerTitle>Word cloud for collected articles</DrawerTitle>
               <DrawerDescription>
-                Word cloud on 200 most frequent words in the articles
+                200 most frequent words in the articles
               </DrawerDescription>
             </DrawerHeader>
-            {isWordCloudLoading ? (
-              <div className="flex h-[52.82vh] items-center justify-center">
-                <div className="h-48 w-48 animate-spin rounded-full border-b-2 border-gray-900"></div>
-              </div>
-            ) : (
-              <WordCloudContainer words={textData} />
-            )}
-            <DrawerFooter>
+            <div className="flex-grow overflow-hidden">
+              {isWordCloudLoading ? (
+                <div className="flex justify-center items-center h-full">
+                  <div className="animate-spin rounded-full h-48 w-48 border-b-2 border-gray-900"></div>
+                </div>
+              ) : (
+                <WordCloudContainer words={textData} />
+              )}
+            </div>
+            <DrawerFooter className="flex-shrink-0 pt-2">
               <DrawerClose asChild>
                 <Button variant="outline">Close</Button>
               </DrawerClose>
