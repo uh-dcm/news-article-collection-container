@@ -6,7 +6,6 @@ from flask import jsonify, request, current_app
 from sqlalchemy import text, bindparam
 from sqlalchemy.exc import SQLAlchemyError
 
-
 from src.utils.resource_management import check_articles_table
 
 def get_text():
@@ -31,12 +30,15 @@ def get_text():
             else None
         )
 
-        whole_query = text(f"SELECT full_text FROM articles")
+        whole_query = text("SELECT full_text FROM articles")
 
         if filtered and last_search_ids:
             where_clause = "WHERE id IN :ids"
             where_params = {'ids': tuple(last_search_ids)}
-            whole_query = text(f"SELECT full_text FROM articles {where_clause}").bindparams(bindparam('ids', expanding=True))
+            whole_query = (
+                text(f"SELECT full_text FROM articles {where_clause}")
+                .bindparams(bindparam('ids', expanding=True))
+            )
 
         with current_app.db_engine.connect() as connection:
             text_query = connection.execute(whole_query, where_params).fetchall()
@@ -76,7 +78,7 @@ def get_stats():
         where_params = {}
 
         # Queries URLs of the form www.url.com
-        domain_query = text(f"""
+        domain_query = text("""
                 SELECT 
                     SUBSTRING(
                         REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 
@@ -89,7 +91,7 @@ def get_stats():
             """)
 
         # Queries URLs of the form www.url.com/subdirectory/
-        subdir_query = text(f"""
+        subdir_query = text("""
                 SELECT
                     SUBSTRING(
                         REPLACE(REPLACE(URL, 'https://', ''), 'http://', ''), 
@@ -103,7 +105,7 @@ def get_stats():
             """)
 
         # Queries dates for time series
-        dates_query = text(f"""
+        dates_query = text("""
                 SELECT time, COUNT(*) as count
                 FROM articles
                 WHERE time IS NOT NULL AND time != ''
@@ -172,7 +174,6 @@ def get_stats():
     except Exception as e:
         current_app.logger.exception("Error when getting statistics")
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 def get_data_size():
     """

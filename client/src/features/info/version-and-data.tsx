@@ -20,7 +20,7 @@ const VersionInfo = () => {
   };
 
   return (
-    <div className="flex items-center mb-4">
+    <div className="flex items-center mb-4 mt-4">
       <span className="text-base font-semibold">
         Current version: <span className="font-bold">{version}</span>
       </span>

@@ -82,7 +82,7 @@ describe('App component', () => {
     fireEvent.click(toggleFetchSwitch);
 
     await waitFor(() => {
-      expect(toggleFetchSwitch).toBeChecked;
+      expect(toggleFetchSwitch).toBeChecked();
     });
   });
 
@@ -90,10 +90,15 @@ describe('App component', () => {
     const toggleFetchSwitch = screen.getByTestId('fetchToggle');
 
     fireEvent.click(toggleFetchSwitch);
+    await waitFor(() => {
+      expect(toggleFetchSwitch).toBeChecked();
+    });
+
+    fireEvent.click(toggleFetchSwitch);
 
     await waitFor(() => {
-      expect(!toggleFetchSwitch).toBeChecked;
-    });
+      expect(toggleFetchSwitch).not.toBeChecked();
+    }, { timeout: 1000 });
   });
 
   // note the use of userEvent which solved issues with dropdown menu

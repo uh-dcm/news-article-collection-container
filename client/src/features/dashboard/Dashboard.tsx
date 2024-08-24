@@ -116,6 +116,7 @@ export default function Dashboard() {
         throw new Error();
       }
     } catch (error) {
+      console.error('Failed to submit the feed URLs:', error);
       toast.error('Failed to submit the feed URLs.');
     } finally {
       setIsUrlSetDisabled(false);
@@ -203,7 +204,7 @@ export default function Dashboard() {
       const data = await sendTextQuery(false);
       setTextData(data.map((x: Map<string, string>) => Object.values(x)[0]));
     } catch (error) {
-      console.error('Failed to fetch filtered text fields:', error);
+      console.error('Failed to fetch text fields:', error);
       toast.error('Failed to get full text. Have you fetched yet?');
     } finally {
       setIsDisabled(false);

@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 import pytest
 
 @pytest.mark.usefixtures("setup_and_teardown")
-def test_get_search_results(client):
+def test_get_stats(client):
     """
     Tests that a stats call returns a jsonified list when the
     articles table exists. Uses db setup fixture.
