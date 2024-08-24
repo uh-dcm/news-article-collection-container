@@ -74,7 +74,7 @@ export default function Statistics() {
 
   return (
     <PageLayout title="Statistics">
-      <motion.div variants={itemVariants}>
+      <motion.div variants={itemVariants} className="mt-6">
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Article statistics</CardTitle>

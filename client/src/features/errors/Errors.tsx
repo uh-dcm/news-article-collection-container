@@ -6,7 +6,13 @@ import { toast } from 'sonner';
 // custom ui
 import { PageLayout } from '@/components/page-layout';
 import { itemVariants } from '@/components/animation-variants';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 // Log api calls
@@ -49,7 +55,7 @@ export default function Errors() {
 
   return (
     <PageLayout title="Errors">
-      <motion.div variants={itemVariants}>
+      <motion.div variants={itemVariants} className="mt-6">
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Error log</CardTitle>
@@ -59,8 +65,13 @@ export default function Errors() {
             <div className="max-h-[60vh] overflow-y-auto text-xs">
               {logRecords.length > 0 ? (
                 logRecords.map((record, index) => (
-                  <div key={index} className="mb-1 border-b border-gray-100 pb-1">
-                    <pre className="whitespace-pre-wrap break-words font-mono">{record}</pre>
+                  <div
+                    key={index}
+                    className="mb-1 border-b border-gray-100 pb-1"
+                  >
+                    <pre className="whitespace-pre-wrap break-words font-mono">
+                      {record}
+                    </pre>
                   </div>
                 ))
               ) : (
@@ -75,20 +86,24 @@ export default function Errors() {
                     <Button variant="destructive">Clear Log</Button>
                   </AlertDialog.Trigger>
                   <AlertDialog.Portal>
-                    <AlertDialog.Overlay className="bg-background/80 fixed inset-0" />
-                    <AlertDialog.Content className="fixed top-1/2 left-1/2 max-h-[85vh] w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-background p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none">
+                    <AlertDialog.Overlay className="fixed inset-0 bg-background/80" />
+                    <AlertDialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-background p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none">
                       <AlertDialog.Title className="text-lg font-medium text-foreground">
                         Are you sure?
                       </AlertDialog.Title>
-                      <AlertDialog.Description className="mt-2 mb-5 text-sm text-muted-foreground">
-                        This action cannot be undone. This will empty the entire error log.
+                      <AlertDialog.Description className="mb-5 mt-2 text-sm text-muted-foreground">
+                        This action cannot be undone. This will empty the entire
+                        error log.
                       </AlertDialog.Description>
                       <div className="flex justify-end gap-[15px]">
                         <AlertDialog.Cancel asChild>
                           <Button variant="outline">Cancel</Button>
                         </AlertDialog.Cancel>
                         <AlertDialog.Action asChild>
-                          <Button variant="destructive" onClick={handleClearLog}>
+                          <Button
+                            variant="destructive"
+                            onClick={handleClearLog}
+                          >
                             Clear Log
                           </Button>
                         </AlertDialog.Action>
