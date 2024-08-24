@@ -203,7 +203,7 @@ export default function StatisticsDrawers({
           </Button>
         </DrawerTrigger>
         <DrawerContent>
-          <div className="mx-auto w-full max-w-3xl flex flex-col h-[calc(100vh-2rem)]">
+          <div className="mx-auto flex h-[775px] max-h-[95vh] w-full max-w-3xl flex-col">
             <DrawerHeader className="flex-shrink-0 pb-2">
               <DrawerTitle>Word cloud for collected articles</DrawerTitle>
               <DrawerDescription>
@@ -212,8 +212,8 @@ export default function StatisticsDrawers({
             </DrawerHeader>
             <div className="flex-grow overflow-hidden">
               {isWordCloudLoading ? (
-                <div className="flex justify-center items-center h-full">
-                  <div className="animate-spin rounded-full h-48 w-48 border-b-2 border-gray-900"></div>
+                <div className="flex h-full items-center justify-center">
+                  <div className="h-48 w-48 animate-spin rounded-full border-b-2 border-gray-900"></div>
                 </div>
               ) : (
                 <WordCloudContainer words={textData} />
