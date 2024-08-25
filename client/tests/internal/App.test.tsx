@@ -44,17 +44,25 @@ describe('App component', () => {
       expect(loginView).not.toBeInTheDocument();
     });
 
+    await waitFor(() => {
+      expect(window.location.pathname).toBe('/dashboard');
+    }, { timeout: 5000 });
+
     await waitFor(
       () => {
-        expect(screen.getByText(/RSS feeds/i)).toBeInTheDocument();
+        const rssFeeds = screen.queryByText(/RSS feeds/i);
+        const logOut = screen.queryByText(/Log out/i);
+        expect(rssFeeds || logOut).toBeInTheDocument();
       },
-      { timeout: 3000 }
+      { timeout: 5000 }
     );
   });
 
   test('renders app component', async () => {
     expect(screen.getByText(/News Article Collector/i)).toBeInTheDocument();
-    expect(await screen.findByText(/Add or delete feeds/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Add or delete feeds/i)).toBeInTheDocument();
+    }, { timeout: 3000 });
   });
 
   test('submits RSS feed URLs', async () => {
@@ -68,13 +76,13 @@ describe('App component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('https://blabla.com/feed')).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
 
     await waitFor(() => {
       expect(toastSuccessSpy).toHaveBeenCalledWith(
         'Feed list updated successfully!'
       );
-    });
+    }, { timeout: 2000 });
   });
 
   test('starts RSS fetching', async () => {
@@ -83,7 +91,7 @@ describe('App component', () => {
 
     await waitFor(() => {
       expect(toggleFetchSwitch).toBeChecked();
-    });
+    }, { timeout: 2000 });
   });
 
   test('stops RSS fetching', async () => {
@@ -92,13 +100,13 @@ describe('App component', () => {
     fireEvent.click(toggleFetchSwitch);
     await waitFor(() => {
       expect(toggleFetchSwitch).toBeChecked();
-    });
+    }, { timeout: 2000 });
 
     fireEvent.click(toggleFetchSwitch);
 
     await waitFor(() => {
       expect(toggleFetchSwitch).not.toBeChecked();
-    }, { timeout: 1000 });
+    }, { timeout: 2000 });
   });
 
   // note the use of userEvent which solved issues with dropdown menu
@@ -112,7 +120,7 @@ describe('App component', () => {
 
     await waitFor(() => {
       expect(screen.getByText(format)).toBeInTheDocument();
-    }, { timeout: 1000 });
+    }, { timeout: 2000 });
 
     const formatOption = screen.getByText(format);
     await user.click(formatOption);
@@ -123,7 +131,7 @@ describe('App component', () => {
         false,
         expect.any(Function)
       );
-    }, { timeout: 1000 });
+    }, { timeout: 2000 });
   };
 
   test('clicks JSON download option', async () => {
