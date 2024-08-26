@@ -46,7 +46,7 @@ COPY server /app/server
 RUN rm -rf /app/server/rss-fetcher && mkdir -p /app/server/rss-fetcher
 
 # Download and extract the original tool into rss-fetcher
-ADD https://github.com/ayriainen/news-article-collection/archive/main.tar.gz /tmp/
+ADD https://github.com/uh-dcm/news-article-collection/archive/main.tar.gz /tmp/
 RUN tar -xzf /tmp/main.tar.gz -C /app/server/rss-fetcher --strip-components=1 && \
     rm /tmp/main.tar.gz
 

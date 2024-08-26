@@ -68,7 +68,7 @@ graph TB
 3. IMPORTANT: in this view change `your-app-name` in `your-app-name.2.rahtiapp.fi` to your chosen address
 4. Click **Create**
 
-The app will start up in about a minute, after which you can visit your chosen address. In the app itself, you will be asked to register your email and password. A confirmation email will be sent to your mailbox, although it will be "Unverified" and possibly end up in spam. You can also re-register a new email and a password even after registering, but only when having registered with a working email address.
+The app will start up in about a minute, after which you can visit your chosen address. In the app itself, you will be asked to register your email and password. A confirmation email will be sent to your mailbox. If it doesn't arrive, there may have been a typo in the inputted email address. You can also re-register a new email and a password even after registering, but only when having registered with a working email address.
 
 <br><br><br>
 
