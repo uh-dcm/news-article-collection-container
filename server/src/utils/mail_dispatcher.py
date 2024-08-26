@@ -1,9 +1,9 @@
 """
-Service for sending emails. On Rahti, you only need a university email address
-and the CSC SMTP_SERVER value, although the emails will be marked as "Unverified" when
-received. There are three types of emails: welcome email, reregistration request email
-and reregistration confirmation (second welcome) email. They are called upon individually
-in administration routes and then all lastly use send_email() here.
+Service for sending emails. On Rahti, you only need an email address and the
+CSC SMTP_SERVER value, although currently non-CSC emails end up Unverified.
+There are three types of emails: welcome email, reregistration request email
+and reregistration confirmation (second welcome) email. They are called upon
+individually in administration routes and then all lastly use send_email() here.
 """
 import re
 import smtplib
@@ -22,7 +22,9 @@ def is_valid_email(email):
 
 def send_email(to_email, subject, body):
     """Core helper function to send an email."""
-    if not current_app.config['SMTP_SENDER']:
+    sender = current_app.config['SMTP_SENDER']
+
+    if not sender:
         current_app.logger.warning("SMTP_SENDER not set. Skipping email send.")
         return
 
@@ -30,10 +32,13 @@ def send_email(to_email, subject, body):
         current_app.logger.error(f"Invalid email address: {to_email}")
         raise ValueError(f"Invalid email address: {to_email}")
 
+    # from and reply-to have to be split due to how Rahti emailing works
+    # they share the same first part but the domain differs
     msg = EmailMessage()
-    msg['From'] = current_app.config['SMTP_SENDER']
+    msg['From'] = f"{sender}@csc.fi"
     msg['To'] = to_email
     msg['Subject'] = subject
+    msg['Reply-To'] = f"{sender}@helsinki.fi"
     msg.set_content(body)
 
     # for some reason SMTP exceptions aren't triggered by bad email addresses with this in Rahti

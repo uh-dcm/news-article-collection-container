@@ -21,32 +21,20 @@ Essentially being able to either copy a bit of json or download a file, which wh
 
 Additional note about requests: some generally cited examples of sites for inspiration were https://www.mediacloud.org/ and https://dl.acm.org/.
 
-## Big problem with Unverified emails
-All of the emails sent from Rahti/CSC are unverified, and get thrown into spam in Gmail. The problem is manyfold and is seemingly more about how CSC and Rahti have set up their system.
-
-IP 86.50.27.5 isn't authorized to send emails for helsinki.fi:
-`spf=fail (sender IP is 86.50.27.5) smtp.mailfrom=helsinki.fi`
-
-This was even though they talked about using university emails to send email.
-
-And dkim, dmarc and general authorization also failed:
-`dkim=none (message not signed) header.d=none`
-`dmarc=fail action=none header.from=helsinki.fi`
-`compauth=fail reason=601`
-
-We recommend being in contact with CSC if you want to solve this. We did contact them, and they instructed to copy their example, which we did, even more precisely in a fork, and it didn't work. They are working on something.
-
 ## Small issues
 - The app doesn't conform properly to small screens.
 - Obviously non-functioning feed addresses like "ttps://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss" and "net::ERR_INCOMPLETE_CHUNKED_ENCODING" are able to pass the current feed add validity check.
-- When registering, it doesn't properly report whether the email was sent successfully or not.
+- When registering, it doesn't properly report whether the email was sent successfully or not. There is only basic email format checking, which means obviously non-emails are notified that emailing wasn't possible but they can still use the app.
 - The data table headers are horizontally misplaced before the data tables are filled with information.
 - Sometimes when hovering the cursor over the toasts they seem to get stuck until the user clicks and moves the cursor around. Maybe this is an intended feature.
 - Feed list checkboxes seem to make the row just a bit taller when checked.
 - After having registered, the user can still visit /register/ and see the register page, although the system does check whether a user exists already and refuses another user, but it could also just redirect to login, after having checked whether the user is also reregistering. Basic /reregister/ without the token could also redirect.
 - One Japanese feed https://assets.wor.jp/rss/rdf/reuters/top.rdf didn't work with process.py unless the newspaper4 installation was in format newspaper4k[all] as the tool instructed in its error report for the particular feed (also suggesting newspaper4k[ja]). There is seemingly nothing about this function in newspaper4k's docs.
 - General query wouldn't want to work with text and url query. Fixing one issue with that algorithm made another issue pop up, and fixing that made a third pop up. Just forced one side at a time. The query_processor algorithm can probably be simplified since the final one has remnants of trying to make them work together.
+- Word cloud might be more efficient if the counting happened at backend.
+- The flask-cors dependency in requirements.txt wasn't set to any specific version, as the 4.0.1 has a vulnerability: https://github.com/corydolphin/flask-cors/issues/362. In time an update should roll around, but it might take a while. The other current vulnerability, concerning d3-color, is seemingly caused by react-d3-cloud. Might be useful to install newest d3-color separately momentarily as was done with the nltk bug.
 - App would probably run a bit better on PostgreSQL, which would need to be changed at the original collector.
+- The data/feeds.txt might be possible to simplify with the original rss-fetcher repo if an empty feeds.txt inside a data folder is already part of it, thus making the creation of the data folder in the Dockerfile here unnecessary too.
 
 ## Dependency updates
 The workflows, package.json, requirements.txt and requirements-dev.txt contain the dependency information, so if you want to try to fix an issue by updating the dependencies, update the version numbers in these. Note that ESLint was not able to updated to the latest 9.7.0 version at the time due to another dependency requiring it to be 8.57.0 or lower. Likewise for other dependencies, updates for them might break down other things.

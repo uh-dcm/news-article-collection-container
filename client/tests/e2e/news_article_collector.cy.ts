@@ -173,12 +173,12 @@ describe('News Article Collector App', () => {
 
     cy.wait(1000);
 
-    cy.get('button:contains("Search")')
+    cy.get('button:contains("Search")', { timeout: 3000 })
       .find('svg')
       .should('have.class', 'mr-2 h-4 w-4')
       .click({ force: true });
 
-    cy.wait(1000);
+    cy.wait(3000);
 
     cy.document().then((doc) => {
       const yleCount = (doc.body.innerText.match(/yle/gi) || []).length;

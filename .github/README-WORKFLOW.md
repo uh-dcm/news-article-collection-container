@@ -6,6 +6,8 @@ There are 4 workflows: main, release, playground and local.
 - `playground.yml` is for the playground branch which as name implies is for playing around and testing things that can't be tested locally in development
 - `local.yml` is a customized workflow for local runs
 
+IMPORTANT: set GitHub Actions secrets DOCKERHUB_USERNAME as your Dockerhub username, DOCKERHUB_TOKEN as your Dockerhub access token and SMTP_SENDER as the first part of your csc.fi email address (as in everything before @csc.fi), which is also at current time shared with the helsinki.fi address of the same name that is used for the email's reply-to address. The email address is in a secret for easy adjustability without having to touch the code, a bit of extra security and also to reduce the spam email it receives.
+
 ```mermaid
 graph TB
     Start([Push to non-playground branch]) --> Trigger[Trigger CI for Main]

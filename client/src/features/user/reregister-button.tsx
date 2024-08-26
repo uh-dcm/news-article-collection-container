@@ -62,7 +62,7 @@ const ReregisterButton: React.FC = () => {
           >
             Do you wish to reregister your email and password? It will not
             affect the collected data or fetching. You will receive a reset link
-            to your email. (Be aware that the sender is "Unverified".)
+            to your email.
           </AlertDialog.Description>
           <div className="flex justify-end gap-[25px]">
             <AlertDialog.Cancel asChild>

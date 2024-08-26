@@ -18,7 +18,7 @@ from src.views.data_export import export_manager
 def init_routes(app):
     """
     Configures the basic routes for the app. Used by create_app().
-    The index, 9 admin/user and 9 article data related.
+    The index, 9 admin/user and 11 article data related.
     """
     log_file_path = app.config['LOG_FILE_PATH']
 

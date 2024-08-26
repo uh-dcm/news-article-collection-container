@@ -71,3 +71,24 @@ def test_exporting_no_format(client):
     """Tests no format export."""
     response = client.get('/api/articles/export')
     assert response.status_code == 404
+
+@pytest.mark.usefixtures("setup_and_teardown")
+def test_get_query_export_json(client):
+    """Test json query export without last searched ids."""
+    response = client.get('/api/articles/export_query?format=json')
+    assert response.status_code == 200
+    assert response.content_type == 'application/json'
+
+@pytest.mark.usefixtures("setup_and_teardown")
+def test_get_query_export_csv(client):
+    """Test csv query export without last searched ids."""
+    response = client.get('/api/articles/export_query?format=csv')
+    assert response.status_code == 200
+    assert response.content_type == 'text/csv; charset=utf-8'
+
+@pytest.mark.usefixtures("setup_and_teardown")
+def test_get_query_export_parquet(client):
+    """Test parquet query export without last searched ids."""
+    response = client.get('/api/articles/export_query?format=parquet')
+    assert response.status_code == 200
+    assert response.content_type == 'application/octet-stream'
