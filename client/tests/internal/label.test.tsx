@@ -29,7 +29,8 @@ describe('Label component', () => {
     render(<Label><strong>Bold Label</strong></Label>);
     const labelElement = screen.getByText('Bold Label');
     expect(labelElement).toBeInTheDocument();
-    expect(labelElement.tagName).toBe('STRONG');
+    //expect(labelElement.tagName).toBe('STRONG');
+    expect(labelElement.tagName).to.deep.equal('STRONG'); // Use deep equality check
   });
 
  /*  it('renders empty label component', () => {

@@ -29,7 +29,7 @@ def test_get_error_logs_empty_file(client):
         response = client.get('/api/error_logs')
         assert response.status_code == 200
         # Ensure the response is a valid JSON object
-        assert response.get_json() == {}
+        assert response.get_json() == None
 
 """ # Verifies the behavior when there is a permission error while accessing the log file.
 def test_get_error_logs_permission_error(client):

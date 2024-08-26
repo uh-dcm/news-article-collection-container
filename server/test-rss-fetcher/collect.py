@@ -1,0 +1,1 @@
+print("Bla bla bla collect script")

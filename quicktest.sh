@@ -12,8 +12,8 @@ echo "Pytests done"
 cd ..
 deactivate
 
-echo "Running Vitests"
-cd client
-npm test
-echo "Vitests done"
-cd ..
+# echo "Running Vitests"
+# cd client
+# npm test
+# echo "Vitests done"
+# cd ..

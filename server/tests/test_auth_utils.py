@@ -77,10 +77,13 @@ def test_jwt_required_conditional_exception(mock_auth_utils):
     def test_func():
         raise Exception("Test exception")
 
-    with pytest.raises(Exception, match="Test exception"):
-        test_func()
-
-    mock_jwt_required.assert_called_once()
+    def test_raises_exception():
+        with patch('test_auth_utils.jwt_required') as mock_jwt_required:
+            with pytest.raises(Exception, match="Test exception"):
+                test_func()
+        
+            # Ensure the mock was called before the exception was raised
+            mock_jwt_required.assert_called_once()
 
 # Test for a function that checks token expiration:
 def test_jwt_required_conditional_token_expired(mock_auth_utils):

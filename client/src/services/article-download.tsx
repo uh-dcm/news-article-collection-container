@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
 import authClient from '@/services/authclient';
-
+ 
 type ToastOptions = {
   loading: string;
   description: string | null;
@@ -8,24 +8,28 @@ type ToastOptions = {
   error: (error: string) => string;
 };
 
-export const handleArticleDownload = async (
-  format: 'json' | 'csv' | 'parquet',
-  isQuery: boolean = false,
-  setIsDisabled: (value: boolean) => void
-) => {
-  toast.dismiss();
-  setIsDisabled(true);
-
-  const toastOptions: ToastOptions = {
-    loading: 'Downloading...',
-    description: 'Please note that the process might take some time.',
-    success: (msg: string) => msg,
-    error: (error: string) => {
-      console.error('Error downloading:', error);
-      return 'Failed to download the file. Have you fetched articles yet?';
-    },
-  };
-
+  export const handleArticleDownload = async function articleDownload({
+      // format,
+      // isQuery,
+      setIsDisabled
+    }: {
+      format: 'json' | 'csv' | 'parquet',
+      isQuery?: boolean,
+      setIsDisabled: () => void
+    }){ () => 
+        toast.dismiss();
+        setIsDisabled(true);
+    }
+        const toastOptions: ToastOptions = {
+          loading: 'Downloading...',
+          description: 'Please note that the process might take some time.',
+          success: (msg: string) => msg,
+          error: (error: string) => {
+            console.error('Error downloading:', error);
+            return 'Failed to download the file. Have you fetched articles yet?';
+          }
+        }
+    
   toast.promise(async () => {
     try {
       const endpoint = isQuery ? '/api/articles/export_query' : '/api/articles/export';
@@ -47,5 +51,4 @@ export const handleArticleDownload = async (
     } finally {
       setIsDisabled(false);
     }
-  }, toastOptions);
-};
+  },toastOptions);
