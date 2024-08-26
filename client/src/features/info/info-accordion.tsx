@@ -89,9 +89,8 @@ export default function InfoAccordion({
               </li>
             </ol>
             <p className="mt-2">
-              Note: You can stop fetching at any time without affecting your
-              feed list. Reactivating will restart the fetching process
-              immediately.
+              You can stop fetching at any time without affecting your feed
+              list. Reactivating will restart the fetching process immediately.
             </p>
             <p className="mt-2">
               Be mindful of the size limit of your environment. The data size

@@ -21,7 +21,7 @@ def jwt_required_conditional(fn):
 def get_user_data():
     """
     Getting user data from the user data file.
-    Used by many functions in user_management.py and password_resetting.py.
+    Used by many functions in user_management.py and reregistration.py.
     """
     file_path = os.path.join(current_app.config['FETCHER_FOLDER'], 'data', 'user.json')
     if os.path.exists(file_path):
@@ -32,7 +32,7 @@ def get_user_data():
 def set_user_data(data):
     """
     Saving user data to the data folder in user file.
-    Used by user_management.register() and password_resetting.reset_password().
+    Used by user_management.register().
     """
     file_path = os.path.join(current_app.config['FETCHER_FOLDER'], 'data', 'user.json')
     with open(file_path, 'w', encoding='utf-8') as f:
