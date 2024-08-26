@@ -2,7 +2,8 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, it, expect, vi } from 'vitest';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
 
 const SonnerComponent: React.FC = () => {
   const showToast = () => {
@@ -18,9 +19,13 @@ const SonnerComponent: React.FC = () => {
 };
 
 vi.mock('sonner', () => ({
-  toast: vi.fn(),
-  Toaster: () => <div>Test</div>,
+  toast: vi.fn((message) => {
+    document.body.innerHTML += `<div class="toaster">${message}</div>`;
+  }),
+  Toaster: () => null,
 }));
+
+vi.mock('next-themes', () => ({ useTheme: () => ({ theme: 'light' }) }));
 
 describe('Sonner component', () => {
   it('renders sonner component and shows toast', () => {
@@ -30,5 +35,6 @@ describe('Sonner component', () => {
     fireEvent.click(buttonElement);
     
     expect(toast).toHaveBeenCalledWith('Bla bla');
+    expect(document.querySelector('.toaster')).toHaveTextContent('Bla bla');
   });
 });
