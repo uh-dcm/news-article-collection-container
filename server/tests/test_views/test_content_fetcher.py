@@ -7,11 +7,6 @@ from src.views.data_acquisition.content_fetcher import run_collect_and_process, 
 from unittest.mock import patch
 from tests.test_views import test_content_fetcher as app;
 
-""" @pytest.fixture
-def client():
-    with app.test_client() as client:
-        yield client
- """
 def test_start_fetch(client):
     """Tests /api/start when not yet fetching."""
     response = client.post('/api/start')
@@ -170,37 +165,6 @@ def test_run_subprocess_exception(mock_run_subprocess, client):
     assert response.status_code == 409
     assert response.json['status'] == "already running"
 
-# Test for checking the status after an exception:
-""" @unittest.mock.patch('src.views.data_acquisition.content_fetcher.run_collect_and_process')
-def test_status_after_exception(mock_run_collect_and_process, client):
-    #Tests the status after an exception in run_collect_and_process.
-    mock_run_collect_and_process.side_effect = Exception("Test exception")
-    #client.post('/api/start')
-    response = client.get('/api/status')
-    assert response.status_code == 204
- """
-# Test for handling exceptions in run_collect_and_process:
-""" def test_run_collect_and_process_exception(app):
-    #Tests run_collect_and_process() handling exceptions.
-    with app.app_context():
-        with unittest.mock.patch(
-                'src.utils.processing_status.ProcessingStatus.get_status',
-                return_value=False
-            ), \
-             unittest.mock.patch(
-                'src.utils.processing_status.ProcessingStatus.set_status'
-            ), \
-             unittest.mock.patch(
-                'src.views.data_acquisition.content_fetcher.run_subprocess',
-                side_effect=Exception("Test exception")
-            ) as mock_run_subprocess, \
-             unittest.mock.patch('os.path.exists', return_value=True):
-
-            with pytest.raises(Exception, match="Test exception"):
-                run_collect_and_process()
-
-            assert mock_run_subprocess.call_count == 1 """
-
 # Test for checking the status before and after run_collect_and_process:
 def test_run_collect_and_process_status_change(app):
     """Tests status change before and after run_collect_and_process()."""
@@ -257,71 +221,3 @@ def test_run_subprocess(app):
             run_subprocess('test_script.py')
 
             mock_subprocess.assert_called_once()
-""" 
-# Test for verifying the subprocess call arguments:
-def test_run_subprocess_with_args(app):
-    """#Tests run_subprocess() with arguments."""
-    # with app.app_context():
-    #     with unittest.mock.patch('subprocess.run') as mock_subprocess:
-    #         mock_subprocess.return_value.stdout = "Test output"
-    #         mock_subprocess.return_value.stderr = "Test error"
-
-    #         run_subprocess('test_script.py', '--arg1', 'value1')
-    #         run_subprocess('test_script.py')
-
-    #         mock_subprocess.assert_called_once_with(
-    #             ['python', 'test_script.py', '--arg1', 'value1'],
-    #             check=True,
-    #             capture_output=True,
-    #             text=True
-    #         ) """
-
-def test_run_subprocess_with_args(app):
-    """Tests run_subprocess() with arguments."""
-    with app.app_context():
-        with unittest.mock.patch('subprocess.run') as mock_subprocess:
-            mock_subprocess.return_value.stdout = "Test output"
-            mock_subprocess.return_value.stderr = "Test error"
-
-            # Check that correct call is made
-            run_subprocess('test_script.py')
-""" 
-            mock_subprocess.assert_called_once_with(
-                ['python', 'test_script.py', '--arg1', 'value1'],
-                check=True,
-                capture_output=True,
-                text=True 
-            )"""
-
-# Test for handling subprocess exceptions:
-""" def test_run_subprocess_exception(app):
-    #Tests run_subprocess() handling exceptions.
-    with app.app_context():
-        with unittest.mock.patch('subprocess.run', side_effect=Exception("Test exception")) as mock_subprocess:
-            with pytest.raises(Exception, match="Test exception"):
-                run_subprocess('test_script.py')
-
-            mock_subprocess.assert_called_once_with(
-                ['python', 'test_script.py'],
-                check=True,
-                capture_output=True,
-                text=True
-            )
- """
-# Test for verifying the subprocess output:
-""" def test_run_subprocess_output(app):
-   #Tests run_subprocess() output.
-    with app.app_context():
-        with unittest.mock.patch('subprocess.run') as mock_subprocess:
-            mock_subprocess.return_value.stdout = "Test output"
-            mock_subprocess.return_value.stderr = "Test error"
-
-            output = run_subprocess('test_script.py')
-            output = "Test output" # remove this, after test_script.py investigation
-            assert output == "Test output"
-            mock_subprocess.assert_called_once_with(
-                ['python', 'test_script.py'],
-                check=True,
-                capture_output=True,
-                text=True
-            ) """

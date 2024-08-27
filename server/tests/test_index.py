@@ -6,10 +6,8 @@ Tests basic index route responses and functions in routes.py.
 # Additions:
 # Added test_invalid_token to check the response for an invalid token.
 # Added test_missing_token to check the response when no token is provided.
-# Added test_protected_route_without_token to test access to a protected route 
-# without a token.
-# Added test_protected_route_with_valid_token to test access to a protected route 
-# with a valid token.
+# Added test_protected_route_without_token to test access to a protected route without a token.
+# Added test_protected_route_with_valid_token to test access to a protected route with a valid token.
 
 import os
 import shutil

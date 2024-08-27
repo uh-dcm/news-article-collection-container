@@ -78,49 +78,6 @@ class Article:
         self.id = id
         self.content = content
 
-""" @pytest.fixture
-def setup_and_teardown_for_large_dataset(engine):
-    base_dir = config.Config.FETCHER_FOLDER
-    data_dir = os.path.join(base_dir, 'data')
-
-    os.makedirs(data_dir, exist_ok=True)
-
-    with open(os.path.join(data_dir, 'feeds.txt'), 'w', encoding='utf-8') as f:
-        f.write('')
-
-    with open(os.path.join(base_dir, 'collect.py'), 'w', encoding='utf-8') as f:
-        f.write('print("Bla bla bla collect script")')
-
-    with open(os.path.join(base_dir, 'process.py'), 'w', encoding='utf-8') as f:
-        f.write('print("Bla bla bla process script")')
-
-    try:
-        conn = engine.connect()
-        trans = conn.begin()
-        fill_test_database(conn)
-        
-        # Populate the database with a large dataset
-        articles = [Article(id=i, content="Some content") for i in range(150)]
-        
-        # Use the session to add and commit the articles
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        session.add_all(articles)
-        session.commit()
-        trans.commit()
-    except Exception as e:
-        trans.rollback()
-        raise e
-    finally:
-        conn.close()
-
-    yield
-
-    # Teardown: Clean up the data directory after the test
-    if os.path.exists(data_dir):
-        shutil.rmtree(data_dir)
-
- """
 Base = declarative_base()
 class User(Base):
     __tablename__ = 'users'
@@ -154,18 +111,8 @@ def test_user_exists_true(session):
     user = session.query(User).filter_by(name='Test User').first()
     assert user is not None
 
-# The clean_database fixture ensures that the database is cleaned up after each test, preventing side effects between tests.
-# Add a fixture for cleaning up the database after each test:
-""" @pytest.fixture(scope='function', autouse=True)
-def clean_database(engine):
-    #Cleans up the database after each test.
-    connection = engine.connect()
-    transaction = connection.begin()
-
-    yield
-
-    transaction.rollback() #this need the rollback parameter to be set in sqlite
-    connection.close() """
+# The database is cleaned up after each test, preventing side effects between tests.
+# A fixture for cleaning up the database after each test:
 
 @pytest.fixture(scope='function', autouse=True)
 def clean_database(engine):
@@ -182,7 +129,7 @@ def clean_database(engine):
     session.rollback()
     session.close()
     connection.close()
-    
+
 # a fixture for setting up a temporary directory for file operations:
 # ensures that no files are left behind after tests.
 @pytest.fixture(scope='function')

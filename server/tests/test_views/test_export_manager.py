@@ -114,15 +114,3 @@ def test_exporting_no_format(client):
     response = client.get('/api/articles/export?format=invalid')
     assert response.status_code == 404
     assert response.json['message'] == "No articles found. Please fetch the articles first."
-
-# Test for Large Dataset: Simulate exporting a large dataset to check performance and response.
-""" 
-@pytest.mark.usefixtures("setup_and_teardown_for_large_dataset")
-def test_exporting_large_dataset(client):
-    #Tests exporting a large dataset.
-    # Assuming setup_and_teardown populates the database with a large dataset
-    response = client.get('/api/articles/export?format=json')
-    assert response.status_code == 200
-    assert response.content_type == 'application/json'
-    assert len(response.json) > 100  # Example check for large dataset
- """

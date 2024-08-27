@@ -17,7 +17,6 @@ describe('Label component', () => {
 
   //New tests:
   //Test for variations of the Label component (e.g., with different text, with HTML elements).
-  //Test for edge cases like empty labels.
 
   it('renders label component with different text', () => {
     render(<Label>Test Label</Label>);
@@ -32,10 +31,4 @@ describe('Label component', () => {
     //expect(labelElement.tagName).toBe('STRONG');
     expect(labelElement.tagName).to.deep.equal('STRONG'); // Use deep equality check
   });
-
- /*  it('renders empty label component', () => {
-    render(<Label></Label>);
-    const labelElement = screen.getByText('');
-    expect(labelElement).toBeInTheDocument();
-  }); */
 });

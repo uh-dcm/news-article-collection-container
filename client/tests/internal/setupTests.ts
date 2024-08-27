@@ -286,25 +286,7 @@ describe('API handlers', () => {
   });
 });
 
-/* describe('API handlers', () => {
-  it('should fetch feed URLs', async () => {
-    const serverUrl = 'http://localhost:4000';
-    try {
-      const response = await fetch(`${serverUrl}/api/get_feed_urls`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      expect(data).to.deep.equal(['https://www.blubblub.com/feed/']);
-    } catch (error) {
-      console.error('Fetch failed:', error);
-      throw error;
-    }
-  });
-  }) */
-
   // Testing with mocked server:
-  
   describe('API handlers', () => {
     it('should fetch feed URLs', async () => {
       const serverUrl = 'http://localhost:4000';

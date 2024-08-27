@@ -4,7 +4,6 @@ Tests query_processor.py route responses and functions.
 # Added new test cases:
 # Test for Invalid Query Parameter: Ensure the system handles invalid query parameters gracefully.
 # Test for Special Characters in Query: Verify the behavior when the search query contains special characters.
-# Test for Large Query Result: Simulate a search query that returns a large number of results to check performance and response.
 
 from unittest.mock import patch
 from sqlalchemy.exc import SQLAlchemyError
@@ -120,16 +119,3 @@ def test_get_search_results_special_characters(client):
     assert response.status_code == 200
     assert isinstance(response.json, dict)
     assert response.json == {'data': [], 'page': 1, 'per_page': 10, 'total_count': 0}
-
-# Simulate a search query that returns a large number of results to check performance 
-# and response.
-""" @pytest.mark.usefixtures("setup_and_teardown_for_large_dataset")
-def test_get_search_results_large_query_result(client):
-    
-    # Tests querying that returns a large number of results.
-    # Uses db setup fixture.
-    
-    response = client.get('/api/articles/search', query_string={'searchQuery': 'common_term'})
-    assert response.status_code == 200
-    assert isinstance(response.json, list)
-    assert len(response.json) > 100  # Example check for large result set """
