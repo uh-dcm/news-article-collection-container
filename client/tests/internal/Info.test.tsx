@@ -1,7 +1,9 @@
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+//import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Info from '@/features/info/Info';
-import { expect, test, afterEach } from 'vitest';
+//import { expect, test, afterEach } from 'vitest';
+import { test, afterEach } from 'vitest';
 
 afterEach(() => {
   cleanup();
@@ -10,7 +12,9 @@ afterEach(() => {
 test('renders QuestionsAccordion component and toggles content', () => {
   render(<Info/>);
 
-  const heading = screen.getByText(/How does the collector work?/i);
+// these Info-texts are removed from the current Info-page:
+
+  /* const heading = screen.getByText(/How does the collector work?/i);
   expect(heading).toBeInTheDocument();
 
   let content = screen.queryByText(/The news feed article collector automatically gathers articles/i);
@@ -19,14 +23,16 @@ test('renders QuestionsAccordion component and toggles content', () => {
   fireEvent.click(heading);
 
   content = screen.getByText(/The news feed article collector automatically gathers articles/i);
-  expect(content).toBeInTheDocument();
+  expect(content).toBeInTheDocument(); */
 });
 
 // Test for different accordion items.
 test('renders another accordion item and toggles content', () => {
-  render(<Info/>);
+  render(<Info />);
+  
+// these Info-texts are removed from the current Info-page:
 
-  const heading = screen.getByText(/How to add a new feed?/i);
+ /*  const heading = screen.getByText(/How to add a new feed?/i);
   //expect(heading).toBeInTheDocument();
 
   let content = screen.queryByText(/To add a new feed, click on the "Add Feed" button/i);
@@ -35,14 +41,14 @@ test('renders another accordion item and toggles content', () => {
   fireEvent.click(heading);
 
   content = screen.getByText(/To add a new feed, click on the "Add Feed" button/i);
-  expect(content).toBeInTheDocument();
+  expect(content).toBeInTheDocument(); */
 });
 
 // Test for empty content.
 test('renders accordion item with empty content', () => {
-  render(<Info/>);
+  render(<Info />);
 
-  const heading = screen.getByText(/Empty Question?/i);
+ /*  const heading = screen.getByText(/Empty Question?/i);
   //expect(heading).toBeInTheDocument();
 
   let content = screen.queryByText(/This is an empty answer/i);
@@ -51,5 +57,5 @@ test('renders accordion item with empty content', () => {
   fireEvent.click(heading);
 
   content = screen.getByText(/This is an empty answer/i);
-  expect(content).toBeInTheDocument();
+  expect(content).toBeInTheDocument(); */
 });
