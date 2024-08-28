@@ -41,12 +41,6 @@ def create_app(testing=False):
     with app.app_context():
         resource_management.init_db_engine(app)
 
-    # Flask teardown function to cleanly dispose of resources
-    @app.teardown_appcontext
-    def cleanup_resources(_=None):
-        resource_management.shutdown_scheduler(app)
-        resource_management.dispose_engine(app)
-
     # routes
     init_routes(app)
 

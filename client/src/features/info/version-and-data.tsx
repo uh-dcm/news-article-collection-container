@@ -31,7 +31,9 @@ const VersionInfo = () => {
           <Dialog.Overlay className="fixed inset-0 bg-black/50" />
           <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg">
             <Dialog.Title className="text-lg font-semibold mb-2">Database Size</Dialog.Title>
-            <p>{dataSize ? `The current database size is ${dataSize}` : 'Database is empty'}</p>
+            <Dialog.Description>
+              {dataSize ? `The current database size is ${dataSize}` : 'Database is empty'}
+            </Dialog.Description>
             <Dialog.Close asChild>
               <Button className="mt-4">Close</Button>
             </Dialog.Close>
