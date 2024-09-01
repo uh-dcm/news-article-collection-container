@@ -1,76 +1,65 @@
 """
 This service converts db to json, csv and parquet. Used by export_manager.py.
+This is optimized for lowering peak memory usage, since memory is so tight on Rahti.
+Going row by row ended up lowering peak memory usage massively. Pandas also seemed
+to be a bit heavy on memory.
 """
-import os
+import io
 import json
 import csv
-from flask import current_app
+import pyarrow as pa
+import pyarrow.parquet as pq
 
-def convert_db_to_format(df, file_format, base_filename):
+def convert_db_to_json(result):
     """
-    Delegates the converting of the dataframe to
-    convert_db_to_json, conver_db_to_csv and convert_db_to_parquet.
-    Called by export_manager.convert_and_send().
+    Convert db to .json. Called by convert_db_to_format().
+    This just starts streaming over rows immediately.
     """
-    if file_format == 'json':
-        return convert_db_to_json(df, base_filename)
-    elif file_format == 'csv':
-        return convert_db_to_csv(df, base_filename)
-    elif file_format == 'parquet':
-        return convert_db_to_parquet(df, base_filename)
-    else:
-        raise ValueError("Unsupported format")
+    yield '['
+    first = True
+    for row in result:
+        if not first:
+            yield ','
+        else:
+            first = False
+        yield json.dumps(row._asdict(), ensure_ascii=False, default=str)
+    yield ']'
 
-def convert_db_to_json(df, base_filename):
+def convert_db_to_csv(result):
     """
-    True convert of db to .json. Called by convert_db_to_format().
-    Uses dump instead of regular Pandas export, as timestamps needed as strings
-    and URL not to be escaped.
+    Convert db to .csv. Called by convert_db_to_format().
+    This holds each row in local memory as file-like with io then streams it over.
     """
-    json_file_path = os.path.join(
-        current_app.config["FETCHER_FOLDER"],
-        "data",
-        f"{base_filename}.json"
-    )
-    with open(json_file_path, 'w', encoding='utf-8') as file:
-        json.dump(
-            df.to_dict(orient='records'),
-            file,
-            indent=4,
-            ensure_ascii=False,
-            default=str
-        )
-    return f'{base_filename}.json'
+    output = io.StringIO()
+    writer = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC, escapechar='\\')
 
-def convert_db_to_csv(df, base_filename):
-    """
-    True convert of db to .csv. Called by convert_db_to_format().
-    Quotes everything but numeric, and uses backslash as escapechar.
-    """
-    csv_file_path = os.path.join(
-        current_app.config["FETCHER_FOLDER"],
-        "data",
-        f"{base_filename}.csv"
-    )
-    df.to_csv(
-        csv_file_path,
-        index=False,
-        quoting=csv.QUOTE_NONNUMERIC,
-        escapechar='\\',
-        encoding='utf-8'
-    )
-    return f'{base_filename}.csv'
+    # headers
+    writer.writerow(result.keys())
+    yield output.getvalue()
+    output.seek(0)
+    output.truncate(0)
 
-def convert_db_to_parquet(df, base_filename):
+    # rows
+    for row in result:
+        writer.writerow(row)
+        yield output.getvalue()
+        output.seek(0)
+        output.truncate(0)
+
+def convert_db_to_parquet(result, output_file_path):
     """
-    True convert of db to .parquet. Called by convert_db_to_format().
-    Doesn't require any special settings. Pandas needed Pyarrow
-    for this however.
+    Convert db to .parquet. Called by convert_db_to_format().
+    Unlike JSON and CSV, Parquet needs to be built into a whole file first locally
+    before being streamed over. It would also be possible to build many small Parquet
+    files and then send those over but it's pretty complex. Even rather than this
+    row by row memory saving build, Parquet's compression would benefit
+    from bigger batches, but there was an immediate spike in peak memory usage.
     """
-    parquet_file_path = os.path.join(
-        current_app.config["FETCHER_FOLDER"],
-        "data",
-        f"{base_filename}.parquet"
-    )
-    df.to_parquet(parquet_file_path, index=False)
-    return f'{base_filename}.parquet'
+    columns = list(result.keys())
+    schema = pa.schema([(col, pa.string()) for col in columns])
+
+    with pq.ParquetWriter(output_file_path, schema) as writer:
+        for row in result:
+            arrays = [pa.array([str(getattr(row, col, ''))]) for col in columns]
+            batch = pa.RecordBatch.from_arrays(arrays, schema=schema)
+            writer.write_batch(batch)

@@ -14,5 +14,4 @@ flask_apscheduler==1.13.1
 sqlalchemy==2.0.32
 
 # file conversion
-pandas==2.2.2
 pyarrow==17.0.0

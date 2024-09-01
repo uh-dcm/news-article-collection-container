@@ -3,13 +3,17 @@ This handles db file export routes. Called by routes.py.
 """
 import os
 import time
-import pandas as pd
-from flask import jsonify, send_from_directory, request, current_app
+from flask import jsonify, request, current_app, stream_with_context
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import text
 
 from src.utils.resource_management import check_articles_table
 from src.utils.processing_status import ProcessingStatus
-from src.views.data_export.format_converter import convert_db_to_format
+from src.views.data_export.format_converter import (
+    convert_db_to_json,
+    convert_db_to_csv,
+    convert_db_to_parquet
+)
 
 def get_all_export():
     """
@@ -20,7 +24,7 @@ def get_all_export():
     while ProcessingStatus.get_status():
         time.sleep(1)
 
-    query = "SELECT * FROM articles"
+    query = text("SELECT * FROM articles")
     return export_articles(query, request.args.get('format'))
 
 def get_query_export():
@@ -40,9 +44,9 @@ def get_query_export():
     )
 
     if last_search_ids:
-        query = f"SELECT * FROM articles WHERE id IN ({','.join(map(str, last_search_ids))})"
+        query = text(f"SELECT * FROM articles WHERE id IN ({','.join(map(str, last_search_ids))})")
     else:
-        query = "SELECT * FROM articles"
+        query = text("SELECT * FROM articles")
 
     return export_articles(query, request.args.get('format'), "articles_query")
 
@@ -57,8 +61,15 @@ def export_articles(query, file_format, base_filename="articles"):
         if db_check_error:
             return db_check_error
 
-        df = pd.read_sql_query(query, current_app.db_engine)
-        return convert_and_send(df, file_format, base_filename)
+        fetcher_folder = current_app.config["FETCHER_FOLDER"]
+        output_file_path = os.path.join(
+            fetcher_folder,
+            "data",
+            f"{base_filename}.{file_format}"
+        )
+
+        with current_app.db_engine.connect() as conn:
+            return convert_and_send(conn, query, file_format, output_file_path)
     except SQLAlchemyError as e:
         current_app.logger.exception("Database error when downloading")
         return jsonify({
@@ -69,16 +80,62 @@ def export_articles(query, file_format, base_filename="articles"):
         current_app.logger.exception("Downloading articles resulted in failure")
         return jsonify({"status": "error", "message": str(e)}), 400
 
-def convert_and_send(df, file_format, base_filename):
+def convert_and_send(conn, query, file_format, output_file_path):
     """
-    Converts the dataframe to the specified format via
-    format_converter.convert_db_to_format(). Called by export_articles().
-    Lastly sends the converted file on via Flask.
+    Converts the db data to the specified format via format_converter.py.
+    Separates JSON and CSV downloads from Parquet, which needs to be built whole
+    locally before being sent over. However it is able to send knowledge of the total
+    size, enabling percentages in the client toast. Called by export_articles().
     """
     try:
-        output_file_path = convert_db_to_format(df, file_format, base_filename)
-        directory = os.path.abspath(os.path.join(current_app.config["FETCHER_FOLDER"], "data"))
-        return send_from_directory(directory, output_file_path, as_attachment=True)
+        result = conn.execute(query)
+
+        content_type = {
+            'json': 'application/json',
+            'csv': 'text/csv',
+            'parquet': 'application/octet-stream',
+        }.get(file_format, 'application/octet-stream')
+
+        if file_format in ['json', 'csv']:
+            # json and csv can just send chunks over as they are converted
+            convert_func = convert_db_to_json if file_format == 'json' else convert_db_to_csv
+
+            def generate():
+                yield from convert_func(result)
+        elif file_format == 'parquet':
+            # parquet needs to build the file locally first before streaming
+            # if it runs out of space it still removes the file
+            try:
+                convert_db_to_parquet(result, output_file_path)
+            except Exception as e:
+                if os.path.exists(output_file_path):
+                    os.remove(output_file_path)
+                raise e
+
+            file_size = os.path.getsize(output_file_path)
+
+            def generate():
+                with open(output_file_path, 'rb') as file:
+                    while True:
+                        chunk = file.read(8192)
+                        if not chunk:
+                            break
+                        yield chunk
+                os.remove(output_file_path)
+        else:
+            return jsonify({"status": "error", "message": "Unsupported format"}), 400
+
+        response = current_app.response_class(
+            stream_with_context(generate()),
+            content_type=content_type
+        )
+        response.headers.set(
+            'Content-Disposition', f'attachment; filename="{os.path.basename(output_file_path)}"'
+        )
+        if file_format == 'parquet':
+            response.headers.set('Content-Length', file_size)
+        return response
+
     except Exception as e:
         current_app.logger.exception("Exporting articles resulted in failure")
         return jsonify({

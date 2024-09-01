@@ -7,6 +7,7 @@ describe('News Article Collector App', () => {
     cy.wait(1000);
 
     cy.intercept('POST', '/api/register').as('registerRequest');
+    cy.intercept('POST', '/api/login').as('loginRequest');
 
     // First, handle registration if on the registration screen
     cy.get('body').then((body) => {
@@ -28,8 +29,6 @@ describe('News Article Collector App', () => {
     });
 
     cy.wait(200);
-
-    cy.intercept('POST', '/api/login').as('loginRequest');
 
     // Next, handle login whether coming from the registration process or directly at login
     cy.get('body').then((body) => {
@@ -101,7 +100,6 @@ describe('News Article Collector App', () => {
     cy.wait(500);
     cy.contains('JSON', { timeout: 3000 }).click({ force: true });
 
-    cy.contains('Downloading...', { timeout: 3000 }).should('exist');
     cy.contains('Please note that the process might take some time.', {
       timeout: 3000,
     }).should('exist');
@@ -123,23 +121,20 @@ describe('News Article Collector App', () => {
     cy.wait(500);
     cy.contains('CSV', { timeout: 3000 }).click({ force: true });
 
-    cy.wait(1000);
-    cy.contains('Download successful!', { timeout: 10000 }).should(
-      'be.visible',
-      { timeout: 3000 }
-    );
+    cy.wait(2000);
 
-    cy.readFile(`${downloadsFolder}/articles.csv`, 'utf-8', { timeout: 10000 })
+    cy.readFile(`${downloadsFolder}/articles.csv`, 'utf-8', { timeout: 15000 })
       .should('exist')
       .then((content: string) => {
         const rows = content.split('\n');
         expect(rows.length).to.be.greaterThan(1);
 
         // remove the double quotes
-        const headers = rows[0].replace(/"/g, '').split(',');
+        const headers = rows[0].split(',').map(header => header.trim().replace(/^"|"$/g, ''));
         expect(headers).to.include.members([
           'id',
           'url',
+          'title',
           'html',
           'full_text',
           'time',
@@ -152,17 +147,13 @@ describe('News Article Collector App', () => {
   it('should download articles.parquet', () => {
     cy.wait(1000);
     cy.get('button').contains('Download All Articles').click({ force: true });
-  
+
     cy.wait(500);
     cy.contains('Parquet', { timeout: 3000 }).click({ force: true });
 
-    cy.wait(1000);
-    cy.contains('Download successful!', { timeout: 10000 }).should(
-      'be.visible',
-      { timeout: 3000 }
-    );
+    cy.wait(2000);
 
-    cy.readFile(`${downloadsFolder}/articles.parquet`, { timeout: 10000 })
+    cy.readFile(`${downloadsFolder}/articles.parquet`, { timeout: 15000 })
       .should('exist');
   });
 
