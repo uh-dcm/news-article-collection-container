@@ -6,7 +6,12 @@ This is a repository for further development of the news article collection tool
 
 This was worked on as part of the University of Helsinki [Ohjelmistotuotantoprojekti TKT20007](https://github.com/HY-TKTL/TKT20007-Ohjelmistotuotantoprojekti) course for the summer of 2024.
 
-Short action charts for developer and user (see more in [rahti-guide.md](https://github.com/uh-dcm/news-article-collection-container/blob/main/docs/rahti-guide.md)):
+Front page screenshot:
+<p align="center">
+  <img src="./docs/frontpage.jpg" alt="Front Page Screenshot" width="600">
+</p>
+
+Short action charts for developer and user (see more in [rahti-guide.md](./docs/rahti-guide.md)):
 ```mermaid
 graph TD
     subgraph User
@@ -91,10 +96,10 @@ graph TD
 
 ## Development documentation
 
-- [Definition of Done & Practices](https://github.com/uh-dcm/news-article-collection-container/blob/main/docs/dod-practices.md)
+- [Definition of Done & Practices](./docs/dod-practices.md)
 - [Product Backlog](https://github.com/orgs/uh-dcm/projects/3/views/1)
 - Summer 2024 task boards: [Sprint 1](https://github.com/orgs/uh-dcm/projects/6/views/1), [Sprint 2](https://github.com/orgs/uh-dcm/projects/9/views/1), [Sprint 3](https://github.com/orgs/uh-dcm/projects/10/views/1), [Sprint 4](https://github.com/orgs/uh-dcm/projects/11/views/1), [Sprint 5](https://github.com/orgs/uh-dcm/projects/13/views/1), [Sprint 6](https://github.com/orgs/uh-dcm/projects/17/views/1)
-- [Future development](https://github.com/uh-dcm/news-article-collection-container/blob/main/docs/future-development.md)
+- [Future development](./docs/future-development.md)
 
 ## Starting the app locally
 
