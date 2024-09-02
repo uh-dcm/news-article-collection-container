@@ -54,7 +54,7 @@ If you add or change some feature and break a test without understanding how to 
 
 Also, Codecov might be useful to add plus its badge to README.md, but this required the owner to set it up. Nevertheless the runtests.sh generated coverage-reports.html does essentially the same job.
 
-# Possibility of not collecting/downloading HTML
+## Possibility of not collecting/downloading HTML
 For people with CSC billing unit or just storage issues, they might not want the HTML data. Here's a quick sketch of how one could add a button on Info next to Get Data Size button that opens up a Settings window, where it requests data of the settings from backend, and then having received that shows their status. For now there would just be an option to either fetch or not fetch HTML data, having fetch as standard and also informing the user that it's standard. If the user turned it off, and thus the settings.json in the PVC data folder had the HTML fetching off, then when running run_subprocess in content_fetcher.py, the logic would go:
 
 ```python
