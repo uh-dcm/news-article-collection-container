@@ -67,8 +67,8 @@ spec:
               cpu: 100m  # CUSTOMIZE: Adjust size as needed
               memory: 1Gi  # CUSTOMIZE: Adjust size as needed
             limits:
-              cpu: 500m  # CUSTOMIZE: Adjust size as needed, max 4000m not recommended
-              memory: 2Gi  # CUSTOMIZE: Adjust size as needed, max 16gi not recommended
+              cpu: 1Gi  # CUSTOMIZE: Adjust size as needed, max 4000m
+              memory: 16Gi  # CUSTOMIZE: Adjust size as needed, max 16gi
           volumeMounts:
             - name: news-collection-data
               mountPath: /app/server/rss-fetcher/data

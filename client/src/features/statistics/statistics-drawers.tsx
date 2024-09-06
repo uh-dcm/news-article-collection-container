@@ -14,9 +14,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-{
-  /* stats, its drawer and charts */
-}
+
+// stats, its drawer and charts
 import {
   Drawer,
   DrawerContent,
@@ -141,8 +140,7 @@ export default function StatisticsDrawers({
                 Number of articles collected per day
               </DrawerDescription>
             </DrawerHeader>
-            {/* This chart replaces the earlier apex chart, 
-              the timeseries.tsx is left as is, but currently unused */}
+            {/* This chart replaces the earlier apex chart */}
             <ChartContainer config={barConfig} className="h-full">
               <BarChart accessibilityLayer data={statisticData[2]}>
                 <CartesianGrid vertical={false} />
@@ -206,8 +204,9 @@ export default function StatisticsDrawers({
           <div className="mx-auto flex h-[775px] max-h-[95vh] w-full max-w-3xl flex-col">
             <DrawerHeader className="flex-shrink-0 pb-2">
               <DrawerTitle>Word cloud for collected articles</DrawerTitle>
+              {/* Even for many articles it was sometimes just showing a few words, so cut out "200" */}
               <DrawerDescription>
-                200 most frequent words in the articles
+                Most frequent words in the articles
               </DrawerDescription>
             </DrawerHeader>
             <div className="flex-grow overflow-hidden">

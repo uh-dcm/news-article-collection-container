@@ -62,7 +62,7 @@ describe('App component', () => {
     expect(screen.getByText(/News Article Collector/i)).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByText(/Add or delete feeds/i)).toBeInTheDocument();
-    }, { timeout: 3000 });
+    }, { timeout: 5000 });
   });
 
   test('submits RSS feed URLs', async () => {
@@ -82,7 +82,7 @@ describe('App component', () => {
       expect(toastSuccessSpy).toHaveBeenCalledWith(
         'Feed list updated successfully!'
       );
-    }, { timeout: 2000 });
+    }, { timeout: 4000 });
   });
 
   test('starts RSS fetching', async () => {

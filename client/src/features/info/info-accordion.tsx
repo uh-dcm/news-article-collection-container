@@ -98,6 +98,12 @@ export default function InfoAccordion({
               near your limit, try to move your data elsewhere and clear the
               database (see external instructions for that).
             </p>
+            <p className="mt-2">
+              Since storage and memory are so tight on Rahti, the format
+              conversions and downloads are optimized to save Rahti resources.
+              Very very large downloads may cause issues, and especially Parquet
+              downloads for all database data will not work at 3/4 storage usage.
+            </p>
           </AccordionContent>
         </AccordionItem>
 
@@ -114,11 +120,10 @@ export default function InfoAccordion({
             </p>
             <p className="mt-2">
               Advanced search overrides general search. In the advanced search,
-              the inputs are split for each data type. Time is split into start
-              and end time, and inputs for these need to be in the format
-              YYYY-MM-DD HH:MM:SS, also allowing the input of partial values
-              like YYYY-MM or YYYY-MM-DD HH. Additionally, you can perform
-              searches on the more code-like HTML data.
+              the inputs are split for each data type, also enabling HTML searches.
+              Time is split into start and end time, and inputs for these need to
+              be in the format YYYY-MM-DD HH:MM:SS, also allowing the input of
+              partial values like YYYY-MM or YYYY-MM-DD HH.
             </p>
             <p className="mt-2">
               You can use the AND, OR and NOT boolean operators to refine your
@@ -152,8 +157,8 @@ export default function InfoAccordion({
               <li>forest fire OR forest smoke</li>
               <li>fire smoke NOT game</li>
               <li>"forest fire"</li>
-              <li>forest NOT NOTEXT</li>
-              <li>" oulu"</li>
+              <li>NOT NOTEXT</li>
+              <li>" oulu" OR oulu NOT koulu NOT joulu</li>
               <li>2024-08-20 16:40:00</li>
               <li>2024-08-20 16</li>
               <li>2024-08</li>

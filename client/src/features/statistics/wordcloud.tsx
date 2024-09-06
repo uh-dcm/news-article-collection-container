@@ -22,11 +22,13 @@ function wordFreq(text: string): WordData[] {
   const freqMap: Record<string, number> = {};
 
   for (const w of words) {
-    if (w !== '' && !freqMap[w]) freqMap[w] = 0;
-    if (stop_words.includes(w.toLowerCase())) freqMap[w] = 0;
-    if (!isNaN(parseFloat(w))) freqMap[w] = 0;
+    if (w.length >= 2) {
+      if (!freqMap[w]) freqMap[w] = 0;
+      if (stop_words.includes(w.toLowerCase())) freqMap[w] = 0;
+      if (!isNaN(parseFloat(w))) freqMap[w] = 0;
 
-    freqMap[w] += 1;
+      freqMap[w] += 1;
+    }
   }
 
   return Object.keys(freqMap).map((word) => ({
@@ -38,7 +40,7 @@ function wordFreq(text: string): WordData[] {
 const schemeCategory10ScaleOrdinal = scaleOrdinal(schemeCategory10);
 
 export const WordCloudContainer = ({ words }: { words: string[] }) => {
-  const wordCloudRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const moveStep = 50; // pixels
@@ -52,9 +54,10 @@ export const WordCloudContainer = ({ words }: { words: string[] }) => {
   }, [words, wordCloudData]);
 
   const handleSaveImage = async () => {
-    if (wordCloudRef.current) {
-      const canvas = await html2canvas(wordCloudRef.current, {
-        backgroundColor: null // background to transparent, otherwise it's just white
+    if (containerRef.current) {
+      const canvas = await html2canvas(containerRef.current, {
+        backgroundColor: null, // background to transparent, otherwise it's just white
+        scale: 5, // saved resolution
       });
       
       const image = canvas.toDataURL('image/png');
@@ -106,9 +109,8 @@ export const WordCloudContainer = ({ words }: { words: string[] }) => {
   }
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-full overflow-hidden">
       <div 
-        ref={wordCloudRef} 
         className="absolute inset-0"
         style={{ 
           transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
@@ -117,10 +119,10 @@ export const WordCloudContainer = ({ words }: { words: string[] }) => {
       >
         {wordCloudComponent}
       </div>
-      <div className="absolute bottom-2 left-2">
+      <div className="absolute bottom-2 left-2" data-html2canvas-ignore>
         <Button onClick={handleSaveImage} size="sm" variant="secondary">Save as PNG</Button>
       </div>
-      <div className="absolute bottom-2 right-2 flex flex-col items-center">
+      <div className="absolute bottom-2 right-2 flex flex-col items-center" data-html2canvas-ignore>
         <Button onClick={() => moveViewpoint('up')} size="icon" variant="secondary" className="mb-1 h-6 w-6">
           <ArrowUp size={14} />
         </Button>
@@ -136,7 +138,7 @@ export const WordCloudContainer = ({ words }: { words: string[] }) => {
           <ArrowDown size={14} />
         </Button>
       </div>
-      <div className="absolute top-2 right-2 flex flex-col items-center">
+      <div className="absolute top-2 right-2 flex flex-col items-center" data-html2canvas-ignore>
         <Button onClick={() => handleZoom(0.1)} size="icon" variant="secondary" className="mb-1 h-6 w-6">
           <Plus size={14} />
         </Button>
