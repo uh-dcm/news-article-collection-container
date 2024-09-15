@@ -6,7 +6,8 @@ from flask import jsonify
 def get_error_log(log_file_path):
     """
     Returns jsonified error log.
-    Called by routes.init_routes() for route /api/error_log."""
+    Called by routes.init_routes() for route /api/error_log.
+    """
     try:
         with open(log_file_path, 'r', encoding='utf-8') as log_file:
             log_records = log_file.read()

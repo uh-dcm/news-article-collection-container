@@ -1,8 +1,9 @@
-# Don't bother with this yaml unless you're interested in handing out Rahti apps to other people
+# Don't bother with this yaml unless you're interested in handing out smaller Rahti instances of the app to other people for briefly trying it out
 # This is an example of a guest yaml that can be replicated 4 times (max 5 PVC) after initiating the news-collection-complete.yaml (the imagestream in it really)
 # For versions 2-4: just replace the number in all parts that read "news-collection-guest-1"
 # The placeholder news-collection-guest-1 in the address news-collection-guest-1.2.rahtiapp.fi should be changed to something unique, just like in news-collection-complete.yaml
 # Storage max is 100 shared, so with 4 x 5, in news-collection-complete.yaml it should be 80, read rahti-guide.md if you had 100
+# Memory in news-collection-complete.yaml might also need to be decreased, as 16Gi is max
 # Also pay attention to your CSC billing units at my.csc.fi
 ---
 apiVersion: v1

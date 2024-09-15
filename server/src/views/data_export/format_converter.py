@@ -12,7 +12,7 @@ import pyarrow.parquet as pq
 
 def convert_db_to_json(result):
     """
-    Convert db to .json. Called by convert_db_to_format().
+    Convert db to .json. Called by export_manager.convert_and_send().
     This just starts streaming over rows immediately.
     """
     yield '['
@@ -27,7 +27,7 @@ def convert_db_to_json(result):
 
 def convert_db_to_csv(result):
     """
-    Convert db to .csv. Called by convert_db_to_format().
+    Convert db to .csv. Called by export_manager.convert_and_send().
     This holds each row in local memory as file-like with io then streams it over.
     """
     output = io.StringIO()
@@ -48,12 +48,13 @@ def convert_db_to_csv(result):
 
 def convert_db_to_parquet(result, output_file_path):
     """
-    Convert db to .parquet. Called by convert_db_to_format().
+    Convert db to .parquet. Called by export_manager.convert_and_send().
     Unlike JSON and CSV, Parquet needs to be built into a whole file first locally
     before being streamed over. It would also be possible to build many small Parquet
     files and then send those over but it's pretty complex. Even rather than this
     row by row memory saving build, Parquet's compression would benefit
     from bigger batches, but there was an immediate spike in peak memory usage.
+    For very very large files this might need status updates to keep the request alive.
     """
     columns = list(result.keys())
     schema = pa.schema([(col, pa.string()) for col in columns])

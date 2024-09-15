@@ -30,7 +30,7 @@ def start_fetch():
 def stop_fetch():
     """
     Asks scheduler if the job exists, and if it does, tells it to end it.
-    Called by  Called by routes.init_routes() for route /api/stop.
+    Called by routes.init_routes() for route /api/stop.
     """
     if scheduler.get_job('collect_and_process'):
         scheduler.remove_job('collect_and_process')
@@ -78,6 +78,7 @@ def run_collect_and_process():
 def run_subprocess(script_name):
     """
     The actual, once repeated subprocess run with logging for run_collect_and_process().
+    The unique logging style is due to how the subprocess calls return meta info.
     """
     try:
         result = subprocess.run(

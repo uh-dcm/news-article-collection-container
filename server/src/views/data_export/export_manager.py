@@ -52,8 +52,8 @@ def get_query_export():
 
 def export_articles(query, file_format, base_filename="articles"):
     """
-    Queries database for either all or a specified query to export.
-    Passes it to convert_and_send().
+    Prepares export by checking database and readying the export file.
+    Passes the query, the readied file path and a db conn to convert_and_send().
     Called by get_all_export() and get_query_export().
     """
     try:
@@ -83,9 +83,14 @@ def export_articles(query, file_format, base_filename="articles"):
 def convert_and_send(conn, query, file_format, output_file_path):
     """
     Converts the db data to the specified format via format_converter.py.
-    Separates JSON and CSV downloads from Parquet, which needs to be built whole
-    locally before being sent over. However it is able to send knowledge of the total
-    size, enabling percentages in the client toast. Called by export_articles().
+    Called by export_articles(). Separates JSON and CSV downloads from Parquet,
+    which needs to be built whole locally before being sent over, but this also
+    enables sending knowledge of the total Parquet file size, which allows percentage
+    to be shown on the client side. Also note that because we're dealing with SQLite,
+    it appears that the query execution doesn't need "stream_results=True" as SQLite
+    only gets what it needs from the file at the specific time of use. However memory
+    garbage collection might not be working optimally with these Flask downloads,
+    as the memory usage appears to remain the same until the next download?
     """
     try:
         result = conn.execute(query)

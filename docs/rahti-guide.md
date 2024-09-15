@@ -79,7 +79,7 @@ There is an auto-update system (the imagestream) that checks every 15 minutes fo
 
 ## Customizing resources
 
-If you're interested in the customizable storage, cpu and memory fields in the yaml, we recommend maxing out the storage, but being a bit modest with the cpu and memory, although very large resource hungry databases are untested, so these two values may need to be increased.
+If you're interested in the customizable storage, CPU and memory fields in the yaml, we recommend maxing out the storage and memory (limit), but being a bit modest with the CPU, although very large resource hungry databases are untested, so it might need to be increased too.
 
 ### Clearing storage
 
@@ -97,15 +97,15 @@ After that when you fetch again, it should be automatically created anew.
 
 ### Changing CPU and memory
 
-Changing cpu and memory afterwards isn't that difficult. In **Topology**, you can right click on the deployment/pod or in the detailed settings select Actions, and from that dropdown menu select **Edit resource limits**.
+Changing CPU and memory afterwards isn't that difficult. In **Topology**, you can right click on the deployment/pod or in the detailed settings select Actions, and from that dropdown menu select **Edit resource limits**.
 
-Update them to what you want and press save, although note that there is a maximum limit-to-request ratio, and with cpu it's 5. Request is almost like minimum and limit is maximum, although not exactly, as request should be somewhat over what your app usually ever needs, and limit is the absolute maximum limit it can ever get. Going over the limit in peak usage makes the pod crash momentarily.
+Update them to what you want and press save, although note that there is a maximum request-to-limit ratio, and with CPU it's 1:5. Request is almost like minimum and limit is maximum, although not exactly, as request should be somewhat over what your app usually ever needs, and limit is the absolute maximum limit it can ever get. Going over the limit in peak usage makes the pod crash momentarily.
 
 If the Topology view isn't available, click **Project** on the left, then on the next page scroll down a bit until you see section **Inventory** on the left under which is **X Deployments** (X being a number), and click on that, and on the next page your deployment, then there click **YAML** in the tabs. There, look for the memory and cpu fields (CTRL + F may come handy). Not the ones like 'f:memory': {} but ones with values like memory: 1Gi.
 
 ### Changing Storage
 
-Changing storage, if you for example need to accommodate guest apps and need to reduce your storage to 80Gi to fit them under the max 100Gi storage limit, is very difficult on Rahti. Making the PVC smaller isn't possible to begin with, but on top of that Rahti has limitations on what you could regularly do with OpenShift, so growing your filesystem is difficult too. There is an option for adding storage, but it can't use the same mount path. Essentially the easiest and sometimes the only way is to just download your data and redo everything from the start (going through the removal process below), but setting the storage at 80Gi in the yaml the next time.
+Changing storage, if you for example need to accommodate guest apps and need to reduce your storage to 80Gi to fit them under the max 100Gi storage limit, is very difficult on Rahti. Making the PVC smaller isn't possible to begin with, but on top of that Rahti has limitations on what you could regularly do with OpenShift, so growing your filesystem is difficult too. While the size of the PVC is easy to expand, this doesn't expand the actual filesystem size, which can be seen with the aforementioned df -h. Essentially the easiest and sometimes the only way is to just download your data and redo everything from the start (going through the removal process below), but setting the storage at 80Gi in the yaml the next time.
 
 ## Troubleshooting and deployment removal
 
@@ -118,7 +118,7 @@ If needed, the way to remove all of the parts on the web client:
 - **PVC**: Same thing but under **Inventory** click **PersistentVolumeClaims**, then the three dots and **Delete PersistentVolumeClaim**. Deployment that depends on this needs to be removed first.
 - **ImageStream**: Usually doesn't need to be removed, but above left, click on **Developer** and select **Administrator**. In this mode, click **Builds** on the left, and **ImageStreams** under it. Then same as before, three dots and **Delete ImageStream**. Return the upper left mode to Developer afterwards.
 
-Note that sometimes names for things may cause odd issues that don't show up anywhere, leading to a need to try different names. Also, you can compare specific Docker images by removing the `annotations:` block in the live deployment yaml and replacing `image: news-collection:latest` with `image: X/news-collection:vX.X`, replacing the 3 Xs in this with the Docker account and the version number.
+Note that sometimes names for things may cause odd issues that don't show up anywhere, leading to a need to try different names. Also, you can compare specific Docker images by removing the `annotations:` block in the deployment yaml and replacing `image: news-collection:latest` with `image: X/news-collection:vX.X`, replacing the 3 Xs in this with the Docker account and the version number.
 
 ```mermaid
 graph LR

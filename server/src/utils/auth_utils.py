@@ -21,7 +21,7 @@ def jwt_required_conditional(fn):
 def get_user_data():
     """
     Getting user data from the user data file.
-    Used by many functions in user_management.py and reregistration.py.
+    Used by many functions in user_management.py, reregistration.py and routes.py.
     """
     file_path = os.path.join(current_app.config['FETCHER_FOLDER'], 'data', 'user.json')
     if os.path.exists(file_path):
