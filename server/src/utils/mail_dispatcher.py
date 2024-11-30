@@ -16,12 +16,16 @@ SMTP_PORT = 25
 def is_valid_email(email):
     """
     Basic email validation just based on format. SMTP exceptions didn't work.
+    Used by send_email().
     """
     pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
     return re.match(pattern, email) is not None
 
 def send_email(to_email, subject, body):
-    """Core helper function to send an email."""
+    """
+    Core helper function to send an email. Used by send_welcome_email(),
+    send_reregister_request_email() and send_reregister_confirmation_email().
+    """
     sender = current_app.config['SMTP_SENDER']
 
     if not sender:
@@ -57,7 +61,7 @@ def send_email(to_email, subject, body):
 def send_welcome_email(request, password):
     """
     Creates and sends welcome email. Called by user_management.register().
-    Sending the password over in plaintext is unsecure but PO specifically requested it.
+    Sending the password over in plaintext is unsecure but it was specifically requested.
     """
     host_url = request.host_url
     to_email = request.json.get('email')
@@ -77,7 +81,8 @@ University of Helsinki, Digital and Computational Methods
 def send_reregister_request_email(host_url, to_email, reregister_link):
     """
     Creates and sends reregister request email.
-    Called by reregistration.request_reregister(), where it gets the email at.
+    Called by reregistration.request_reregister(), where it gets the email at via
+    auth_utils.get_user_data() rather than request (which for this contains no data).
     """
     subject = "Renew your UH-DCM News Article Collector user details"
     body = f"""

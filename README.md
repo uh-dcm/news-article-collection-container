@@ -126,7 +126,7 @@ After this, you can access the website at [http://localhost:4000/](http://localh
 Press CTRL+C in the terminal for graceful shutdown.
 
 Then either of the following:
-1. `docker compose stop` for stopping the container without removing it, after which it can be started again with `docker compose start`
+1. `docker compose start` if you want to start it again, and then `docker compose stop` to stop it once more
 2. `docker compose down` for stopping and removing the container and its Docker network, and with flag `--rmi all` if you want to remove the image as well.
 
 ## Setting up dev environment

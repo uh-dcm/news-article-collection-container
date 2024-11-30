@@ -1,6 +1,6 @@
-# flask (note that flask-cors doesn't have 4.0.1 set because it has a vulnerability)
+# flask
 flask==3.0.3
-flask-cors
+flask-cors==5.0.0
 flask_jwt_extended==4.6.0
 
 # authentication

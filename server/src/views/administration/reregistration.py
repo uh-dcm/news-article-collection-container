@@ -1,5 +1,6 @@
 """
-Handles user detail reregistration functionality. Called by routes.py.
+Handles user detail reregistration functionality, although generally just the validation
+while user_management handles the actual reregistration. Called by routes.py.
 """
 from flask import jsonify, request, current_app
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
@@ -27,7 +28,6 @@ def request_reregister():
         "msg": "Reregistration link generated",
     }
 
-    # negates out testing and development when there is not SMTP_SENDER
     if not current_app.config['TESTING'] and current_app.config['SMTP_SENDER']:
         try:
             send_reregister_request_email(request.host_url, user_data['email'], reregister_link)
@@ -45,7 +45,7 @@ def request_reregister():
 
 def validate_reregister_token(token):
     """
-    Reregister token validification including expiration.
+    Validification of the reregister token, including expiration time limit.
     Called by routes.init_routes() for route /api/validate_reregister_token/-token-.
     """
     serializer = URLSafeTimedSerializer(current_app.config['REREGISTER_SECRET_KEY'])

@@ -67,7 +67,7 @@ spec:
               cpu: 100m  # CUSTOMIZE: Adjust size as needed
               memory: 1Gi  # CUSTOMIZE: Adjust size as needed
             limits:
-              cpu: 1Gi  # CUSTOMIZE: Adjust size as needed, max 4000m
+              cpu: 500m  # CUSTOMIZE: Adjust size as needed, max 4000m
               memory: 16Gi  # CUSTOMIZE: Adjust size as needed, max 16gi
           volumeMounts:
             - name: news-collection-data
